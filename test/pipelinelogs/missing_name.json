@@ -1,0 +1,9 @@
+{
+  "problem_id": "o_185",
+  "pipeline_rank": 2,
+  "primitives": [
+    "preprocessing.label_encoder",
+    "select_percentile",
+    "logistic_regression"
+  ]
+}

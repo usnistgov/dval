@@ -1,0 +1,8 @@
+{
+  "problem_id": "o_185",
+  "pipeline_rank": 2,
+  "name": "o_185_LR",
+  "primitives": [
+    "logistic_regression"
+  ]
+}
