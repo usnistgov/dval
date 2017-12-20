@@ -28,16 +28,30 @@ Option 1: Using the Predictions class
 >>> p = Predictions(result_file_path, path_to_score_root)
 >>> p.is_valid()
 True
->>> p.score(groundtruth_path)
+>>> scores = p.score(groundtruth_path)
+>>> scores
+[Score(target='Hall_Of_Fame', metric='f1', scorevalue=0.691369766848)]
+>>> scores[0]['scorevalue']
 0.691369766848
 ```
+
+with the Score object being a named tuple defined the following way
+```python
+Score = collections.namedtuple('Score', ['target', 'metric', 'scorevalue'])
+```
+
+If a problem schema describes multiple targets and/or multiple metrics, the `.score()` function will return a
+list of `Score` objects, one for each combination of `(target, metric)`.
 
 Option 2: Using the wrapper functions
 ```python
 >>> from predictions import is_predictions_file_valid, score_predictions_file
 >>> is_predictions_file_valid(result_file_path, path_to_score_root)
 True
->>> score_predictions_file(result_file_path, path_to_score_root, groundtruth_path)
+>>> scores = score_predictions_file(result_file_path, path_to_score_root, groundtruth_path)
+>>> scores
+[Score(target='Hall_Of_Fame', metric='f1', scorevalue=0.691369766848)]
+>>> scores[0]['scorevalue']
 0.691369766848
 ```
 
