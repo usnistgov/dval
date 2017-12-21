@@ -5,7 +5,6 @@ Representations of v3 D3M schemas and data structures.
 import json
 from pathlib import Path
 
-import dpath.util
 import pandas
 
 
@@ -25,12 +24,17 @@ class DatasetSchema(Schema):
     """
 
     @property
+    def _learningDataColumns(self):
+        for dr in self.jdata['dataResources']:
+            if dr['resPath'] == 'tables/learningData.csv':
+                return dr['columns']
+
+    @property
     def index_name(self):
         """
         :return: the first index column found in the dataset schema
         """
-        columns = dpath.util.get(self.jdata, '/dataResources/*/columns')  # columns from all data resources
-        indexcolumns = (c['colName'] for c in columns if 'index' in c['role'])
+        indexcolumns = (c['colName'] for c in self._learningDataColumns if 'index' in c['role'])
         # assuming one index
         return indexcolumns.__next__()
 
@@ -43,9 +47,9 @@ class DatasetSchema(Schema):
         :rtype: dict
         """
         expected_fields = dict()
-        columns = dpath.util.get(self.jdata, '/dataResources/*/columns')
+
         target_colids = [t['colIndex'] for t in targets]
-        for c in columns:
+        for c in self._learningDataColumns:
             if c['colIndex'] in target_colids:
                 expected_fields[c['colName']] = c['colType']
         return expected_fields

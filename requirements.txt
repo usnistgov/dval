@@ -1,5 +1,4 @@
 pandas
 scikit-learn
-dpath
 scipy
 testfixtures
