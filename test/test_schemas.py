@@ -36,6 +36,10 @@ class TestD3MDataStructure(unittest.TestCase):
 
     def testInit(self):
         self.assertEqual(self.obj.problemschema.metrics, ['f1Macro'])
+        self.assertEqual(self.obj.problemschema.metrics_wparams[0]['name'], 'f1Macro')
+        self.assertEqual(self.obj.problemschema.metrics_wparams[0]['params'], dict())
+        self.assertEqual(len(self.obj.problemschema.metrics), 1)
+        self.assertEqual(len(self.obj.problemschema.metrics_wparams), 1)
         self.assertEqual(self.obj.dataschema.index_name, 'd3mIndex')
 
     def testGetAttr(self):
