@@ -79,6 +79,36 @@ class ProblemSchema(Schema):
     def metrics(self):
         return [l['metric'] for l in self.jdata['inputs']['performanceMetrics']]
 
+    @property
+    def metrics_wparams(self):
+        """
+        Produces a list of metrics with any (optional) parameters.
+
+        If the only key in /inputs/performanceMetrics[i] is 'metrics', there are no paramaters
+        and metrics_wparams[i]['params'] is an empty dict.
+        Any other key than 'metrics' is treated as a parameter. This handles non-default K values, and
+        any future additions.
+
+        Use with metrics.apply_metric:
+
+        >>> import metrics
+        >>> metrics.apply_metric(metrics_wparams['name'], **metrics_wparams['params'])
+
+        :return: list of dictionaries { 'name': metric_name, 'params': dict_of_params }
+        :rtype: list<dict>
+        """
+        performanceMetrics = self.jdata['inputs']['performanceMetrics']
+        metric_name_key = 'metric'
+        exclude_from_params = [metric_name_key]
+        metrics_wparams = list()
+        for metric_d in performanceMetrics:
+            metrics_wparams.append({
+                'name': metric_d[metric_name_key],
+                # all keys of /inputs/performanceMetric[i] are considered parameteres except for 'metric'
+                'params': {k: metric_d[k] for k in metric_d.keys() if k not in exclude_from_params}
+            })
+        return metrics_wparams
+
 
 class D3MDataStructure:
     """

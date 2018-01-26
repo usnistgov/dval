@@ -69,16 +69,18 @@ class Predictions:
         Score = namedtuple('Score', ['target', 'metric', 'scorevalue'])
 
         self.ds.load_targets(targets_filepath)
-        scoring_metrics = self.ds.metrics
+        # scoring_metrics = self.ds.metrics
+        scoring_metrics = self.ds.problemschema.metrics_wparams
 
         for metric in scoring_metrics:
-            if not valid_metric(metric):
+            if not valid_metric(metric['name']):
                 logging.error(
                     f'Invalid metric {metric}.\nAvailable metrics: {METRICS_DICT.keys()}')
                 continue
 
             for target in self.ds.target_names:
-                score = Score(target, metric, apply_metric(metric, self.ds.targets_df[target], self.frame[target]))
+                score = Score(target, metric['name'],
+                              apply_metric(metric['name'], self.ds.targets_df[target], self.frame[target], **metric['params']))
                 scores.append(score)
 
         return scores
