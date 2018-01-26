@@ -88,47 +88,54 @@ def _binarize(ground, pred, pos_label=None):
     else:
         return binary_ground, binary_pred
 
+def precision_at_top_K_meta(gt, preds, K=20):
+    def precision_at_top_K(gt, preds, K):
+        """
+        This function examines the first K entries of a
+        ground truth vector (gt) and predicted labels (preds)
+        and determines how many values are shared between them.
+        The result is then scaled by K to get the accuracy at top K.
 
-def precision_at_top_K(gt, preds, K=20):
-    """
-    This function examines the first K entries of a
-    ground truth vector (gt) and predicted labels (preds)
-    and determines how many values are shared between them.
-    The result is then scaled by K to get the accuracy at top K.
+        Parameters:
+        -----------
+        gt: 1d array-like
+            Array of ground truth labels.
 
-    Parameters:
-    -----------
-    gt: 1d array-like
-        Array of ground truth labels.
+        preds: 1d array-like
+            Array of predicted labels.
 
-    preds: 1d array-like
-        Array of predicted labels.
+        K: int, 20 by default
+            The number of samples to use when computing the accuracy.
 
-    K: int, 20 by default
-        The number of samples to use when computing the accuracy.
-
-    Returns:
-    --------
-    prec_at_top_K: float
-        The number of labels shared between the ground truth and
-        the predictions divided by K.
+        Returns:
+        --------
+        prec_at_top_K: float
+            The number of labels shared between the ground truth and
+            the predictions divided by K.
 
 
-    Example:
-        >>> gt = [0, 1, 2, 3, 4]
-        >>> pred = [1, 3, 2, 4, 0]
+        Example:
+            >>> gt = [0, 1, 2, 3, 4]
+            >>> pred = [1, 3, 2, 4, 0]
 
-        >>> precision_at_top_K(gt, pred, K=3)
-        0.667
+            >>> precision_at_top_K(gt, pred, K=3)
+            0.667
 
-        >>> precision_at_top_K(gt, pred, K=4)
-        0.75
-    """
+            >>> precision_at_top_K(gt, pred, K=4)
+            0.75
+        """
 
-    gt = gt[0:K]
-    preds = preds[0:K]
-    prec_at_top_K = np.float(len(np.intersect1d(gt, preds))) / K
-    return prec_at_top_K
+        gt = gt[0:K]
+        preds = preds[0:K]
+        prec_at_top_K = np.float(len(np.intersect1d(gt, preds))) / K
+        return prec_at_top_K
+
+    # sort preds indice
+    pred_indices = np.argsort(preds)[::-1]
+    # sort gt indices
+    gt_indices =  np.argsort(gt)[::-1]
+
+    return precision_at_top_K(gt_indices, pred_indices, K=K)
 
 
 def valid_metric(metric):
@@ -154,5 +161,5 @@ METRICS_DICT = {
     'rSquared': r2,
     'normalizedMutualInformation': norm_mut_info,
     'jaccardSimilarityScore': jacc_sim,
-    'precisionAtTopK': precision_at_top_K
+    'precisionAtTopK': precision_at_top_K_meta
 }
