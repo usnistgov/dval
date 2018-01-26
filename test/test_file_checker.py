@@ -17,12 +17,12 @@ class TestFileChecker(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        os.chmod(os.path.join(results_path, 'cant_read_results.csv'), 000)
+        os.chmod(os.path.join(results_path, 'cant_read_results.csv'), 0o000)
 
 
     @classmethod
     def tearDownClass(cls):
-        os.chmod(os.path.join(results_path, 'cant_read_results.csv'), 444)
+        os.chmod(os.path.join(results_path, 'cant_read_results.csv'), 0o444)
 
 
     def testRaiseFileNotFound1(self):
