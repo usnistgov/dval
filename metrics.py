@@ -8,6 +8,7 @@ All metrics used in the D3M Program, mapped to their function.
 
 import sklearn.metrics as skm
 from sklearn.preprocessing import LabelBinarizer
+import numpy as np
 
 
 def accuracy(ground_truth, predicted):
@@ -88,6 +89,48 @@ def _binarize(ground, pred, pos_label=None):
         return binary_ground, binary_pred
 
 
+def precision_at_top_K(gt, preds, K=20):
+    """
+    This function examines the first K entries of a
+    ground truth vector (gt) and predicted labels (preds)
+    and determines how many values are shared between them.
+    The result is then scaled by K to get the accuracy at top K.
+
+    Parameters:
+    -----------
+    gt: 1d array-like
+        Array of ground truth labels.
+
+    preds: 1d array-like
+        Array of predicted labels.
+
+    K: int, 20 by default
+        The number of samples to use when computing the accuracy.
+
+    Returns:
+    --------
+    prec_at_top_K: float
+        The number of labels shared between the ground truth and
+        the predictions divided by K.
+
+
+    Example:
+        >>> gt = [0, 1, 2, 3, 4]
+        >>> pred = [1, 3, 2, 4, 0]
+
+        >>> precision_at_top_K(gt, pred, K=3)
+        0.667
+
+        >>> precision_at_top_K(gt, pred, K=4)
+        0.75
+    """
+
+    gt = gt[0:K]
+    preds = preds[0:K]
+    prec_at_top_K = np.float(len(np.intersect1d(gt, preds))) / K
+    return prec_at_top_K
+
+
 def valid_metric(metric):
     return metric in METRICS_DICT
 
@@ -110,5 +153,6 @@ METRICS_DICT = {
     'meanAbsoluteError': l1,
     'rSquared': r2,
     'normalizedMutualInformation': norm_mut_info,
-    'jaccardSimilarityScore': jacc_sim
+    'jaccardSimilarityScore': jacc_sim,
+    'precisionAtTopK': precision_at_top_K
 }
