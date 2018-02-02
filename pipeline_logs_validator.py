@@ -11,8 +11,8 @@ True
 import json
 import logging
 
-from file_checker import FileChecker
-from validation_type_checks import is_castable_to_type
+from .file_checker import FileChecker
+from .validation_type_checks import is_castable_to_type
 
 
 class PipelineLog(dict):

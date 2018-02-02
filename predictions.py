@@ -30,10 +30,10 @@ from pathlib import Path
 import logging
 import pandas
 
-import schemas
-from file_checker import FileChecker
-from metrics import METRICS_DICT, valid_metric, apply_metric
-from validation_type_checks import valid_d3mindex, valid_boolean, valid_real, valid_integer, valid_string, \
+from . import schemas
+from .file_checker import FileChecker
+from .metrics import METRICS_DICT, valid_metric, apply_metric
+from .validation_type_checks import valid_d3mindex, valid_boolean, valid_real, valid_integer, valid_string, \
     valid_categorical, valid_datetime
 
 
