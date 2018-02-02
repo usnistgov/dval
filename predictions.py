@@ -160,10 +160,13 @@ def is_predictions_file_valid(result_file, score_dir_path):
     return Predictions(result_file, score_dir_path).is_valid()
 
 
-def score_predictions_file(result_file, score_dir_path, groundtruth_path):
+def score_predictions_file(result_file, score_dir_path, groundtruth_path, check_valid=True):
     predictions = Predictions(result_file, score_dir_path)
-    if not predictions.is_valid():
+    if check_valid and not predictions.is_valid():
         logging.error('Invalid predictions file')
-        exit(1)
+        raise InvalidPipelineError('Invalid predictions file')
 
     return predictions.score(groundtruth_path)
+
+class InvalidPipelineError(Exception):
+    pass
