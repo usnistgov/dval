@@ -88,6 +88,7 @@ def _binarize(ground, pred, pos_label=None):
     else:
         return binary_ground, binary_pred
 
+
 def precision_at_top_K_meta(gt, preds, K=20):
     def precision_at_top_K(gt, preds, K):
         """
@@ -133,7 +134,7 @@ def precision_at_top_K_meta(gt, preds, K=20):
     # sort preds indice
     pred_indices = np.argsort(preds)[::-1]
     # sort gt indices
-    gt_indices =  np.argsort(gt)[::-1]
+    gt_indices = np.argsort(gt)[::-1]
 
     return precision_at_top_K(gt_indices, pred_indices, K=K)
 

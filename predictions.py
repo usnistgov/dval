@@ -167,4 +167,3 @@ def score_predictions_file(result_file, score_dir_path, groundtruth_path):
         exit(1)
 
     return predictions.score(groundtruth_path)
-

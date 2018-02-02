@@ -3,6 +3,7 @@ from pathlib import Path
 
 from .. import schemas
 
+
 class TestProblemSchema(unittest.TestCase):
 
     @classmethod
@@ -20,12 +21,14 @@ class TestProblemSchema(unittest.TestCase):
     def testTargetNames(self):
         self.assertEqual(self.baseballProblemSchema.target_names, ['Hall_of_Fame'])
 
+
 class TestDatasetSchema(unittest.TestCase):
 
     def testIndex(self):
         path = Path(__file__).parent / 'data/185_baseball/dataset_TEST/datasetDoc.json'
         baseball_dataset_schema = schemas.DatasetSchema(path)
         self.assertEqual(baseball_dataset_schema.index_name, 'd3mIndex')
+
 
 class TestD3MDataStructure(unittest.TestCase):
 
@@ -49,6 +52,7 @@ class TestD3MDataStructure(unittest.TestCase):
 
     def testTargetTypes(self):
         self.assertEqual(self.obj.target_types, {'Hall_of_Fame': 'categorical'})
+
 
 if __name__ == '__main__':
     unittest.main()
