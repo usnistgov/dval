@@ -3,6 +3,7 @@ from pathlib import Path
 
 from predictions import Predictions
 
+
 class TestPredictions(unittest.TestCase):
 
     @classmethod
@@ -19,11 +20,9 @@ class TestPredictions(unittest.TestCase):
                 path_to_score_root=d
             )
 
-
     def testIsValid(self):
         for name, test_case in self.test_cases.items():
             self.assertTrue(test_case.is_valid())
-
 
     def testScore(self):
         for name, test_case in self.test_cases.items():

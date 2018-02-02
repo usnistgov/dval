@@ -2,6 +2,7 @@ import os
 
 import logging
 
+
 class FileChecker(object):
 
     def __init__(self, path):

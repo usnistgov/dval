@@ -7,6 +7,7 @@ PREDICTED_BEST = [0.5, 6, 2, 5.6]
 PREDICTED_OK = [0.0, 7.2, 2.1, 4.7]
 PREDICTED_BAD = [5435, -45, 45646, 34]
 
+
 class TestL2(unittest.TestCase):
 
     def runTest(self):
@@ -29,6 +30,7 @@ class TestL2(unittest.TestCase):
 
         self.assertAlmostEqual(22983.210903885905, METRICS_DICT['rootMeanSquaredError'](GROUND_TRUTH, PREDICTED_BAD))
 
+
 class TestAvgL2(unittest.TestCase):
 
     def runTest(self):
@@ -45,6 +47,7 @@ class TestAvgL2(unittest.TestCase):
         self.assertAlmostEqual(total_score, avg_l2(gt, pred))
 
         self.assertAlmostEqual(total_score, METRICS_DICT['rootMeanSquaredErrorAvg'](gt, pred))
+
 
 class TestL1(unittest.TestCase):
 
@@ -68,6 +71,7 @@ class TestL1(unittest.TestCase):
 
         self.assertAlmostEqual(12789.475, METRICS_DICT['meanAbsoluteError'](GROUND_TRUTH, PREDICTED_BAD))
 
+
 class TestR2(unittest.TestCase):
 
     def runTest(self):
@@ -89,6 +93,7 @@ class TestR2(unittest.TestCase):
         self.assertAlmostEqual(-96446966.194339842, r2(GROUND_TRUTH, PREDICTED_BAD))
 
         self.assertAlmostEqual(-96446966.194339842, METRICS_DICT['rSquared'](GROUND_TRUTH, PREDICTED_BAD))
+
 
 if __name__ == '__main__':
     unittest.main()

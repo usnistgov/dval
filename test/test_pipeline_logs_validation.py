@@ -6,6 +6,7 @@ from pipeline_logs_validator import PipelineLog
 
 logging.disable(logging.CRITICAL)
 
+
 class TestPipelineLogsValidation(unittest.TestCase):
 
     @classmethod

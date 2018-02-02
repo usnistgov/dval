@@ -19,11 +19,9 @@ class TestFileChecker(unittest.TestCase):
     def setUpClass(cls):
         os.chmod(os.path.join(results_path, 'cant_read_results.csv'), 0o000)
 
-
     @classmethod
     def tearDownClass(cls):
         os.chmod(os.path.join(results_path, 'cant_read_results.csv'), 0o444)
-
 
     def testRaiseFileNotFound1(self):
         path = os.path.join(results_path, 'nonexistant_results.csv')
@@ -32,14 +30,12 @@ class TestFileChecker(unittest.TestCase):
             fc = FileChecker(path)
             fc.check_exists_read('result_path')
 
-
     def testRaiseOnNoReadAccess1(self):
         path = os.path.join(results_path, 'cant_read_results.csv')
 
         with self.assertRaises(Exception):
             fc = FileChecker(path)
             fc.check_exists_read('result_path')
-
 
     def testNoExceptionsAndTrueWhenExistsAndRead1(self):
         path = os.path.join(results_path, 'existant_results.csv')
