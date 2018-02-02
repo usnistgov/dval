@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
 
-from predictions import Predictions
+from ..predictions import Predictions
 
 class TestPredictions(unittest.TestCase):
 

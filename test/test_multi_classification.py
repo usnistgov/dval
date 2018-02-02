@@ -1,6 +1,6 @@
 import unittest
 
-from metrics import f1_micro, f1_macro, roc_auc_micro, roc_auc_macro, jacc_sim, METRICS_DICT
+from ..metrics import f1_micro, f1_macro, roc_auc_micro, roc_auc_macro, jacc_sim, METRICS_DICT
 
 GROUND_TRUTH = ['a', 'b', 'a', 'b', 'c', 'a', 'a', 'b', 'a', 'c', 'c', 'b']
 PREDICTED_BEST = ['a', 'b', 'a', 'b', 'c', 'a', 'a', 'b', 'a', 'c', 'c', 'b']

@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
 
-import schemas
+from .. import schemas
 
 class TestProblemSchema(unittest.TestCase):
 
