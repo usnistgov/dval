@@ -6,9 +6,9 @@ All metrics used in the D3M Program, mapped to their function.
 0.42
 """
 
+import numpy as np
 import sklearn.metrics as skm
 from sklearn.preprocessing import LabelBinarizer
-import numpy as np
 
 
 def accuracy(ground_truth, predicted):

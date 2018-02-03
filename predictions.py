@@ -24,10 +24,10 @@ True
 0.691369766848
 """
 
+import logging
 from collections import namedtuple
 from pathlib import Path
 
-import logging
 import pandas
 
 from . import schemas
@@ -167,6 +167,7 @@ def score_predictions_file(result_file, score_dir_path, groundtruth_path, check_
         raise InvalidPipelineError('Invalid predictions file')
 
     return predictions.score(groundtruth_path)
+
 
 class InvalidPipelineError(Exception):
     pass
