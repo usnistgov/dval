@@ -78,6 +78,10 @@ class Predictions:
                     f'Invalid metric {metric}.\nAvailable metrics: {METRICS_DICT.keys()}')
                 continue
 
+            if metric == 'f1' and 'pos_label' not in metric['params']:
+                # no pos_label specified for metric f1, setting to '1'
+                metric['params']['pos_label'] = '1'
+
             for target in self.ds.target_names:
                 score = Score(target, metric['name'],
                               apply_metric(metric['name'], self.ds.targets_df[target], self.frame[target], **metric['params']))
