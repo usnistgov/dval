@@ -53,7 +53,7 @@ def avg_l2(ground_truth_l, predicted_l):
     l2_sum = 0.0
     count = 0
     for pair in zip(ground_truth_l, predicted_l):
-        l2_sum += l2(pair[0], pair[1])
+        l2_sum += l2([pair[0]], [pair[1]])
         count += 1
     return l2_sum / count
 
