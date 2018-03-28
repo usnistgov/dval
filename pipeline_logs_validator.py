@@ -4,7 +4,7 @@ Validate a pipeline log file (TA2 search output).
 Usage:
 
 >>> from pipeline_logs_validator import PipelineLog
->>> PipelineLog(filepath).is_valid()
+>>> PipelineLog('path/to/my.json').is_valid()
 True
 """
 
