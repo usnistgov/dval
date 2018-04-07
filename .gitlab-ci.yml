@@ -1,5 +1,5 @@
 build:
-  image: pullregistry.datadrivendiscovery.org/nist/registry/python:3.6.5-slim
+  image: python:3.6.5-slim
 
   script:
     - pip install .
@@ -8,7 +8,7 @@ build:
     - refactor
 
 tests:
-  image: pullregistry.datadrivendiscovery.org/nist/registry/python:3.6.5-slim
+  image: python:3.6.5-slim
 
   script:
     - python -m unittest discovery
