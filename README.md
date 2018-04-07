@@ -2,7 +2,7 @@
 
 :warning: this is the `README` file for the refactored version of the validation and
 scoring code, made into a package called `d3m_outputs`.
-
+dD
 This repository contains the NIST validation and scoring code components for the D3M evaluation.
 
 In order to run the tests, it is required to use **python version >3.6**.
@@ -18,6 +18,19 @@ In order to run the tests, it is required to use **python version >3.6**.
 
 Download the seed datasets at [https://datadrivendiscovery.org/data/seed_datasets_current/]. Each problem/dataset has a `SCORE` folder that contains this structure.
 
+### Installation
+
+```
+git clone git@gitlab.datadrivendiscovery.org:nist/nist_eval_output_validation_scoring.git
+cd nist_eval_output_validation_scoring
+pip install .
+```
+
+To updgrade from a previous version
+
+```
+pip install -U .
+```
 ### Usage
 
 ```python
