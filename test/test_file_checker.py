@@ -3,6 +3,8 @@ import os
 import unittest
 
 import logging
+import getpass
+
 
 from d3m_outputs.file_checker import FileChecker
 
@@ -34,9 +36,10 @@ class TestFileChecker(unittest.TestCase):
     def testRaiseOnNoReadAccess1(self):
         path = os.path.join(results_path, 'cant_read_results.csv')
 
-        with self.assertRaises(Exception):
-            fc = FileChecker(path)
-            fc.check_exists_read('result_path')
+        if getpass.getuser() != 'root':
+            with self.assertRaises(Exception):
+                fc = FileChecker(path)
+                fc.check_exists_read('result_path')
 
     def testNoExceptionsAndTrueWhenExistsAndRead1(self):
         path = os.path.join(results_path, 'existant_results.csv')
