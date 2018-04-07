@@ -1,16 +1,8 @@
-build:
-  image: python:3.6.5-slim
-
-  script:
-    - pip install .
-
-  only:
-    - refactor
-
 tests:
   image: python:3.6.5-slim
 
   script:
+    - pip install .
     - python -m unittest discover
 
   only:
