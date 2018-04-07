@@ -11,7 +11,7 @@ tests:
   image: python:3.6.5-slim
 
   script:
-    - python -m unittest discovery
+    - python -m unittest discover
 
   only:
     - refactor
