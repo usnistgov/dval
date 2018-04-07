@@ -20,6 +20,7 @@ Download the seed datasets at [https://datadrivendiscovery.org/data/seed_dataset
 ```python
 path_to_score_root = 'test/data/185_baseball_SCORE'
 groundtruth_path = 'test/data/185_baseball_SCORE/targets.csv'
+result_file_path = 'test/data/185_baseball_SCORE/mitll_predictions.csv'
 ```
 
 Option 1: Using the Predictions class
