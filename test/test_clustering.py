@@ -1,6 +1,6 @@
 import unittest
 
-from ..metrics import norm_mut_info, METRICS_DICT
+from d3m_outputs.metrics import norm_mut_info, METRICS_DICT
 
 GROUND_TRUTH = ['a', 'b', 'a', 'b', 'c', 'a', 'a', 'b', 'a', 'c', 'c', 'b']
 PREDICTED_BEST = ['a', 'b', 'a', 'b', 'c', 'a', 'a', 'b', 'a', 'c', 'c', 'b']

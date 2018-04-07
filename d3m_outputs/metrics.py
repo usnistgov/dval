@@ -1,8 +1,10 @@
 """
 All metrics used in the D3M Program, mapped to their function.
+>>> from d3m_outputs.metrics import apply_metric
+>>> groundtruth_file = 'test/data/185_baseball_SCORE/targets.csv'
+>>> predictions_file = 'test/data/185_baseball_SCORE/mitll_predictions.csv'
 
->>> from metrics import apply_metric
->>> apply_metric('rootMeanSquaredError', ground_truth, predicted)
+>>> apply_metric('rootMeanSquaredError', groundtruth_file, predictions_file)
 0.42
 """
 

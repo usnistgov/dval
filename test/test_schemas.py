@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
 
-from .. import schemas
+from d3m_outputs import schemas
 
 
 class TestProblemSchema(unittest.TestCase):

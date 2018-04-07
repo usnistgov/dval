@@ -2,7 +2,7 @@ import logging
 import unittest
 from pathlib import Path
 
-from ..pipeline_logs_validator import PipelineLog
+from d3m_outputs.pipeline_logs_validator import PipelineLog
 
 logging.disable(logging.CRITICAL)
 

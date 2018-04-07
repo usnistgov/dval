@@ -91,8 +91,8 @@ class ProblemSchema(Schema):
 
         Use with metrics.apply_metric:
 
-        >>> import metrics
-        >>> metrics.apply_metric(metrics_wparams['name'], **metrics_wparams['params'])
+        >>> from d3m_outputs.metrics import apply_metric
+        >>> apply_metric(metrics_wparams['name'], **metrics_wparams['params'])
 
         :return: list of dictionaries { 'name': metric_name, 'params': dict_of_params }
         :rtype: list<dict>

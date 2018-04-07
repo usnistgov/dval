@@ -9,19 +9,19 @@ USAGE:
 >>> groundtruth_path = 'test/data/185_baseball_SCORE/targets.csv'
 
 Option 1: Using the Predictions class
->>> from predictions import Predictions
+>>> from d3m_outputs.predictions import Predictions
 >>> p = Predictions(result_file_path, path_to_score_root)
 >>> p.is_valid()
 True
 >>> p.score(groundtruth_path)
-0.691369766848
+[Score(target='Hall_Of_Fame', metric='f1', scorevalue=0.691369766848)]
 
 Option 2: Using the wrapper functions
->>> from predictions import is_predictions_file_valid, score_predictions_file
+>>> from d3m_outputs.predictions import is_predictions_file_valid, score_predictions_file
 >>> is_predictions_file_valid(result_file_path, path_to_score_root)
 True
 >>> score_predictions_file(result_file_path, path_to_score_root, groundtruth_path)
-0.691369766848
+[Score(target='Hall_Of_Fame', metric='f1', scorevalue=0.691369766848)]
 """
 
 import logging

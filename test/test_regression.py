@@ -1,6 +1,6 @@
 import unittest
 
-from ..metrics import l2, avg_l2, l1, r2, METRICS_DICT
+from d3m_outputs.metrics import l2, avg_l2, l1, r2, METRICS_DICT
 
 GROUND_TRUTH = [0.5, 6, 2, 5.6]
 PREDICTED_BEST = [0.5, 6, 2, 5.6]

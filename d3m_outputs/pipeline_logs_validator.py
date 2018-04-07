@@ -3,7 +3,7 @@ Validate a pipeline log file (TA2 search output).
 
 Usage:
 
->>> from pipeline_logs_validator import PipelineLog
+>>> from d3m_outputs.pipeline_logs_validator import PipelineLog
 >>> PipelineLog('path/to/my.json').is_valid()
 True
 """

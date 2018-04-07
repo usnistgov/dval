@@ -1,5 +1,8 @@
 # NIST Validation and Scoring code
 
+:warning: this is the `README` file for the refactored version of the validation and
+scoring code, made into a package called `d3m_outputs`.
+
 This repository contains the NIST validation and scoring code components for the D3M evaluation.
 
 In order to run the tests, it is required to use **python version >3.6**.
@@ -25,7 +28,7 @@ result_file_path = 'test/data/185_baseball_SCORE/mitll_predictions.csv'
 
 Option 1: Using the Predictions class
 ```python
->>> from predictions import Predictions
+>>> from d3m_outputs.predictions import Predictions
 >>> p = Predictions(result_file_path, path_to_score_root)
 >>> p.is_valid()
 True
@@ -46,7 +49,7 @@ list of `Score` objects, one for each combination of `(target, metric)`.
 
 Option 2: Using the wrapper functions
 ```python
->>> from predictions import is_predictions_file_valid, score_predictions_file
+>>> from d3m_outputs.predictions import is_predictions_file_valid, score_predictions_file
 >>> is_predictions_file_valid(result_file_path, path_to_score_root)
 True
 >>> scores = score_predictions_file(result_file_path, path_to_score_root, groundtruth_path)
@@ -72,7 +75,7 @@ Checks that the validation code does on the prediction file include:
 ### Usage
 
 ```python
->>> from pipeline_logs_validator import PipelineLog
+>>> from d3m_outputs.pipeline_logs_validator import PipelineLog
 >>> PipelineLog('path/to/my.json').is_valid()
 True
 ```

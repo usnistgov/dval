@@ -1,6 +1,6 @@
 import unittest
 
-from ..metrics import accuracy, f1, roc_auc, METRICS_DICT
+from d3m_outputs.metrics import accuracy, f1, roc_auc, METRICS_DICT
 
 GROUND_TRUTH = [1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1]
 GROUND_TRUTH_LABEL = ['a', 'a', 'b', 'a', 'a', 'b', 'b', 'b', 'a', 'b', 'a', 'a']

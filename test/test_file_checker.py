@@ -4,7 +4,7 @@ import unittest
 
 import logging
 
-from ..file_checker import FileChecker
+from d3m_outputs.file_checker import FileChecker
 
 logging.disable(logging.CRITICAL)
 
