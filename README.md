@@ -26,12 +26,49 @@ cd nist_eval_output_validation_scoring
 pip install .
 ```
 
-To updgrade from a previous version
+To upgrade from a previous version
 
 ```
 pip install -U .
 ```
-### Usage
+
+### CLI Usage
+
+#### Validate a pipeline log
+```
+d3m_outputs valid_pipelines pipeline_log_file [pipeline_log_file ...]
+```
+Parameters:
+* `pipeline_log_file`: path to the predictions file to validate
+
+For example
+`d3m_outputs valid_pipelines mylog1.json mylog2.json`
+
+In shells like bash, you can also do : `d3m_outputs valid_pipelines *.json`
+
+#### Validate a predictions file
+
+```
+d3m_outputs valid_predictions -d score_dir predictions_file [predictions_file ...]
+```
+Parameters:
+* `score_dir`: path to the directory described in Section Requirements. Use the `SCORE` directory of the seed datasets.
+* `predictions_file`: path to the predictions file to validate
+
+#### Score a predictions file
+
+```
+d3m_outputs score -d score_dir [-g ground_truth_file] [--validation | --no-validation] predictions_file [predictions_file ...]
+```
+
+Parameters:
+* `score_dir`: path to the directory described in Section Requirements. Use the `SCORE` directory of the seed datasets.
+* `ground_truth_file`: path to the ground truth file. If absent, will default to `score_dir/targets.csv`
+* `predictions_file`: path to the predictions file to score
+* `--validation | --no-validation`: validation is on by default. turn in off with `--no-validation`
+
+
+### Code Usage
 
 ```python
 path_to_score_root = 'test/data/185_baseball_SCORE'
