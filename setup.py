@@ -47,4 +47,9 @@ def parse_requirements():
 check_python_version()
 requires, links = parse_requirements()
 
-setup(install_requires=requires)
+setup(install_requires=requires,
+      entry_points='''
+          [console_scripts]
+          d3moutputs=d3m_outputs.cli:main
+          d3m_outputs=d3m_outputs.cli:main
+      ''')
