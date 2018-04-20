@@ -1,4 +1,7 @@
-import pip
+try: # for pip >= 10
+    import pip._internal as pip
+except ImportError: # for pip <= 9.0.3
+    import pip
 import sys
 import os
 from setuptools import setup
