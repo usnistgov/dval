@@ -29,6 +29,8 @@ unittests:
   image:
     name: registry.datadrivendiscovery.org/$CI_PROJECT_PATH/ci:$CI_COMMIT_SHA
     entrypoint: ["python", "-m unittest", "discover"]
+  scripts:
+    - echo "if you got here, the tests succeeded"
 
 
 release:
