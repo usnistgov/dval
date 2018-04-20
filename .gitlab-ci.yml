@@ -1,9 +1,59 @@
-tests:
-  image: python:3.6.5-slim
+stages:
+  - build
+  - test
+  - release
+
+build:
+  stage: build
+  image: docker:stable
+  services:
+    - docker:dind
+
+  before_script:
+    - docker info
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.datadrivendiscovery.org
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN pullregistry.datadrivendiscovery.org
+
+  variables:
+    REG_PATH: registry.datadrivendiscovery.org/$CI_PROJECT_PATH
+    LATEST_CONTAINER_IMAGE: '$REG_PATH/d3m_outputs:latest'
+    CI_CONTAINER_IMAGE: '$REG_PATH/ci:$CI_COMMIT_SHA'
+    DOCKER_DRIVER: overlay2
 
   script:
-    - pip install .
+    - docker pull pull"$CONTAINER_IMAGE" || true
+    - docker build --cache-from $LATEST_CONTAINER_IMAGE --tag $CI_CONTAINER_IMAGE  .
+    - docker push $CI_CONTAINER_IMAGE
+    - echo $CI_CONTAINER_IMAGE
+
+
+unittests:
+stage: test
+  image: registry.datadrivendiscovery.org/ci:$CI_COMMIT_SHA
+  script:
     - python -m unittest discover
 
+
+release:
+  stage: release
+  image: docker:stable
+  services:
+    - docker:dind
+  before_script:
+    - docker info
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.datadrivendiscovery.org
+
+  variables:
+    REG_PATH: registry.datadrivendiscovery.org/$CI_PROJECT_PATH
+    LATEST_CONTAINER_IMAGE: '$REG_PATH/d3m_outputs:latest'
+    CI_CONTAINER_IMAGE: '$REG_PATH/ci:$CI_COMMIT_SHA'
+    DOCKER_DRIVER: overlay2
+
+  script:
+    - docker pull $CI_CONTAINER_IMAGE
+    - docker tag $CI_CONTAINER_IMAGE $LATEST_CONTAINER_IMAGE
+    - docker push $LATEST_CONTAINER_IMAGE
+
   only:
-    - refactor
+    - master
+
