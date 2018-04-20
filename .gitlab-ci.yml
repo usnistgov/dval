@@ -29,9 +29,9 @@ unittests:
   stage: test
   image:
     name: registry.datadrivendiscovery.org/$CI_PROJECT_PATH/ci:$CI_COMMIT_SHA
-    entrypoint: ["/bin/sh", "-c"]
+    entrypoint: ["/bin/sh", "-c 'python -m unittest discover'"]
   script:
-    - python -m unittest discover
+    - echo "done"
 
 
 release:
@@ -48,11 +48,13 @@ release:
     DOCKER_DRIVER: overlay2
 
   script:
-    - echo "destination image" $REG_PATH/d3m_outputs:latest
+    - echo "destination images" $REG_PATH/d3m_outputs:CI_COMMIT_TAG $REG_PATH/d3m_outputs:latest
     - docker pull $REG_PATH/ci:$CI_COMMIT_SHA
+    - docker tag $REG_PATH/ci:$CI_COMMIT_SHA $REG_PATH/d3m_outputs:$CI_COMMIT_TAG
     - docker tag $REG_PATH/ci:$CI_COMMIT_SHA $REG_PATH/d3m_outputs:latest
+    - docker push $REG_PATH/d3m_outputs:$CI_COMMIT_TAG
     - docker push $REG_PATH/d3m_outputs:latest
 
   only:
-    - master
+    - tags
 
