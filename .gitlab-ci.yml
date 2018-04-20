@@ -28,8 +28,8 @@ build:
 
 
 unittests:
-stage: test
-  image: registry.datadrivendiscovery.org/ci:$CI_COMMIT_SHA
+  stage: test
+  image: registry.datadrivendiscovery.org/$CI_PROJECT_PATH/ci:$CI_COMMIT_SHA
   script:
     - python -m unittest discover
 
