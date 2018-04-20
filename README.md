@@ -1,8 +1,5 @@
 # NIST Validation and Scoring code
 
-:warning: this is the `README` file for the refactored version of the validation and
-scoring code, made into a package called `d3m_outputs`.
-
 This repository contains the NIST validation and scoring code components for the D3M evaluation.
 
 In order to run the tests, it is required to use **python version >3.6**.
