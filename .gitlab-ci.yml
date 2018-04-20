@@ -16,13 +16,12 @@ build:
 
   variables:
     REG_PATH: registry.datadrivendiscovery.org/$CI_PROJECT_PATH
-    CI_CONTAINER_IMAGE: $REG_PATH/ci:$CI_COMMIT_SHA
     DOCKER_DRIVER: overlay2
 
   script:
-    - echo "destination image" $CI_CONTAINER_IMAGE
-    - docker build --tag $CI_CONTAINER_IMAGE  .
-    - docker push $CI_CONTAINER_IMAGE
+    - echo "destination image" $REG_PATH/ci:$CI_COMMIT_SHA
+    - docker build --tag $REG_PATH/ci:$CI_COMMIT_SHA  .
+    - docker push $REG_PATH/ci:$CI_COMMIT_SHA
 
 
 unittests:
@@ -43,14 +42,13 @@ release:
 
   variables:
     REG_PATH: registry.datadrivendiscovery.org/$CI_PROJECT_PATH
-    LATEST_CONTAINER_IMAGE: $REG_PATH/d3m_outputs:latest
-    CI_CONTAINER_IMAGE: $REG_PATH/ci:$CI_COMMIT_SHA
     DOCKER_DRIVER: overlay2
 
   script:
-    - docker pull $CI_CONTAINER_IMAGE
-    - docker tag $CI_CONTAINER_IMAGE $LATEST_CONTAINER_IMAGE
-    - docker push $LATEST_CONTAINER_IMAGE
+    - echo "destination image" $REG_PATH/d3m_outputs:latest
+    - docker pull $REG_PATH/ci:$CI_COMMIT_SHA
+    - docker tag $REG_PATH/ci:$CI_COMMIT_SHA $REG_PATH/d3m_outputs:latest
+    - docker push $REG_PATH/d3m_outputs:latest
 
   only:
     - master
