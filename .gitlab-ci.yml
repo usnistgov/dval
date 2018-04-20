@@ -21,6 +21,7 @@ build:
   script:
     - echo "destination image" $REG_PATH/ci:$CI_COMMIT_SHA
     - docker build --tag $REG_PATH/ci:$CI_COMMIT_SHA  .
+    - docker run $REG_PATH/ci:$CI_COMMIT_SHA -h  # display the help message
     - docker push $REG_PATH/ci:$CI_COMMIT_SHA
 
 
@@ -28,7 +29,7 @@ unittests:
   stage: test
   image:
     name: registry.datadrivendiscovery.org/$CI_PROJECT_PATH/ci:$CI_COMMIT_SHA
-    entrypoint: ["/bin/bash", "-c"]
+    entrypoint: ["/bin/sh", "-c"]
   script:
     - python -m unittest discover
 
