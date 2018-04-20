@@ -27,8 +27,7 @@ build:
 unittests:
   stage: test
   image: registry.datadrivendiscovery.org/$CI_PROJECT_PATH/ci:$CI_COMMIT_SHA
-  script:
-    - python -m unittest discover
+  entrypoint: ["python", "-m unittest", "discover"]
 
 
 release:
