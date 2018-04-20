@@ -20,7 +20,7 @@ build:
     DOCKER_DRIVER: overlay2
 
   script:
-    - echo "destination image": $CI_CONTAINER_IMAGE
+    - echo "destination image" $CI_CONTAINER_IMAGE
     - docker build --tag $CI_CONTAINER_IMAGE  .
     - docker push $CI_CONTAINER_IMAGE
 
