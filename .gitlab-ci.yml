@@ -20,7 +20,8 @@ build:
 
   script:
     - echo "destination image" $REG_PATH/ci:$CI_COMMIT_SHA
-    - docker build --tag $REG_PATH/ci:$CI_COMMIT_SHA  .
+    - docker pull "pull"$REG_PATH/d3m_outputs:latest || true
+    - docker build --cache-from $REG_PATH/d3m_outputs:latest --tag $REG_PATH/ci:$CI_COMMIT_SHA  .
     - docker run $REG_PATH/ci:$CI_COMMIT_SHA -h  # display the help message
     - docker push $REG_PATH/ci:$CI_COMMIT_SHA
 
@@ -29,9 +30,9 @@ unittests:
   stage: test
   image:
     name: registry.datadrivendiscovery.org/$CI_PROJECT_PATH/ci:$CI_COMMIT_SHA
-    entrypoint: ["/bin/sh", "-c 'python -m unittest discover'"]
+    entrypoint: [""]
   script:
-    - echo "done"
+    - python -m unittest discover
 
 
 release:
