@@ -55,7 +55,7 @@ class TestPostSearchValidation(unittest.TestCase):
 
             
             validator = PostSearchValidator(pipeline_directory, executable_directory, verbose=True)
-            validator.validate()
+            validator.validate(exit_on_error=False)
 
             self.assertEqual(validator.valid_pipelines, self.expected_valid_pipelines)
 
@@ -68,7 +68,7 @@ class TestPostSearchValidation(unittest.TestCase):
         executable_directory = self.testdir / 'executables'
 
         validator = PostSearchValidator(pipeline_directory, executable_directory, verbose=True)
-        validator.validate()
+        validator.validate(exit_on_error=False)
 
         self.assertEqual(validator.valid_pipelines, self.expected_valid_pipelines)
 
