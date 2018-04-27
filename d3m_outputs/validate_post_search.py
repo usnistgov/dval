@@ -10,7 +10,7 @@ Usage:
 
 
 """
-import os
+import os, sys
 import json
 import logging
 import glob
@@ -50,9 +50,12 @@ class PostSearchValidator(object):
     def add_valid_pipeline(self, pipeline):
         '''
         Append a new pipeline to the vaid_pipelines field, after checking the unicity of its rank
+        Returns True if the new pipeline has been appended
 
         :param pipeline:
         :type dict:
+        :rtype: bool
+
 
         '''
 
@@ -60,20 +63,29 @@ class PostSearchValidator(object):
 
         if pipeline['pipeline_rank'] in existing_ranks:
             logging.error(f'Ignoring pipeline {pipeline["name"]}: a pipeline with rank {pipeline["pipeline_rank"]} already exists')
+            return False
         else:
             logging.info(f'Adding pipeline {pipeline["name"]} as a valid pipeline')
 
             self.valid_pipelines.append(pipeline)
+            return True
 
 
-    def validate(self):
+    def validate(self, exit_on_error=True):
         '''
         Browse the pipeline directory, and validates each pipeline
         For each pipeline, checks the existence of the executable file it points to.
 
         Updates the valid_pipelines field with all valid pipelines and executables found
 
+        Exits with an error if exit_on_error is set to True
+
+        :param exit_on_error:
+        :type bool:
+
         '''
+
+        valid = True
 
         for root, dirs, files in os.walk(self.pipeline_directory):
 
@@ -83,6 +95,7 @@ class PostSearchValidator(object):
 
                 if not PipelineLog(pipeline_file_path).is_valid():
                     logging.error(f'Found invalid pipeline file at {pipeline_file_path}')
+                    valid = False
                     continue
 
                 with open(pipeline_file_path) as f:
@@ -93,10 +106,12 @@ class PostSearchValidator(object):
 
                     if len(executable_path) == 0:
                         logging.error(f'Cannot find the executable at {pipeline_file_path}')
+                        valid = False
                         continue
 
                     if len(executable_path) > 1:
                         logging.error(f'Found several executables at {pipeline_file_path}')
+                        valid = False
                         continue
 
                     logging.info(f'Checking executable {pipeline_file_path} pointed by pipeline {pipeline["name"]}')
@@ -107,13 +122,22 @@ class PostSearchValidator(object):
                         logging.info('Found valid executable')
                     else:
                         logging.error(f'Found invalid executable at {executable_path[0]}')
+                        valid = False
                         continue
 
 
                     self.add_valid_pipeline(pipeline)
 
+        else:
+            logging.error('Cannot find pipeline files in the specified folder')
+            valid = False
 
         logging.info(f'Valid pipelines pointing to a valid executable: {self.valid_pipelines}')
+
+        if exit_on_error and not valid:
+            logging.error('One or several error occured. Exiting.')
+            sys.exit(1)
+
 
             
 
