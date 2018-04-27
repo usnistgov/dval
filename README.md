@@ -52,6 +52,27 @@ Parameters:
 * `score_dir`: path to the directory described in Section Requirements. Use the `SCORE` directory of the seed datasets.
 * `predictions_file`: path to the predictions file to validate
 
+#### Validate all pipelines and executables
+
+```
+d3m_outputs validate_post_search -p pipeline_logs/directory -e executables/directory
+```
+Parameters:
+* `pipeline_logs/directory`: path to the directory containing the pipelines logs in a json format
+* `executables/directory`: path to the directory containing the executables referenced in the pipeline_logs directory
+
+#### Generate a script to run all the valid executables
+
+```
+d3m_outputs test_script -p pipeline_logs/directory -e executables/directory --predictions_dir predictions/directory -o /path/to/script.sh -c /path/to/config_test.json
+```
+Parameters:
+* `pipeline_logs/directory`: path to the directory containing the pipelines logs in a json format
+* `executables/directory`: path to the directory containing the executables referenced in the pipeline_logs directory
+* `predictions/directory`: path to the folder that will contains the predictions
+* `/path/to/script.sh`: path to the script file to write
+* `/path/to/config_test.json`: path to an existing test configuration file. This defaults to /outputs/config_test.json
+
 #### Score a predictions file
 
 ```

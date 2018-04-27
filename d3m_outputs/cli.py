@@ -123,7 +123,7 @@ def cmd_generate_test_script(args):
     }
 
     if not args.config_test_file == None :
-        context['config_json_path'] = args.config_test_file[0]
+        context['config_json_path'] = args.config_test_file
 
     TestScriptGenerator(**context).generate()
 
