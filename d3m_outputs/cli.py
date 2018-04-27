@@ -12,9 +12,10 @@ score_seed_baselines  [--validation | --no-validation] seed_root_dir
 import argparse
 import sys
 import os
-from . import score_predictions_file, is_predictions_file_valid, PipelineLog, generate_test_script, TestScriptGenerator
+import json
+from . import score_predictions_file, is_predictions_file_valid, PipelineLog, generate_test_script, PostSearchValidator, TestScriptGenerator
 
-subparsers_l = ['valid_predictions', 'valid_pipelines', 'valid_pipeline_dir', 'valid_executables_dir', 'test_script',
+subparsers_l = ['valid_predictions', 'valid_pipelines', 'valid_pipeline_dir', 'valid_executables_dir', 'validate_post_search', 'test_script',
                 'score', 'score_seed_baselines']
 
 
@@ -127,6 +128,42 @@ def cmd_generate_test_script(args):
     TestScriptGenerator(**context).generate()
 
 
+@catch_fnf
+def cmd_validate_post_search(args):
+    '''
+    Validates the post_search phase browsing the pipelines and the executables folders
+
+    Usages: 
+
+        To load the folders using the paths as arguments:
+            python3.6 -m d3m_outputs.cli validate_post_search -p test/postsearch_validation/pipelines/ -e test/postsearch_validation/executables/ 
+
+        To load the folders using the fields from a search configuration file
+            python3.6 -m d3m_outputs.cli validate_post_search -c test/postsearch_validation/config_test.json -v
+
+    '''
+
+    # Load the directory paths as is 
+    if args.config_search_file == None:
+        pipeline_dir = args.pipeline_log_dir[0]
+        exec_dir = args.executables_dir[0]
+    
+    # Or load the directory paths from a config file
+    else:
+        with open(args.config_search_file[0], 'r') as f:
+            config = json.load(f)
+
+            pipeline_dir = config["pipeline_logs_root"]
+            exec_dir = config["executables_root"]
+
+
+    context = {
+        'pipeline_directory': pipeline_dir,
+        'executable_directory': exec_dir,
+        'verbose': args.verbose
+    }
+
+    PostSearchValidator(**context).validate()
 
 
 def cli_parser():
@@ -173,6 +210,21 @@ def cli_parser():
     subparsers['valid_executables_dir'].add_argument('--no-validation', dest='validation', action='store_false')
     subparsers['valid_executables_dir'].set_defaults(validation=True, func=cmd_valid_exec_dir)
 
+
+    subparsers['validate_post_search'].description = 'Validate the pipeline logs and the executables after the post_search phase'
+
+    # First mode: provide a JSON config file as an argument
+    validate_post_search_config_file_args = subparsers['validate_post_search'].add_argument_group('From a JSON config file', 'Get the executables and the pipelines directories from a config file')
+    validate_post_search_config_file_args.add_argument('-c', '--config_search_file', nargs=1, help='path to the search configuration file.')
+
+    # Second mode: pass the arguments directly using the CLI
+    validate_post_search_cli_args = subparsers['validate_post_search'].add_argument_group('From CLI args', 'Get the executables and the pipelines directories from CLI args')
+    validate_post_search_cli_args.add_argument('-p', '--pipeline-log-dir', nargs=1, help='path to directory with the pipeline logs.')
+    validate_post_search_cli_args.add_argument('-e', '--executables_dir', nargs=1, help='path to directory with the executables')
+
+    subparsers['validate_post_search'].set_defaults(func=cmd_validate_post_search)
+
+    
     subparsers['test_script'].description = 'Generate a script to run the executables pointed by the pipeline logs.'
     subparsers['test_script'].add_argument('-p', '--pipeline-log-dir', nargs=1, help='path to directory with the pipeline logs.', required=True)
     subparsers['test_script'].add_argument('-e', '--executables_dir', nargs=1, help='path to directory with the executables', required=True)
