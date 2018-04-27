@@ -23,6 +23,15 @@ class FileChecker(object):
             logging.debug('{} is not readable.'.format(self.path))
             return False
 
+
+    def _executable(self):
+        if os.access(self.path, os.X_OK):
+            logging.debug('{} is executable.'.format(self.path))
+            return True
+        else:
+            logging.debug('{} is not executable.'.format(self.path))
+            return False
+
     def check_exists_read(self, variable_name=None):
         if not variable_name:
             variable_name = self.path
