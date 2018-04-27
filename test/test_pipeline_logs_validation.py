@@ -53,3 +53,6 @@ class TestPipelineLogsValidation(unittest.TestCase):
     def testRankIsInteger(self):
         p = PipelineLog(self.testcases['rank_is_not_integer'])
         self.assertFalse(p.is_valid())
+
+if __name__ == '__main__':
+    unittest.main()
