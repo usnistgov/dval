@@ -12,9 +12,9 @@ score_seed_baselines  [--validation | --no-validation] seed_root_dir
 import argparse
 import sys
 import os
-from . import score_predictions_file, is_predictions_file_valid, PipelineLog
+from . import score_predictions_file, is_predictions_file_valid, PipelineLog, generate_test_script, TestScriptGenerator
 
-subparsers_l = ['valid_predictions', 'valid_pipelines', 'valid_pipeline_dir', 'valid_executables_dir',
+subparsers_l = ['valid_predictions', 'valid_pipelines', 'valid_pipeline_dir', 'valid_executables_dir', 'test_script',
                 'score', 'score_seed_baselines']
 
 
@@ -105,6 +105,30 @@ def cmd_seed_dir(args):
     raise NotImplementedError("Recursively scoring the baselines for multiple problems has not been implemented yet")
 
 
+@catch_fnf
+def cmd_generate_test_script(args):
+    '''
+
+    Usage: python3.6 -m d3m_outputs.cli test_script -p test/testscriptgen/pipelines/ -e test/testscriptgen/executables/ --predictions_dir test/testscriptgen/predictions -o test/testscriptgen/tmp.sh -c test/testscriptgen/config_test.json -v
+
+    '''
+
+    context = {
+        'pipeline_directory': args.pipeline_log_dir[0],
+        'executable_directory': args.executables_dir[0],
+        'predictions_directory': args.predictions_dir[0],
+        'output_file': args.output[0],
+        'verbose': args.verbose
+    }
+
+    if not args.config_test_file == None :
+        context['config_json_path'] = args.config_test_file[0]
+
+    TestScriptGenerator(**context).generate()
+
+
+
+
 def cli_parser():
     parser = argparse.ArgumentParser()
     subs = parser.add_subparsers(title='subcommands')
@@ -148,6 +172,16 @@ def cli_parser():
     subparsers['valid_executables_dir'].add_argument('--validation', dest='validation', action='store_true')
     subparsers['valid_executables_dir'].add_argument('--no-validation', dest='validation', action='store_false')
     subparsers['valid_executables_dir'].set_defaults(validation=True, func=cmd_valid_exec_dir)
+
+    subparsers['test_script'].description = 'Generate a script to run the executables pointed by the pipeline logs.'
+    subparsers['test_script'].add_argument('-p', '--pipeline-log-dir', nargs=1, help='path to directory with the pipeline logs.', required=True)
+    subparsers['test_script'].add_argument('-e', '--executables_dir', nargs=1, help='path to directory with the executables', required=True)
+    subparsers['test_script'].add_argument('--predictions_dir', nargs=1, help='path to the folder that will contains the predictions', required=True)
+    subparsers['test_script'].add_argument('-o', '--output', nargs=1, help='path to the script file that will be generated', required=True)
+    subparsers['test_script'].add_argument('-c', '--config_test_file', nargs='?', help='path to the test configuration file. This defaults to /outputs/config_test.json')
+
+    subparsers['test_script'].set_defaults(func=cmd_generate_test_script)
+
 
     # score -d score_dir [-g ground_truth_file] [--validation | --no-validation] predictions_file
     subparsers['score'].description = 'Score a predictions file.'

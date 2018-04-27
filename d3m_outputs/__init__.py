@@ -5,3 +5,4 @@ __all__ = ['predictions', 'file_checker', 'metrics',
 
 from .predictions import is_predictions_file_valid, score_predictions_file, Predictions
 from .pipeline_logs_validator import PipelineLog
+from .generate_test_script import TestScriptGenerator
