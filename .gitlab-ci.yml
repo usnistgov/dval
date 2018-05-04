@@ -31,8 +31,13 @@ unittests:
   image:
     name: registry.datadrivendiscovery.org/$CI_PROJECT_PATH/ci:$CI_COMMIT_SHA
     entrypoint: [""]
+  
+  before_script:
+    - pip install coverage
+  
   script:
-    - python -m unittest discover
+    - coverage run --branch --source=./ d3m_outputs -m unittest discover -s test/ -v
+    - coverage report -m --skip-covered
 
 
 release:
