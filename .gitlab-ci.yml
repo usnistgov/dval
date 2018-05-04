@@ -36,7 +36,7 @@ unittests:
     - pip install coverage
   
   script:
-    - coverage run --branch --source=./ d3m_outputs -m unittest discover -s test/ -v
+    - coverage run --branch --source=./d3m_outputs -m unittest discover -s test/ -v
     - coverage report -m --skip-covered
 
 
