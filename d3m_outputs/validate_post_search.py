@@ -88,9 +88,8 @@ class PostSearchValidator(object):
         valid = True
 
         for root, dirs, files in os.walk(self.pipeline_directory):
-
+            files.sort()
             for pipeline_file in files:
-                files.sort()
                 pipeline_file_path = os.path.join(root, pipeline_file)
 
                 if not PipelineLog(pipeline_file_path).is_valid():
