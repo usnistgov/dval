@@ -99,7 +99,7 @@ class PostSearchValidator(object):
                     continue
 
                 with open(pipeline_file_path) as f:
-                    
+
                     pipeline = json.load(f)
 
                     executable_path = glob.glob(os.path.join(self.executable_directory, pipeline["name"]) + '*')
@@ -117,7 +117,7 @@ class PostSearchValidator(object):
                     logging.info(f'Checking executable {pipeline_file_path} pointed by pipeline {pipeline["name"]}')
 
                     file_checker = FileChecker(executable_path[0])
-                    
+
                     if file_checker._exists() and file_checker._executable():
                         logging.info('Found valid executable')
                     else:
@@ -128,11 +128,11 @@ class PostSearchValidator(object):
 
                     self.add_valid_pipeline(pipeline)
 
-        else:
-            logging.error('Cannot find pipeline files in the specified folder')
+        if not self.valid_pipelines:
+            logging.error('Cannot find  valid pipeline files in the specified folder')
             valid = False
-
-        logging.info(f'Valid pipelines pointing to a valid executable: {self.valid_pipelines}')
+        else:
+            logging.info(f'Valid pipelines pointing to a valid executable: {self.valid_pipelines}')
 
         if exit_on_error and not valid:
             logging.error('One or several error occured. Exiting.')
