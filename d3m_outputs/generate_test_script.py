@@ -110,7 +110,7 @@ def parse_test_script(pipeline_name: str, pipeline_rank: int, exec_directory: st
     exec=$(find {exec_directory}  -maxdepth 1 -name {pipeline_name}*)
     if [[ $exec ]]; then
     mkdir -p {predictions_sub_dir};
-    echo `sed -r 's/"results_root":[ "a-z0-9\/]+,/"results_root":"{predictions_sub_dir_esc}",/g' {config_json_path}` > {config_json_path};
+    echo `sed -E 's/"results_root":[ "a-z0-9\/]+,/"results_root":"{predictions_sub_dir_esc}",/g' {config_json_path}` > {config_json_path};
     export CONFIG_JSON_PATH={config_json_path};
     export CONFIG_JSON=`cat {config_json_path}`;
     export JSON_CONFIG_PATH={config_json_path};
