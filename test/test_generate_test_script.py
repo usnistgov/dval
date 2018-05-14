@@ -19,20 +19,20 @@ class TestTestScriptGenerator(unittest.TestCase):
         predictions_directory = self.testdir / 'predictions'
         output_file = self.testdir / 'tmp.sh'
         config_json_path = self.testdir / 'config_test.json'
-        
+
         TestScriptGenerator(pipeline_directory, executable_directory, predictions_directory, output_file, config_json_path).generate()
-        
+
         with open(output_file) as f:
             file_content = f.read()
 
-        result = subprocess.run([output_file], stdout=subprocess.PIPE).stdout.decode("utf-8") 
+        result = subprocess.run([output_file], stdout=subprocess.PIPE).stdout.decode("utf-8")
 
-        expected_output = (f'Executing {executable_directory}/d35f3bd7-8191-4f2b-a679-d168c2813bd8.sh\n'
-                        'Pipeline d35f3bd7-8191-4f2b-a679-d168c2813bd8 executed.\n'
-                        'done\n'
-                        f'Executing {executable_directory}/d35f3bd7-8191-4f2b-a679-d168c2813bd9.sh\n'
+        expected_output = (f'Executing {executable_directory}/d35f3bd7-8191-4f2b-a679-d168c2813bd9.sh\n'
                         'Pipeline d35f3bd7-8191-4f2b-a679-d168c2813bd9 executed.\n'
-                        'done\n')
+                        'done\n'
+                        f'Executing {executable_directory}/d35f3bd7-8191-4f2b-a679-d168c2813bd8.sh\n'
+                                        'Pipeline d35f3bd7-8191-4f2b-a679-d168c2813bd8 executed.\n'
+                                        'done\n')
 
         self.assertEqual(expected_output, result)
 

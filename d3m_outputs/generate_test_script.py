@@ -1,6 +1,6 @@
 """
 Generate a test script file from a pipeline direcotry, an executable directory and a predictions path
-This script assumes that an /outputs/config_test.json file already exists  
+This script assumes that an /outputs/config_test.json file already exists
 
 Usage:
 
@@ -60,9 +60,9 @@ class TestScriptGenerator(object):
         '''
 
         for root, dirs, files in os.walk(self.pipeline_directory):
-
+            # Make sure all systems write files in same order for testing
+            files.sort()
             for pipeline_file in files:
-
                 pipeline_file_path = os.path.join(root, pipeline_file)
 
                 if not PipelineLog(pipeline_file_path).is_valid():
@@ -119,5 +119,3 @@ def parse_test_script(pipeline_name: str, pipeline_rank: int, exec_directory: st
     $exec {config_json_path} && echo done;
     fi
     '''
-
-

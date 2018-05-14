@@ -1,5 +1,5 @@
 """
-Validates a post search phase: checks for the validity of the pipeline logs, and the existence of the executables 
+Validates a post search phase: checks for the validity of the pipeline logs, and the existence of the executables
 The valid pipelines are available in a dictionary, stored in the valid_pipelines field of the class
 
 Usage:
@@ -88,9 +88,8 @@ class PostSearchValidator(object):
         valid = True
 
         for root, dirs, files in os.walk(self.pipeline_directory):
-
+            files.sort()
             for pipeline_file in files:
-
                 pipeline_file_path = os.path.join(root, pipeline_file)
 
                 if not PipelineLog(pipeline_file_path).is_valid():
@@ -137,11 +136,3 @@ class PostSearchValidator(object):
         if exit_on_error and not valid:
             logging.error('One or several error occured. Exiting.')
             sys.exit(1)
-
-
-            
-
-
-
-
-

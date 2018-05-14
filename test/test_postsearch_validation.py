@@ -1,6 +1,6 @@
 import unittest
-import os 
-import json 
+import os
+import json
 
 from pathlib import Path
 import subprocess
@@ -29,10 +29,10 @@ class TestPostSearchValidation(unittest.TestCase):
                     "ram"   : "56Gi"
         }
 
-        cls.expected_valid_pipelines = [{'problem_id': '196_ag_problem_TRAIN', 
-                                'pipeline_rank': 1, 
-                                'name': 'd35f3bd7-8191-4f2b-a679-d168c2813bd8', 
-                                'primitives': 
+        cls.expected_valid_pipelines = [{'problem_id': '196_ag_problem_TRAIN',
+                                'pipeline_rank': 1,
+                                'name': 'd35f3bd7-8191-4f2b-a679-d168c2813bd9',
+                                'primitives':
                                 ['common_primitives.bayesian_ridge.bayesian_ridge.BayesianRidge',
                                  'dsbox.datapreprocessing.cleaner.greedy.GreedyImputation']}
                                 ]
@@ -43,7 +43,7 @@ class TestPostSearchValidation(unittest.TestCase):
         '''
 
         search_config_file_path = os.path.join(self.testdir, 'config_search.json')
-        
+
         with open(search_config_file_path, 'w') as f:
             json.dump(self.search_config_file_content, f)
 
@@ -53,7 +53,7 @@ class TestPostSearchValidation(unittest.TestCase):
             pipeline_directory = config_file_content["pipeline_logs_root"]
             executable_directory = config_file_content["executables_root"]
 
-            
+
             validator = PostSearchValidator(pipeline_directory, executable_directory, verbose=True)
             validator.validate(exit_on_error=False)
 
@@ -69,7 +69,7 @@ class TestPostSearchValidation(unittest.TestCase):
 
         validator = PostSearchValidator(pipeline_directory, executable_directory, verbose=True)
         validator.validate(exit_on_error=False)
-
+        # There is only one pipeline because duplicates are supposed to be eliminated
         self.assertEqual(validator.valid_pipelines, self.expected_valid_pipelines)
 
 if __name__ == '__main__':
