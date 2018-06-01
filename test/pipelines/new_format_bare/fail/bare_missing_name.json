@@ -1,0 +1,20 @@
+{
+  "steps": [
+    {
+      "primitive": {
+        "name": "AnnotatedTabularExtractor"
+      }
+    },
+    {
+      "primitive": {
+        "name": "SelectPercentileClassification"
+      }
+    },
+    {
+      "primitive": {
+        "name": "SGDClassifierEstimator"
+      }
+    }
+  ],
+  "pipeline_rank": "1"
+}

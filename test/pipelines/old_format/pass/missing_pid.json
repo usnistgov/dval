@@ -1,0 +1,9 @@
+{
+  "pipeline_rank": 2,
+  "name": "o_185_LR",
+  "primitives": [
+    "preprocessing.label_encoder",
+    "select_percentile",
+    "logistic_regression"
+  ]
+}

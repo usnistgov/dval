@@ -1,0 +1,11 @@
+{
+  "id": "34c6b6b7-33db-4f37-9c2f-fd64b24191a3",
+  "schema": "https://metadata.datadrivendiscovery.org/schemas/v0/pipeline.json",
+  "source": {
+    "name": "Brandon Schoenfeld"
+  },
+  "created": "2018-03-28T17:13:21+00:00",
+  "context": "TESTING",
+  "name": "openml_185_baseball_example",
+  "description": "An example pipeline using the the 185_baseball_solution pipeline found at https://datadrivendiscovery.org/data/seed_datasets_current/185_baseball/185_baseball_solution/src/pipeline.json"
+}

@@ -1,0 +1,20 @@
+{
+  "name": "openml_185_baseball_example",
+  "steps": [
+    {
+      "primitive": {
+        "name": "AnnotatedTabularExtractor"
+      }
+    },
+    {
+      "primitive": {
+      }
+    },
+    {
+      "primitive": {
+        "name": "SGDClassifierEstimator"
+      }
+    }
+  ],
+  "pipeline_rank": "1"
+}

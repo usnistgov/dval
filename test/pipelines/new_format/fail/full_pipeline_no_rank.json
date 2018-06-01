@@ -1,0 +1,141 @@
+{
+  "id": "34c6b6b7-33db-4f37-9c2f-fd64b24191a3",
+  "schema": "https://metadata.datadrivendiscovery.org/schemas/v0/pipeline.json",
+  "source": {
+    "name": "Brandon Schoenfeld"
+  },
+  "created": "2018-03-28T17:13:21+00:00",
+  "context": "TESTING",
+  "name": "openml_185_baseball_example",
+  "description": "An example pipeline using the the 185_baseball_solution pipeline found at https://datadrivendiscovery.org/data/seed_datasets_current/185_baseball/185_baseball_solution/src/pipeline.json",
+  "inputs": [
+    {
+      "name": "input dataset"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "output dataset",
+      "data": "steps.2.produce"
+    }
+  ],
+  "steps": [
+    {
+      "type": "PRIMITIVE",
+      "primitive": {
+        "id": "e79dc3808bb211e7a2d5080027f9f5b6",
+        "python_path": "d3m.primitives.AnnotatedTabularExtractor",
+        "name": "AnnotatedTabularExtractor",
+        "version": "0",
+        "digest": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "arguments": {
+        "inputs": {
+          "type": "CONTAINER",
+          "data": "inputs.0"
+        }
+      },
+      "outputs": [
+        {
+          "id": "produce"
+        }
+      ],
+      "hyperparams": {
+        "categorize": {
+          "type": "VALUE",
+          "data": true
+        },
+        "add_missing_indicator": {
+          "type": "VALUE",
+          "data": true
+        },
+        "numeric_strategy": {
+          "type": "VALUE",
+          "data": "median"
+        },
+        "normalize_text": {
+          "type": "VALUE",
+          "data": false
+        },
+        "features": {
+          "type": "VALUE",
+          "data": ["Player","Number_seasons","Games_played","At_bats","Runs","Hits","Doubles","Triples","Home_runs","RBIs","Walks","Strikeouts","Batting_average","On_base_pct","Slugging_pct","Fielding_ave","Position"]
+        }
+      }
+    },
+    {
+      "type": "PRIMITIVE",
+      "primitive": {
+        "python_path": "d3m.primitives.SelectPercentileClassification",
+        "name": "SelectPercentileClassification",
+        "id": "0",
+        "version": "0",
+        "digest": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "arguments": {
+        "inputs": {
+          "type": "CONTAINER",
+          "data": "steps.0.produce"
+        }
+      },
+      "outputs": [
+        {
+          "id": "produce"
+        }
+      ],
+      "hyperparams": {
+        "percentile": {
+          "type": "VALUE",
+          "data": 96
+        },
+        "score_func": {
+          "type": "VALUE",
+          "data": "f_classif"
+        }
+      }
+    },
+    {
+      "type": "PRIMITIVE",
+      "primitive": {
+        "python_path": "d3m.primitives.SGDClassifierEstimator",
+        "name": "SGDClassifierEstimator",
+        "id": "0",
+        "version": "0",
+        "digest": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "arguments": {
+        "inputs": {
+          "type": "CONTAINER",
+          "data": "steps.1.produce"
+        }
+      },
+      "outputs": [
+        {
+          "id": "produce"
+        }
+      ],
+      "hyperparams": {
+        "penalty": {
+          "type": "VALUE",
+          "data": "elasticnet"
+        },
+        "l1_ratio": {
+          "type": "VALUE",
+          "data": 0.30000000000000004
+        },
+        "loss": {
+          "type": "VALUE",
+          "data": "squared_hinge"
+        },
+        "alpha": {
+          "type": "VALUE",
+          "data": 1e-07
+        },
+        "fit_intercept": {
+          "type": "VALUE",
+          "data": false
+        }
+      }
+    }
+  ]
+}
