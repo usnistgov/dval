@@ -8,7 +8,7 @@ class TestCmdValidPipelines(unittest.TestCase):
 
     def testFileNotFound(self):
         sys.argv[1:] = ['valid_pipelines', '']
-        with self.assertRaises(Exception):
+        with self.assertRaises(SystemExit):
             cli_parser()
 
     def testNotValidate(self):
@@ -87,34 +87,6 @@ class TestCmdScore(unittest.TestCase):
             cli_parser()
         except SystemExit:
             self.fail("score raised an exception")
-
-
-class TestCmdGenerateTestScript(unittest.TestCase):
-
-    def testCmdGenerateTestScript(self):
-        pass
-
-
-class TestCmdValidatePostSearch(unittest.TestCase):
-
-    def testOk(self):
-        sys.argv[1:] = ['validate_post_search', '-p', 'test/postsearch_validation/valid_pipelines', '-e'
-                        'test/postsearch_validation/executables']
-        try:
-            cli_parser()
-        except SystemExit:
-            self.fail("valid_post_search raised an exception")
-
-    def testInvalidPipelineFolder(self):
-        sys.argv[1:] = ['validate_post_search', '-p', 'test/postsearch_validation/pipelines', '-e'
-                        'test/postsearch_validation/executables']
-
-        with self.assertRaises(SystemExit):
-            cli_parser()
-
-    def testInvalidExecutableFolder(self):
-        #TODO
-        pass
 
 
 if __name__ == '__main__':

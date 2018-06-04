@@ -4,24 +4,25 @@ Representations of v3 D3M schemas and data structures.
 
 import json
 from pathlib import Path
+import os
 
 import pandas
 
-
-class Schema:
-    def __init__(self, filepath):
-        self.filepath = filepath
-        with open(filepath) as schema:
-            self.jdata = json.load(schema)
-
-    def __eq__(self, other):
-        return self.jdata == other.jdata
+from d3m.metadata.problem import parse_problem_description
+from d3m.container.dataset import Dataset
 
 
-class DatasetSchema(Schema):
+class DatasetSchema:
     """
     Adapter class representing a v3 Dataset Schema
     """
+
+    def __init__(self, filepath):
+        # fullpath = 'file://{dataset_doc_path}'.format(dataset_doc_path=os.path.abspath(uri))
+        # self.dataset = Dataset.load(fullpath)
+        self.filepath = filepath
+        with open(filepath) as schema:
+            self.jdata = json.load(schema)
 
     @property
     def _learningDataColumns(self):
@@ -48,37 +49,46 @@ class DatasetSchema(Schema):
         """
         expected_fields = dict()
 
-        target_colids = [t['colIndex'] for t in targets]
+        target_colids = [t['column_index'] for t in targets]
         for c in self._learningDataColumns:
             if c['colIndex'] in target_colids:
                 expected_fields[c['colName']] = c['colType']
         return expected_fields
 
 
-class ProblemSchema(Schema):
+class ProblemSchema:
     """
     Adapter class representing a v3 Problem Schema
     """
 
+    def __init__(self, uri):
+        self.filepath = uri
+        self.problem = parse_problem_description(self.filepath)
+
+    # TODO test
     @property
     def targets(self):
         """"
         :return: list of dictionaries describing the targets
         ONLY SUPPORTS one dataset and target, i.e. ['inputs']['data'] of length 1
         """
-        return self.jdata['inputs']['data'][0]['targets']
+        return self.problem['inputs'][0]['targets']
 
+    # TODO test
     @property
     def target_names(self):
         """
         :return: List of target names
         """
-        return [t['colName'] for t in self.targets]
+        return [t['column_name'] for t in self.targets]
 
+    # TODO update
     @property
     def metrics(self):
-        return [l['metric'] for l in self.jdata['inputs']['performanceMetrics']]
+        #todo mappirng
+        return [l['metric'] for l in self.problem['problem']['performance_metrics']]
 
+    # TODO test (metric instead of name)
     @property
     def metrics_wparams(self):
         """
@@ -96,18 +106,9 @@ class ProblemSchema(Schema):
 
         :return: list of dictionaries { 'name': metric_name, 'params': dict_of_params }
         :rtype: list<dict>
+
         """
-        performanceMetrics = self.jdata['inputs']['performanceMetrics']
-        metric_name_key = 'metric'
-        exclude_from_params = [metric_name_key]
-        metrics_wparams = list()
-        for metric_d in performanceMetrics:
-            metrics_wparams.append({
-                'name': metric_d[metric_name_key],
-                # all keys of /inputs/performanceMetric[i] are considered parameteres except for 'metric'
-                'params': {k: metric_d[k] for k in metric_d.keys() if k not in exclude_from_params}
-            })
-        return metrics_wparams
+        return self.problem['problem']['performance_metrics']
 
 
 class D3MDataStructure:
@@ -130,6 +131,7 @@ class D3MDataStructure:
         self.problemschema = ProblemSchema(self.root / self.RELATIVE_PATH_TO_PROBLEMSCHEMA)
         self.testdata_path = self.root / self.RELATIVE_PATH_TO_TESTDATA
         self.targets_path = self.root / self.RELATIVE_PATH_TO_TARGETS
+
 
     def __getattr__(self, item):
         """

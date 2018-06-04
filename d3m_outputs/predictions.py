@@ -83,9 +83,8 @@ class Predictions:
                 metric['params']['pos_label'] = '1'
 
             for target in self.ds.target_names:
-                score = Score(target, metric['name'],
-                              apply_metric(metric['name'], self.ds.targets_df[target], self.frame[target], **metric['params']))
-                scores.append(score)
+                value = apply_metric(metric['name'], self.ds.targets_df[target], self.frame[target], **metric['params'])
+                scores.append(Score(target, metric['name'], value))
 
         return scores
 
@@ -168,10 +167,10 @@ def score_predictions_file(result_file, score_dir_path, groundtruth_path, check_
     predictions = Predictions(result_file, score_dir_path)
     if check_valid and not predictions.is_valid():
         logging.error('Invalid predictions file')
-        raise InvalidPipelineError('Invalid predictions file')
+        raise InvalidPredictionsError('Invalid predictions file')
 
     return predictions.score(groundtruth_path)
 
 
-class InvalidPipelineError(Exception):
+class InvalidPredictionsError(Exception):
     pass

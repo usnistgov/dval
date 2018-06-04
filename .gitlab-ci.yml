@@ -26,7 +26,7 @@ build:
     - docker push $REG_PATH/ci:$CI_COMMIT_SHA
 
 
-unittests:
+tests:
   stage: test
   image:
     name: registry.datadrivendiscovery.org/$CI_PROJECT_PATH/ci:$CI_COMMIT_SHA
@@ -36,8 +36,8 @@ unittests:
     - pip install coverage
   
   script:
-    - coverage run --branch --source=./d3m_outputs -m unittest discover -s test/ -v
-    - coverage report -m --skip-covered
+    - coverage run --branch --source=./d3m_outputs -m pytest -s test/ -v
+    - coverage report -m
 
 
 release:

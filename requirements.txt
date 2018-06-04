@@ -3,4 +3,4 @@ scikit-learn
 scipy
 testfixtures
 numpy
--e git+https://gitlab.com/datadrivendiscovery/d3m.git@master#egg=d3m
+--process-dependency-links git+https://gitlab.com/datadrivendiscovery/d3m.git@develop#egg=d3m

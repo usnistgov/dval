@@ -11,16 +11,19 @@ class TestProblemSchema(unittest.TestCase):
         cls.path = Path(__file__).parent / 'data/185_baseball/problem_TEST/problemDoc.json'
         cls.baseballProblemSchema = schemas.ProblemSchema(cls.path)
 
-    def testInit(self):
-        withStringPath = schemas.ProblemSchema(str(self.path))
-        self.assertEqual(withStringPath, self.baseballProblemSchema)
-
     def testMetrics(self):
-        self.assertEqual(self.baseballProblemSchema.metrics, ['f1Macro'])
+        baseballmetrics = self.baseballProblemSchema.metrics
+        self.assertEqual(len(baseballmetrics), 1)
+        self.assertEqual(baseballmetrics[0].name, 'F1_MACRO')
 
     def testTargetNames(self):
         self.assertEqual(self.baseballProblemSchema.target_names, ['Hall_of_Fame'])
 
+    def testMetricsWithParams(self):
+        baseballmetrics = self.baseballProblemSchema.metrics_wparams
+        self.assertEqual(len(baseballmetrics), 1)
+        self.assertEqual(baseballmetrics[0]['metric'].name, 'F1_MACRO')
+        self.assertEqual(baseballmetrics[0]['params'], dict() )
 
 class TestDatasetSchema(unittest.TestCase):
 
