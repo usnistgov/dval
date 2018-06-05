@@ -8,4 +8,4 @@ WORKDIR /src
 
 COPY . /src/
 RUN pipenv install --dev
-ENTRYPOINT ["d3m_outputs"]
+ENTRYPOINT ["python", "-m d3m_outputs.cli"]
