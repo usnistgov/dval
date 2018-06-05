@@ -73,7 +73,7 @@ class Predictions:
         scoring_metrics = self.ds.problemschema.metrics_wparams
 
         for metric in scoring_metrics:
-            if not valid_metric(metric['name']):
+            if not valid_metric(metric['metric']):
                 logging.error(
                     f'Invalid metric {metric}.\nAvailable metrics: {METRICS_DICT.keys()}')
                 continue
@@ -83,8 +83,8 @@ class Predictions:
                 metric['params']['pos_label'] = '1'
 
             for target in self.ds.target_names:
-                value = apply_metric(metric['name'], self.ds.targets_df[target], self.frame[target], **metric['params'])
-                scores.append(Score(target, metric['name'], value))
+                value = apply_metric(metric['metric'], self.ds.targets_df[target], self.frame[target], **metric['params'])
+                scores.append(Score(target, metric['metric'], value))
 
         return scores
 

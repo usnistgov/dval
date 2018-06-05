@@ -3,6 +3,7 @@ from pathlib import Path
 
 from d3m_outputs import schemas
 
+F1MACRO = 'F1_MACRO'
 
 class TestProblemSchema(unittest.TestCase):
 
@@ -39,17 +40,19 @@ class TestD3MDataStructure(unittest.TestCase):
     def setUpClass(cls):
         data_dir = Path(__file__).parent / 'data/185_baseball'
         cls.obj = schemas.D3MDataStructure(root=data_dir)
+        cls.metrics = cls.obj.problemschema.metrics
+        cls.metrics_wp = cls.obj.problemschema.metrics_wparams
 
     def testInit(self):
-        self.assertEqual(self.obj.problemschema.metrics, ['f1Macro'])
-        self.assertEqual(self.obj.problemschema.metrics_wparams[0]['name'], 'f1Macro')
-        self.assertEqual(self.obj.problemschema.metrics_wparams[0]['params'], dict())
-        self.assertEqual(len(self.obj.problemschema.metrics), 1)
-        self.assertEqual(len(self.obj.problemschema.metrics_wparams), 1)
+        self.assertEqual([metric.name for metric in self.metrics], [F1MACRO])
+        self.assertEqual(self.metrics_wp[0]['metric'], F1MACRO)
+        self.assertEqual(self.metrics_wp[0]['params'], dict())
+        self.assertEqual(len(self.metrics), 1)
+        self.assertEqual(len(self.metrics_wp), 1)
         self.assertEqual(self.obj.dataschema.index_name, 'd3mIndex')
 
     def testGetAttr(self):
-        self.assertEqual(self.obj.metrics, ['f1Macro'])
+        self.assertEqual([metric.name for metric in self.obj.metrics], [F1MACRO])
         self.assertEqual(self.obj.index_name, 'd3mIndex')
         self.assertEqual(self.obj.target_names, ['Hall_of_Fame'])
 

@@ -102,7 +102,7 @@ class ProblemSchema:
         Use with metrics.apply_metric:
 
         >>> from d3m_outputs.metrics import apply_metric
-        >>> apply_metric(metrics_wparams['name'], **metrics_wparams['params'])
+        >>> apply_metric(metrics_wparams['metric'], **metrics_wparams['params'])
 
         :return: list of dictionaries { 'name': metric_name, 'params': dict_of_params }
         :rtype: list<dict>
