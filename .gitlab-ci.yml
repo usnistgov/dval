@@ -40,6 +40,26 @@ tests:
     - coverage report -m
 
 
+branch_release:
+  stage: release
+  image: docker:stable
+  services:
+    - docker:dind
+  before_script:
+    - docker info
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.datadrivendiscovery.org
+
+  variables:
+    REG_PATH: registry.datadrivendiscovery.org/$CI_PROJECT_PATH
+    DOCKER_DRIVER: overlay2
+
+  script:
+    - echo "destination images" $REG_PATH/branches/$CI_COMMIT_REF_NAME:latest
+    - docker pull $REG_PATH/ci:$CI_COMMIT_SHA
+    - docker tag $REG_PATH/ci:$CI_COMMIT_SHA $REG_PATH/branches/$CI_COMMIT_REF_NAME:latest
+    - docker push $REG_PATH/branches/$CI_COMMIT_REF_NAME:latest
+
+
 release:
   stage: release
   image: docker:stable
