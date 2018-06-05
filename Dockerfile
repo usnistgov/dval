@@ -7,5 +7,5 @@ WORKDIR /src
 #RUN pip install -r requirements.txt
 
 COPY . /src/
-RUN pipenv install --system --dev
+RUN pipenv install --dev
 ENTRYPOINT ["d3m_outputs"]
