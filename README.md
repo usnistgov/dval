@@ -17,16 +17,18 @@ Download the seed datasets at [https://datadrivendiscovery.org/data/seed_dataset
 
 ### Installation
 
-```
-git clone git@gitlab.datadrivendiscovery.org:nist/nist_eval_output_validation_scoring.git
-cd nist_eval_output_validation_scoring
-pip install .
-```
+This package works with Python 3.6+.
 
-To upgrade from a previous version
+To install a particular release of the package, e.g., `v2018.4.28`:
 
 ```
-pip install -U .
+$ pip install git+https://gitlab.datadrivendiscovery.org/d3m/metrics.git@v2018.4.28
+```
+
+To install latest development (unreleased) version:
+
+```
+$ pip install git+https://gitlab.datadrivendiscovery.org/d3m/metrics.git@develop
 ```
 
 ### CLI Usage
@@ -52,27 +54,6 @@ Parameters:
 * `score_dir`: path to the directory described in Section Requirements. Use the `SCORE` directory of the seed datasets.
 * `predictions_file`: path to the predictions file to validate
 
-#### Validate all pipelines and executables
-
-```
-d3m_outputs validate_post_search -p pipeline_logs/directory -e executables/directory
-```
-Parameters:
-* `pipeline_logs/directory`: path to the directory containing the pipelines logs in a json format
-* `executables/directory`: path to the directory containing the executables referenced in the pipeline_logs directory
-
-#### Generate a script to run all the valid executables
-
-```
-d3m_outputs test_script -p pipeline_logs/directory -e executables/directory --predictions_dir predictions/directory -o /path/to/script.sh -c /path/to/config_test.json
-```
-Parameters:
-* `pipeline_logs/directory`: path to the directory containing the pipelines logs in a json format
-* `executables/directory`: path to the directory containing the executables referenced in the pipeline_logs directory
-* `predictions/directory`: path to the folder that will contains the predictions
-* `/path/to/script.sh`: path to the script file to write
-* `/path/to/config_test.json`: path to an existing test configuration file. This defaults to /outputs/config_test.json
-
 #### Score a predictions file
 
 ```
@@ -84,6 +65,25 @@ Parameters:
 * `ground_truth_file`: path to the ground truth file. If absent, will default to `score_dir/targets.csv`
 * `predictions_file`: path to the predictions file to score
 * `--validation | --no-validation`: validation is on by default. turn in off with `--no-validation`
+
+
+### Docker usage
+
+Same usage as the CLI.
+
+:warning: Remember to mount as volumes the data that you want to validate or score.
+
+For example, to validate a `predictions.csv` file:
+```bash
+image='registry.datadrivendiscovery.org/nist/nist_eval_output_validation_scoring/d3m_outputs:v2018.4.28'
+docker run -v /hostpath/to/data:/tmp/data $image valid_predictions -d /tmp/data/SCORE /tmp/data/predictions.csv
+```
+
+Images are in the project registry under `registry.datadrivendiscovery.org/nist/nist_eval_output_validation_scoring/IMAGE_NAME`
+Example images:  
+* `d3m_outputs:latest`, which points to the latest release - e.g. `d3m_outputs:v2018.4.28`
+* `d3m_outputs:v2018.4.20` for a specific release. The commit is the one tagged with `v2018.4.20`.
+* `branches/develop`: the latest commit on the `develop` branch (unreleased)
 
 
 ### Code Usage
