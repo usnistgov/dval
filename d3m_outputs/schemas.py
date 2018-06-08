@@ -86,7 +86,7 @@ class ProblemSchema:
     @property
     def metrics(self):
         #todo mappirng
-        return [l['metric'] for l in self.problem['problem']['performance_metrics']]
+        return [l['metric'].name for l in self.problem['problem']['performance_metrics']]
 
     # TODO test (metric instead of name)
     @property
@@ -104,11 +104,17 @@ class ProblemSchema:
         >>> from d3m_outputs.metrics import apply_metric
         >>> apply_metric(metrics_wparams['metric'], **metrics_wparams['params'])
 
-        :return: list of dictionaries { 'name': metric_name, 'params': dict_of_params }
+        :return: list of dictionaries { 'metric': metric_name, 'params': dict_of_params }
         :rtype: list<dict>
 
         """
-        return self.problem['problem']['performance_metrics']
+        data = self.problem['problem']['performance_metrics']
+        for metric_d in data:
+            # try:
+            metric_d['metric'] = metric_d['metric'].name
+            # except AttributeError:
+            #     pass   # weird d3m core behavior when params exist
+        return data
 
 
 class D3MDataStructure:

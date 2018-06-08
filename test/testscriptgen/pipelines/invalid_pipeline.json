@@ -1,9 +1,0 @@
-{
-  "problem_id": "196_ag_problem_TRAIN",
-  "pipeline_rank": "oewne",
-  "name": "d35f3bd7-8191-4f2b-a679-d168c2813bd8",
-  "primitives": [
-    "common_primitives.bayesian_ridge.bayesian_ridge.BayesianRidge",
-    "dsbox.datapreprocessing.cleaner.greedy.GreedyImputation"
-  ]
-}

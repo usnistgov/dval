@@ -27,6 +27,7 @@ True
 import logging
 from collections import namedtuple
 from pathlib import Path
+import json
 
 import pandas
 
@@ -35,6 +36,14 @@ from .file_checker import FileChecker
 from .metrics import METRICS_DICT, valid_metric, apply_metric
 from .validation_type_checks import valid_d3mindex, valid_boolean, valid_real, valid_integer, valid_string, \
     valid_categorical, valid_datetime
+
+
+class Score(namedtuple('Score', ['target', 'metric', 'scorevalue'])):
+
+    @property
+    def json(self):
+        score_dict = self._asdict()
+        return json.dumps(score_dict)
 
 
 class Predictions:
@@ -57,16 +66,17 @@ class Predictions:
     def is_valid(self):
         valid = True
 
-        valid &= self._is_file_readable()
-        valid &= self._is_header_valid()
-        valid &= self._are_targets_valid()
-        valid &= self._is_index_valid()
+        file_readable = self._is_file_readable()
+        header_valid = self._is_header_valid()
+        targets_valid = self._are_targets_valid()
+        index_valid = self._is_index_valid()
 
+        valid = file_readable and targets_valid and index_valid
         return valid
 
     def score(self, targets_filepath):
         scores = list()
-        Score = namedtuple('Score', ['target', 'metric', 'scorevalue'])
+        # Score = namedtuple('Score', ['target', 'metric', 'scorevalue'])
 
         self.ds.load_targets(targets_filepath)
         # scoring_metrics = self.ds.metrics
@@ -78,13 +88,20 @@ class Predictions:
                     f'Invalid metric {metric}.\nAvailable metrics: {METRICS_DICT.keys()}')
                 continue
 
-            if metric == 'f1' and 'pos_label' not in metric['params']:
+            if 'pos_label' in metric['params']:
                 # no pos_label specified for metric f1, setting to '1'
-                metric['params']['pos_label'] = '1'
+                metric['params']['pos_label'] = int(metric['params']['pos_label'])
 
-            for target in self.ds.target_names:
-                value = apply_metric(metric['metric'], self.ds.targets_df[target], self.frame[target], **metric['params'])
-                scores.append(Score(target, metric['metric'], value))
+            # In the metric is applicable to all, need to
+            if 'applicabilityToTarget' in metric['params'] and metric['params']['applicabilityToTarget'] == "allTargets":
+                gt_l = [self.ds.targets_df[target] for target in self.ds.target_names]
+                pred_l = [self.frame[target] for target in self.ds.target_names]
+                value = apply_metric(metric['metric'], gt_l, pred_l, **metric['params'])
+                scores.append(Score('allTargets', metric['metric'], value))
+            else:
+                for target in self.ds.target_names:
+                    value = apply_metric(metric['metric'], self.ds.targets_df[target], self.frame[target], **metric['params'])
+                    scores.append(Score(target, metric['metric'], value))
 
         return scores
 
@@ -123,6 +140,8 @@ class Predictions:
         return valid
 
     def _are_targets_valid(self):
+        valid_types = ["boolean", "integer", "real", "string", "categorical", "dateTime", "realVector", "json", "geojson"]
+
         target_types = self.ds.target_types
 
         for target, ttype in target_types.items():
@@ -147,6 +166,8 @@ class Predictions:
                     column, authorized_labels=authorized_labels)
             elif ttype == 'dateTime':
                 return valid_datetime(column)
+            elif ttype in valid_types :
+                pass
             else:
                 logging.error(f'type: {ttype} is not supported.')
                 return False

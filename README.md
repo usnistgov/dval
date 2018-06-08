@@ -138,7 +138,7 @@ Checks that the validation code does on the prediction file include:
 * Compare index with expected index
 
 
-## Pipeline Logs file Validation
+## Pipeline Validation
 
 ### Usage
 

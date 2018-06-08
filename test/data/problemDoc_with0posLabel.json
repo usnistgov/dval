@@ -31,7 +31,8 @@
     },
     "performanceMetrics": [
       {
-        "metric": "f1Macro"
+        "metric": "f1",
+        "pos_label": "0"
       }
     ]
   },

@@ -12,15 +12,17 @@ import numpy as np
 import sklearn.metrics as skm
 from sklearn.preprocessing import LabelBinarizer
 
+from d3m_outputs.object_detection_ap import objectDetectionAP
+
 
 def accuracy(ground_truth, predicted):
     return skm.accuracy_score(ground_truth, predicted)
 
 
-def f1(ground_truth, predicted, pos_label=None):
-    if pos_label:
-        return skm.f1_score(ground_truth, predicted, pos_label=pos_label)
-    return skm.f1_score(ground_truth, predicted)
+def f1(ground_truth, predicted, pos_label=1):
+    # if pos_label:
+    #     return skm.f1_score(ground_truth, predicted, pos_label=pos_label)
+    return skm.f1_score(ground_truth, predicted, pos_label=pos_label)
 
 
 def f1_micro(ground_truth, predicted):
@@ -141,14 +143,6 @@ def precision_at_top_K_meta(gt, preds, K=20):
     return precision_at_top_K(gt_indices, pred_indices, K=K)
 
 
-def valid_metric(metric):
-    return metric in METRICS_DICT
-
-
-def apply_metric(metric, *args, **kwargs):
-    return METRICS_DICT[metric](*args, **kwargs)
-
-
 METRICS_DICT = {
     'accuracy': accuracy,
     'f1': f1,
@@ -164,5 +158,26 @@ METRICS_DICT = {
     'rSquared': r2,
     'normalizedMutualInformation': norm_mut_info,
     'jaccardSimilarityScore': jacc_sim,
-    'precisionAtTopK': precision_at_top_K_meta
+    'precisionAtTopK': precision_at_top_K_meta,
+    'objectDetectionAP': objectDetectionAP
 }
+
+
+def find_metric(metric, valid_metrics=METRICS_DICT):
+    def transform_string(string):
+        return string.lower().replace('_', '')
+
+    reference = {transform_string(k): _ for k,_ in valid_metrics.items()}
+    return reference[transform_string(metric)]
+
+
+def valid_metric(metric):
+    try:
+        _ = find_metric(metric)
+    except KeyError:
+        return False
+    return True
+
+
+def apply_metric(metric, *args, **kwargs):
+    return find_metric(metric)(*args, **kwargs)

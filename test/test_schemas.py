@@ -60,5 +60,14 @@ class TestD3MDataStructure(unittest.TestCase):
         self.assertEqual(self.obj.target_types, {'Hall_of_Fame': 'categorical'})
 
 
+def test_params():
+    data_dir = Path(__file__).parent / 'data'
+    schema = schemas.ProblemSchema(data_dir / 'problemDoc_with0posLabel.json')
+    assert len(schema.metrics) == 1
+    assert len(schema.metrics_wparams) == 1
+    main_metric = schema.metrics_wparams[0]
+    assert 'params' in main_metric
+    assert 'pos_label' in main_metric['params']
+
 if __name__ == '__main__':
     unittest.main()

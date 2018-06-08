@@ -59,6 +59,11 @@ branch_release:
     - docker tag $REG_PATH/ci:$CI_COMMIT_SHA $REG_PATH/branches/$CI_COMMIT_REF_NAME:latest
     - docker push $REG_PATH/branches/$CI_COMMIT_REF_NAME:latest
 
+  # only on non-issue branches
+  only:
+    - branches
+  except:
+    - /^issue-.*$/
 
 release:
   stage: release

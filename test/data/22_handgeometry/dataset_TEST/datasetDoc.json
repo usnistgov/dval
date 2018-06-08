@@ -5,7 +5,8 @@
     "license": "Creative Commons Attribution-NonCommercial 4.0",
     "approximateSize": "338 MB",
     "datasetSchemaVersion": "3.0",
-    "redacted": true
+    "redacted": true,
+    "datasetVersion": "1.0"
   },
   "dataResources": [
     {

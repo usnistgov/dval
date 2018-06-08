@@ -52,6 +52,8 @@ def cmd_valid_predictions(args):
     if not valid:
         sys.exit('ERROR: At least one predictions file is invalid. ')
 
+    return valid
+
 
 @catch_fnf
 def cmd_valid_pipeline(args):
