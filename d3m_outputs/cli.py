@@ -12,6 +12,7 @@ score_seed_baselines  [--validation | --no-validation] seed_root_dir
 import argparse
 import sys
 import os
+import json
 from . import score_predictions_file, is_predictions_file_valid, is_pipeline_valid
 
 subparsers_l = ['valid_predictions', 'valid_pipelines', 'valid_pipeline_dir', 'valid_executables_dir', 'validate_post_search', 'test_script',
@@ -89,6 +90,10 @@ def cmd_valid_exec_dir(args):
 
 @catch_fnf
 def cmd_score(args):
+
+    if args.outfile is not None and len(args.predictions_file) > 1:
+        sys.exit('Writing JSON scores only supported for one predictions file at the time')
+
     if 'ground_truth_file' in args and args.ground_truth_file is not None:
         # if ground truth is not set, will default to the `targets.csv` present in the SCORE directory
         args.ground_truth_file = os.path.join(args.score_dir, 'targets.csv')
@@ -105,8 +110,14 @@ def cmd_score(args):
 
     for predictions_file in args.predictions_file:
         scores = single_score_predictions(predictions_file)
+
         print('{0: <50} scores={1}'.format(predictions_file, scores))
 
+        if args.outfile is not None:
+            to_dump = [s._asdict() for s in scores]
+            json.dump(to_dump, args.outfile, sort_keys=True, indent=4)
+            print(f'Scores written to {args.outfile}')
+            pass
 
 @catch_fnf
 def cmd_seed_dir(args):
@@ -181,6 +192,8 @@ def cli_parser():
     subparsers['score'].add_argument('predictions_file', help='path to predictions file to score.', nargs='+')
     subparsers['score'].add_argument('--validation', dest='validation', action='store_true')
     subparsers['score'].add_argument('--no-validation', dest='validation', action='store_false')
+    subparsers['score'].add_argument('-o', '--outfile', nargs='?', type=argparse.FileType('w'),
+                                     help='Write scores in JSON to file')
     subparsers['score'].set_defaults(validation=True, func=cmd_score)
 
     args = parser.parse_args()
