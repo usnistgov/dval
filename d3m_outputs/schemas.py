@@ -65,7 +65,6 @@ class ProblemSchema:
         self.filepath = uri
         self.problem = parse_problem_description(self.filepath)
 
-    # TODO test
     @property
     def targets(self):
         """"
@@ -74,7 +73,6 @@ class ProblemSchema:
         """
         return self.problem['inputs'][0]['targets']
 
-    # TODO test
     @property
     def target_names(self):
         """
@@ -82,13 +80,13 @@ class ProblemSchema:
         """
         return [t['column_name'] for t in self.targets]
 
-    # TODO update
     @property
     def metrics(self):
-        #todo mappirng
-        return [l['metric'].name for l in self.problem['problem']['performance_metrics']]
+        try:
+            return [l['metric'].name for l in self.problem['problem']['performance_metrics']]
+        except AttributeError:
+            return [l['metric'] for l in self.problem['problem']['performance_metrics']]
 
-    # TODO test (metric instead of name)
     @property
     def metrics_wparams(self):
         """
@@ -111,7 +109,10 @@ class ProblemSchema:
         data = self.problem['problem']['performance_metrics']
         for metric_d in data:
             # try:
-            metric_d['metric'] = metric_d['metric'].name
+            try:
+                metric_d['metric'] = metric_d['metric'].name
+            except AttributeError:
+                pass
             # except AttributeError:
             #     pass   # weird d3m core behavior when params exist
         return data

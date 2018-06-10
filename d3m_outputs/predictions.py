@@ -92,7 +92,7 @@ class Predictions:
                 # no pos_label specified for metric f1, setting to '1'
                 metric['params']['pos_label'] = int(metric['params']['pos_label'])
 
-            # In the metric is applicable to all, need to
+        # In the metric is applicable to all, need to
             if 'applicabilityToTarget' in metric['params'] and metric['params']['applicabilityToTarget'] == "allTargets":
                 gt_l = [self.ds.targets_df[target] for target in self.ds.target_names]
                 pred_l = [self.frame[target] for target in self.ds.target_names]
@@ -103,7 +103,7 @@ class Predictions:
                     value = apply_metric(metric['metric'], self.ds.targets_df[target], self.frame[target], **metric['params'])
                     scores.append(Score(target, metric['metric'], value))
 
-        return scores
+        return Scores(scores)
 
     def _load_data(self):
         self.frame = pandas.read_csv(
@@ -178,6 +178,30 @@ class Predictions:
             self.result_file_path)
         logging.info('Predictions file exists and is readable.')
         return True
+
+from collections.abc import Collection
+class Scores(Collection):
+    def __init__(self, scores):
+        super().__init__()
+        self.scores = scores
+
+    def __iter__(self):
+        return iter(self.scores)
+
+    def __contains__(self, score):
+        return score in self.scores
+
+    def __len__(self):
+        return len(self.scores)
+
+    def __repr__(self):
+        return self.scores.__repr__()
+
+    def to_json(self, fileobject=None):
+        scores_to_json = [score._asdict() for score in self.scores]
+        if fileobject is not None:
+            json.dump(scores_to_json, fileobject, sort_keys=True, indent=4)
+        return json.dumps(scores_to_json, sort_keys=True, indent=4)
 
 
 def is_predictions_file_valid(result_file, score_dir_path):

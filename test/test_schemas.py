@@ -15,7 +15,7 @@ class TestProblemSchema(unittest.TestCase):
     def testMetrics(self):
         baseballmetrics = self.baseballProblemSchema.metrics
         self.assertEqual(len(baseballmetrics), 1)
-        self.assertEqual(baseballmetrics[0].name, 'F1_MACRO')
+        self.assertEqual(baseballmetrics[0], F1MACRO)
 
     def testTargetNames(self):
         self.assertEqual(self.baseballProblemSchema.target_names, ['Hall_of_Fame'])
@@ -23,7 +23,7 @@ class TestProblemSchema(unittest.TestCase):
     def testMetricsWithParams(self):
         baseballmetrics = self.baseballProblemSchema.metrics_wparams
         self.assertEqual(len(baseballmetrics), 1)
-        self.assertEqual(baseballmetrics[0]['metric'].name, 'F1_MACRO')
+        self.assertEqual(baseballmetrics[0]['metric'], F1MACRO)
         self.assertEqual(baseballmetrics[0]['params'], dict() )
 
 class TestDatasetSchema(unittest.TestCase):
@@ -44,7 +44,7 @@ class TestD3MDataStructure(unittest.TestCase):
         cls.metrics_wp = cls.obj.problemschema.metrics_wparams
 
     def testInit(self):
-        self.assertEqual([metric.name for metric in self.metrics], [F1MACRO])
+        self.assertEqual(self.metrics, [F1MACRO])
         self.assertEqual(self.metrics_wp[0]['metric'], F1MACRO)
         self.assertEqual(self.metrics_wp[0]['params'], dict())
         self.assertEqual(len(self.metrics), 1)
@@ -52,7 +52,7 @@ class TestD3MDataStructure(unittest.TestCase):
         self.assertEqual(self.obj.dataschema.index_name, 'd3mIndex')
 
     def testGetAttr(self):
-        self.assertEqual([metric.name for metric in self.obj.metrics], [F1MACRO])
+        self.assertEqual(self.obj.metrics, [F1MACRO])
         self.assertEqual(self.obj.index_name, 'd3mIndex')
         self.assertEqual(self.obj.target_names, ['Hall_of_Fame'])
 

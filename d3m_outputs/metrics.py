@@ -143,6 +143,14 @@ def precision_at_top_K_meta(gt, preds, K=20):
     return precision_at_top_K(gt_indices, pred_indices, K=K)
 
 
+def precision(ground_truth, predicted):
+    return skm.precision_score(ground_truth, predicted)
+
+
+def recall(ground_truth, predicted):
+    return skm.recall_score(ground_truth, predicted)
+
+
 METRICS_DICT = {
     'accuracy': accuracy,
     'f1': f1,
@@ -159,7 +167,10 @@ METRICS_DICT = {
     'normalizedMutualInformation': norm_mut_info,
     'jaccardSimilarityScore': jacc_sim,
     'precisionAtTopK': precision_at_top_K_meta,
-    'objectDetectionAP': objectDetectionAP
+    'objectDetectionAP': objectDetectionAP,
+    'object_detection_average_precision': objectDetectionAP,
+    'precision': precision,
+    'recall': recall
 }
 
 

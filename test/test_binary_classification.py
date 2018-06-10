@@ -60,8 +60,8 @@ class TestF1Indicator(unittest.TestCase):
         self.assertAlmostEqual(0.571428571428, METRICS_DICT['f1'](GROUND_TRUTH, PREDICTED_OK))
 
     def testOkLabel0(self):
-        self.assertAlmostEqual(0.5714285714285714, f1(GROUND_TRUTH, PREDICTED_OK, pos_label=0))
-        self.assertAlmostEqual(0.5714285714285714, METRICS_DICT['f1'](GROUND_TRUTH, PREDICTED_OK, pos_label=0))
+        self.assertAlmostEqual(0.4, f1(GROUND_TRUTH, PREDICTED_OK, pos_label=0))
+        self.assertAlmostEqual(0.4, METRICS_DICT['f1'](GROUND_TRUTH, PREDICTED_OK, pos_label=0))
 
     def testBad(self):
         self.assertEqual(0.0, f1(GROUND_TRUTH, PREDICTED_BAD))
