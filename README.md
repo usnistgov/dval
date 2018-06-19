@@ -22,19 +22,19 @@ This package works with Python 3.6+.
 To install latest released version:
 
 ```
-$ pip install git+https://gitlab.datadrivendiscovery.org/d3m/metrics.git@master
+$ pip install git+https://gitlab.datadrivendiscovery.org/nist/nist_eval_output_validation_scoring.git@master
 ```
 
 To install a particular release of the package, e.g., `v2018.4.28`:
 
 ```
-$ pip install git+https://gitlab.datadrivendiscovery.org/d3m/metrics.git@v2018.4.28
+$ pip install git+https://gitlab.datadrivendiscovery.org/nist/nist_eval_output_validation_scoring.git@v2018.4.28
 ```
 
 To install latest development (unreleased) version:
 
 ```
-$ pip install git+https://gitlab.datadrivendiscovery.org/d3m/metrics.git@develop
+$ pip install git+https://gitlab.datadrivendiscovery.org/nist/nist_eval_output_validation_scoring.git@develop
 ```
 
 ### CLI Usage
