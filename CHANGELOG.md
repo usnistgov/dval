@@ -1,4 +1,4 @@
-## vNEXT
+## 18summer-1.0-alpha  (v2018.6.10)
 First release for *Summer 2018 Evaluation* Validation and Scoring
 
 * Add a CHANGELOG.md file tracking version changes.
@@ -6,10 +6,9 @@ First release for *Summer 2018 Evaluation* Validation and Scoring
 * Support for v3.1 metrics and metric parameters
   * f1 parameter
   * score on all targets
-* Support for metalearning format pipelines
-* Full Task 2 outputs validation - summer 2018 specification
+* Added new metrics precision and recall (object metric still TBD)
 * Task 2 scoring - summer 2018 specification
-* Only requires problem schema for task 2 validation, previously required full data structure. Backwards compatible 
+* Support for metalearning format pipelines
 
 
 ## v2018.4.28
