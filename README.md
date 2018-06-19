@@ -19,6 +19,12 @@ Download the seed datasets at [https://datadrivendiscovery.org/data/seed_dataset
 
 This package works with Python 3.6+.
 
+To install latest released version:
+
+```
+$ pip install git+https://gitlab.datadrivendiscovery.org/d3m/metrics.git@master
+```
+
 To install a particular release of the package, e.g., `v2018.4.28`:
 
 ```
