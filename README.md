@@ -17,7 +17,7 @@ Download the seed datasets at [https://datadrivendiscovery.org/data/seed_dataset
 
 ### Installation
 
-This package works with Python 3.6+.
+This package works with Python 3.6+ and **requires** the [d3m core package](https://gitlab.com/datadrivendiscovery/d3m).
 
 To install latest released version:
 
