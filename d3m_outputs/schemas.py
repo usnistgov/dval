@@ -130,6 +130,7 @@ class D3MDataStructure:
     RELATIVE_PATH_TO_PROBLEMSCHEMA = 'problem_TEST/problemDoc.json'
     RELATIVE_PATH_TO_TESTDATA = 'dataset_TEST/tables/learningData.csv'
     RELATIVE_PATH_TO_TARGETS = 'targets.csv'
+    RELATIVE_PATH_TO_BASELINE_SCORES = 'baseline_scores.csv'
 
     def __init__(self, **kwargs):
 
@@ -138,6 +139,7 @@ class D3MDataStructure:
         self.problemschema = ProblemSchema(self.root / self.RELATIVE_PATH_TO_PROBLEMSCHEMA)
         self.testdata_path = self.root / self.RELATIVE_PATH_TO_TESTDATA
         self.targets_path = self.root / self.RELATIVE_PATH_TO_TARGETS
+        self.baseline_scores_path = self.root / self.RELATIVE_PATH_TO_BASELINE_SCORES
 
 
     def __getattr__(self, item):
@@ -163,6 +165,13 @@ class D3MDataStructure:
         self.targets_df = pandas.read_csv(self.targets_path)
         self.targets_index = self.targets_df.index
         self.number_targets = len(self.targets_index)
+
+    def get_baseline_score(self, baseline_scores_path=None):
+        if baseline_scores_path:
+            self.baseline_scores_path = baseline_scores_path
+
+        self.baseline_scores_df = pandas.read_csv(self.baseline_scores_path)
+        return self.baseline_scores_df.iloc[0]['value']
 
     @property
     def target_types(self):

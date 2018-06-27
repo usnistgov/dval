@@ -36,14 +36,7 @@ from .file_checker import FileChecker
 from .metrics import METRICS_DICT, valid_metric, apply_metric
 from .validation_type_checks import valid_d3mindex, valid_boolean, valid_real, valid_integer, valid_string, \
     valid_categorical, valid_datetime
-
-
-class Score(namedtuple('Score', ['target', 'metric', 'scorevalue'])):
-
-    @property
-    def json(self):
-        score_dict = self._asdict()
-        return json.dumps(score_dict)
+from .score import Score, Scores
 
 
 class Predictions:
@@ -79,6 +72,12 @@ class Predictions:
         # Score = namedtuple('Score', ['target', 'metric', 'scorevalue'])
 
         self.ds.load_targets(targets_filepath)
+
+        try:
+            baseline_score = self.ds.get_baseline_score()
+        except FileNotFoundError:
+            baseline_score = "None"
+        
         # scoring_metrics = self.ds.metrics
         scoring_metrics = self.ds.problemschema.metrics_wparams
 
@@ -92,16 +91,18 @@ class Predictions:
                 # no pos_label specified for metric f1, setting to '1'
                 metric['params']['pos_label'] = int(metric['params']['pos_label'])
 
-        # In the metric is applicable to all, need to
+            # In the metric is applicable to all, need to
             if 'applicabilityToTarget' in metric['params'] and metric['params']['applicabilityToTarget'] == "allTargets":
                 gt_l = [self.ds.targets_df[target] for target in self.ds.target_names]
                 pred_l = [self.frame[target] for target in self.ds.target_names]
                 value = apply_metric(metric['metric'], gt_l, pred_l, **metric['params'])
-                scores.append(Score('allTargets', metric['metric'], value))
+                score = Score('allTargets', metric['metric'], value, baseline_score)
             else:
                 for target in self.ds.target_names:
                     value = apply_metric(metric['metric'], self.ds.targets_df[target], self.frame[target], **metric['params'])
-                    scores.append(Score(target, metric['metric'], value))
+                    score = Score(target, metric['metric'], value, baseline_score)
+            score.transform_normalize()
+            scores.append(score)
 
         return Scores(scores)
 
@@ -178,30 +179,6 @@ class Predictions:
             self.result_file_path)
         logging.info('Predictions file exists and is readable.')
         return True
-
-from collections.abc import Collection
-class Scores(Collection):
-    def __init__(self, scores):
-        super().__init__()
-        self.scores = scores
-
-    def __iter__(self):
-        return iter(self.scores)
-
-    def __contains__(self, score):
-        return score in self.scores
-
-    def __len__(self):
-        return len(self.scores)
-
-    def __repr__(self):
-        return self.scores.__repr__()
-
-    def to_json(self, fileobject=None):
-        scores_to_json = [score._asdict() for score in self.scores]
-        if fileobject is not None:
-            json.dump(scores_to_json, fileobject, sort_keys=True, indent=4)
-        return json.dumps(scores_to_json, sort_keys=True, indent=4)
 
 
 def is_predictions_file_valid(result_file, score_dir_path):
