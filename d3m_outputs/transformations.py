@@ -22,7 +22,7 @@ class CenterizedNormalizedScoreTransformation(Transformation):
     def transform(self, score):
         t_score = (score - self.left_interval)/(self.right_interval - self.left_interval)
         if self.isCost:
-            t_score = 1 - score
+            t_score = 1 - t_score
         return t_score
 
     
@@ -38,10 +38,10 @@ class InfInfScoreTransformation(Transformation):
             return 1 - 1/(1+math.exp(-score))
 
 
-class ZeroInfCostToScoreTransformation(Transformation):
+class ZeroInfScoreTransformation(Transformation):
 
     def __init__(self, left_interval, right_interval, isCost):
-        super(ZeroInfCostToScoreTransformation, self).__init__(left_interval, right_interval, isCost)
+        super(ZeroInfScoreTransformation, self).__init__(left_interval, right_interval, isCost)
 
     def transform(self, score):
         if not self.isCost:
@@ -58,8 +58,8 @@ METRIC_RANGES_DICT = {
     'rocAuc': None,
     'rocAucMicro': None,
     'rocAucMacro': None,
-    'meanSquaredError': ZeroInfCostToScoreTransformation(0, None, True),
-    'rootMeanSquaredError': ZeroInfCostToScoreTransformation(0, None, True),
+    'meanSquaredError': ZeroInfScoreTransformation(0, None, True),
+    'rootMeanSquaredError': ZeroInfScoreTransformation(0, None, True),
     'rootMeanSquaredErrorAvg': None,
     'meanAbsoluteError': None,
     'rSquared': None,
