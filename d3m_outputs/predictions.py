@@ -71,7 +71,7 @@ class Predictions:
         targets_valid = self._are_targets_valid()
         index_valid = self._is_index_valid()
 
-        valid = file_readable and targets_valid and index_valid and header_valid
+        valid = file_readable and targets_valid and index_valid
         return valid
 
     def score(self, targets_filepath):
@@ -117,7 +117,7 @@ class Predictions:
         headers = list(self.frame)
         expected = self.ds.expected_header
         if headers != expected:
-            logging.error(
+            logging.warning(
                 f'Invalid header. Found {headers}, expected {expected}')
             return False
 
