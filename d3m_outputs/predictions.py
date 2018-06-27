@@ -71,7 +71,7 @@ class Predictions:
         targets_valid = self._are_targets_valid()
         index_valid = self._is_index_valid()
 
-        valid = file_readable and targets_valid and index_valid
+        valid = file_readable and targets_valid and index_valid and header_valid
         return valid
 
     def score(self, targets_filepath):
