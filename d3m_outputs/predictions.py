@@ -76,7 +76,7 @@ class Predictions:
         try:
             baseline_score = self.ds.get_baseline_score()
         except FileNotFoundError:
-            baseline_score = None
+            baseline_score = "None"
         
         # scoring_metrics = self.ds.metrics
         scoring_metrics = self.ds.problemschema.metrics_wparams

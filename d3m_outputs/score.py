@@ -1,6 +1,7 @@
 import math
+import json
 from enum import Enum, auto
-from collections import namedtuple
+from collections import OrderedDict
 from collections.abc import Collection
 
 from .transformations import apply_transformation
@@ -13,17 +14,21 @@ class Score():
     def __init__(self, target, metric, scorevalue, baseline_scorevalue):
         self.target = target
         self.metric = metric
+        
         self.scorevalue = scorevalue
         self.baseline_scorevalue = baseline_scorevalue
-        self.transformed_normalized_scorevalue = None
+
+        self.transformed_scorevalue = "None"
+        self.transformed_baseline_scorevalue = "None"
+
+        self.transformed_normalized_scorevalue = "None"
 
     @property
     def json(self):
         """ 
         :return: a Score instance Json formatted
         """
-        score_dict = self._asdict()
-        return json.dumps(score_dict)
+        return json.dumps(self.__dict__)
 
     def _transform(self, score):
         """ Transform any score to fit between [0,1]
@@ -46,10 +51,11 @@ class Score():
     def transform_normalize(self):
         """ Transform and normalize the score to allow cross comparison
         """
-        if self.baseline_scorevalue:
-            transformed_baseline = self._transform(self.baseline_scorevalue)
-            transformed_score = self._transform(self.scorevalue)
-            self.transformed_normalized_scorevalue = self._normalize(transformed_score, transformed_baseline)
+        if self.baseline_scorevalue != 'None':
+            self.transformed_baseline_scorevalue = self._transform(self.baseline_scorevalue)
+            self.transformed_scorevalue = self._transform(self.scorevalue)
+            self.transformed_normalized_scorevalue = self._normalize(self.transformed_scorevalue, 
+                self.transformed_baseline_scorevalue)
 
 
 class Scores(Collection):
