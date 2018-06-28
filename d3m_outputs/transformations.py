@@ -60,7 +60,7 @@ METRIC_RANGES_DICT = {
     'rocAucMacro': None,
     'meanSquaredError': ZeroInfScoreTransformation(0, None, True),
     'rootMeanSquaredError': ZeroInfScoreTransformation(0, None, True),
-    'rootMeanSquaredErrorAvg': None,
+    'rootMeanSquaredErrorAvg': ZeroInfScoreTransformation(0, None, True),
     'meanAbsoluteError': None,
     'rSquared': None,
     'normalizedMutualInformation': CenterizedNormalizedScoreTransformation(0, 1, False),

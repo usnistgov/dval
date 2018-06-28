@@ -30,20 +30,20 @@ class Score():
         """
         return json.dumps(self.__dict__)
 
-    def _transform(self, score):
+    def _transform(self, score, transformation):
         """ Transform any score to fit between [0,1]
 
         :return: transformed score
         """
-        return apply_transformation(self.metric).transform(score)
+        return transformation.transform(score)
 
-    def _normalize(self, score, baseline_score):
+    def _normalize(self, score, baseline_score, transformation):
         """ Normalize a score according to the baseline
 
         :param baseline_score: baseline score
         :type baseline_score: float
         """
-        if not apply_transformation(self.metric).isCost:
+        if not transformation.isCost:
             return (score - baseline_score) / abs(baseline_score)
         else:
             return (baseline_score - score) / abs(baseline_score)
@@ -52,10 +52,12 @@ class Score():
         """ Transform and normalize the score to allow cross comparison
         """
         if self.baseline_scorevalue != 'None':
-            self.transformed_baseline_scorevalue = self._transform(self.baseline_scorevalue)
-            self.transformed_scorevalue = self._transform(self.scorevalue)
-            self.transformed_normalized_scorevalue = self._normalize(self.transformed_scorevalue, 
-                self.transformed_baseline_scorevalue)
+            transformation = apply_transformation(self.metric)
+            if transformation:
+                self.transformed_baseline_scorevalue = self._transform(self.baseline_scorevalue, transformation)
+                self.transformed_scorevalue = self._transform(self.scorevalue, transformation)
+                self.transformed_normalized_scorevalue = self._normalize(self.transformed_scorevalue, 
+                    self.transformed_baseline_scorevalue, transformation)
 
 
 class Scores(Collection):
