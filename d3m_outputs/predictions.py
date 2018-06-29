@@ -110,7 +110,6 @@ class Predictions:
             self.result_file_path,
             delimiter=self.separator)
 
-
     def _is_header_valid(self):
         """
         :return: bool
@@ -118,22 +117,19 @@ class Predictions:
         headers = list(self.frame)
         expected = self.ds.expected_header
         if headers != expected:
-            logging.warning(
+            logging.error(
                 f'Invalid header. Found {headers}, expected {expected}')
-            if len(headers) != len(expected):
-                logging.error(
-                f'Header lengths do not match have {len(headers)}, expected {len(expected)}')
-                return False
+            return False
 
         logging.info('Header is valid.')
         return True
 
     def _is_index_valid(self):
         valid = valid_d3mindex(self.ds.expected_index)
-        is_nan = pandas.isnull(self.frame).any().all()
-        if not is_nan:
+        is_nan = pandas.isnull(self.frame).any().all().all()
+        if is_nan:
             valid = False
-            logging.error(f'Certain columns have missing entries')
+            logging.error(f'Certain entries are invalid or empty')
         if valid:
             for i, (e1, e2) in enumerate(
                     zip(self.frame.index, self.ds.expected_index)):
