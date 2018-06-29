@@ -106,17 +106,6 @@ def is_pipeline_valid_bare(pipeline):
         if len(steps) == 0:
             return False
 
-        try:
-            primitives = [step['primitive']['name'] for step in steps]
-
-            if len(primitives) != len(set(primitives)):
-                # duplicates!
-                return False
-
-        except (KeyError, ):
-            # print some error message
-            return False
-
         return True
 
     required_fields = {
@@ -129,8 +118,10 @@ def is_pipeline_valid_bare(pipeline):
         if field not in pipeline:
             logging.error(f'Missing field {field}')
             valid = False
+            print("ALEX", field, cond)
         elif not cond(pipeline[field]):
             logging.error(f'Field {field} has an incorrect value.')
             valid = False
+            print("ALEX2", field, cond)
 
     return valid

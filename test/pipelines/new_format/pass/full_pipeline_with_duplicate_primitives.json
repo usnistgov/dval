@@ -1,0 +1,192 @@
+{
+    "name": "openml_185_baseball_example",
+    "context": "TESTING",
+    "created": "2018-06-22T17:37:42.278828Z",
+    "id": "492464ae-07ed-4d92-84a9-a63a635973c2",
+    "inputs": [
+        {
+            "name": "inputs"
+        }
+    ],
+    "outputs": [
+        {
+            "data": "steps.6.produce",
+            "name": "output"
+        }
+    ],
+    "schema": "https://metadata.datadrivendiscovery.org/schemas/v0/pipeline.json",
+    "steps": [
+        {
+            "arguments": {
+                "inputs": {
+                    "data": "inputs.0",
+                    "type": "CONTAINER"
+                }
+            },
+            "outputs": [
+                {
+                    "id": "produce"
+                }
+            ],
+            "primitive": {
+                "digest": "38adb5c59952cd64a7c70b6431189870a2543bf15ee95521604e2ab6fa2babda",
+                "id": "4b42ce1e-9b98-4a25-b68e-fad13311eb65",
+                "name": "Extract a DataFrame from a Dataset",
+                "python_path": "d3m.primitives.datasets.DatasetToDataFrame",
+                "version": "0.3.0"
+            },
+            "type": "PRIMITIVE"
+        },
+        {
+            "arguments": {
+                "inputs": {
+                    "data": "steps.0.produce",
+                    "type": "CONTAINER"
+                }
+            },
+            "outputs": [
+                {
+                    "id": "produce"
+                }
+            ],
+            "primitive": {
+                "digest": "38adb5c59952cd64a7c70b6431189870a2543bf15ee95521604e2ab6fa2babda",
+                "id": "d510cb7a-1782-4f51-b44c-58f0236e47c7",
+                "name": "Parses strings into their types",
+                "python_path": "d3m.primitives.data.ColumnParser",
+                "version": "0.3.0"
+            },
+            "type": "PRIMITIVE"
+        },
+        {
+            "arguments": {
+                "inputs": {
+                    "data": "steps.1.produce",
+                    "type": "CONTAINER"
+                }
+            },
+            "hyperparams": {
+                "semantic_types": {
+                    "data": [
+                        "https://metadata.datadrivendiscovery.org/types/Attribute"
+                    ],
+                    "type": "VALUE"
+                }
+            },
+            "outputs": [
+                {
+                    "id": "produce"
+                }
+            ],
+            "primitive": {
+                "digest": "38adb5c59952cd64a7c70b6431189870a2543bf15ee95521604e2ab6fa2babda",
+                "id": "4503a4c6-42f7-45a1-a1d4-ed69699cf5e1",
+                "name": "Extracts columns by semantic type",
+                "python_path": "d3m.primitives.data.ExtractColumnsBySemanticTypes",
+                "version": "0.2.0"
+            },
+            "type": "PRIMITIVE"
+        },
+        {
+            "arguments": {
+                "inputs": {
+                    "data": "steps.1.produce",
+                    "type": "CONTAINER"
+                }
+            },
+            "hyperparams": {
+                "semantic_types": {
+                    "data": [
+                        "https://metadata.datadrivendiscovery.org/types/SuggestedTarget"
+                    ],
+                    "type": "VALUE"
+                }
+            },
+            "outputs": [
+                {
+                    "id": "produce"
+                }
+            ],
+            "primitive": {
+                "digest": "38adb5c59952cd64a7c70b6431189870a2543bf15ee95521604e2ab6fa2babda",
+                "id": "4503a4c6-42f7-45a1-a1d4-ed69699cf5e1",
+                "name": "Extracts columns by semantic type",
+                "python_path": "d3m.primitives.data.ExtractColumnsBySemanticTypes",
+                "version": "0.2.0"
+            },
+            "type": "PRIMITIVE"
+        },
+        {
+            "arguments": {
+                "inputs": {
+                    "data": "steps.2.produce",
+                    "type": "CONTAINER"
+                },
+                "outputs": {
+                    "data": "steps.3.produce",
+                    "type": "CONTAINER"
+                }
+            },
+            "outputs": [
+                {
+                    "id": "produce"
+                }
+            ],
+            "primitive": {
+                "digest": "36c4dadf8cd1ea8b31224a54f7b37b3fb7de9f4b93baf8169c9f1e8c27ed0c6a",
+                "id": "58a8fe68-74eb-3e21-a823-bfa708010759",
+                "name": "JMIplus feature selector",
+                "python_path": "d3m.primitives.rpi_featureSelection_python_tools.JMIplus_Selector",
+                "version": "2.1.3"
+            },
+            "type": "PRIMITIVE"
+        },
+        {
+            "arguments": {
+                "inputs": {
+                    "data": "steps.4.produce",
+                    "type": "CONTAINER"
+                }
+            },
+            "outputs": [
+                {
+                    "id": "produce"
+                }
+            ],
+            "primitive": {
+                "digest": "cc7057804db9d5295e75e37a589b93e1bea168d5c77f8d62c069c901f13f3956",
+                "id": "d016df89-de62-3c53-87ed-c06bb6a23cde",
+                "name": "sklearn.preprocessing.imputation.Imputer",
+                "python_path": "d3m.primitives.sklearn_wrap.SKImputer",
+                "version": "2018.6.20"
+            },
+            "type": "PRIMITIVE"
+        },
+        {
+            "arguments": {
+                "inputs": {
+                    "data": "steps.5.produce",
+                    "type": "CONTAINER"
+                },
+                "outputs": {
+                    "data": "steps.3.produce",
+                    "type": "CONTAINER"
+                }
+            },
+            "outputs": [
+                {
+                    "id": "produce"
+                }
+            ],
+            "primitive": {
+                "digest": "cc7057804db9d5295e75e37a589b93e1bea168d5c77f8d62c069c901f13f3956",
+                "id": "1dd82833-5692-39cb-84fb-2455683075f3",
+                "name": "sklearn.ensemble.forest.RandomForestClassifier",
+                "python_path": "d3m.primitives.sklearn_wrap.SKRandomForestClassifier",
+                "version": "2018.6.20"
+            },
+            "type": "PRIMITIVE"
+        }
+    ],
+    "pipeline_rank": 0.1
+}
