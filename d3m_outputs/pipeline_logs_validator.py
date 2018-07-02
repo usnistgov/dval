@@ -31,7 +31,7 @@ def is_pipeline_valid(pipeline_uri,
 
     bare_2018_valid = is_pipeline_valid_bare(pipeline)
     print("2018 'bare' format, valid=", bare_2018_valid)
-    full_2018_valid = is_pipeline_valid_full_validation(pipeline)
+    full_2018_valid = is_pipeline_valid_full_validation(pipeline_uri)
     print("2018 full format, valid=", full_2018_valid)
 
     valid = (allow_2017_format and format_2017_valid) or \
@@ -58,7 +58,7 @@ def is_pipeline_valid_full_validation(filename):
         func = getattr(Pipeline, "from_yaml" if filename.endswith(".yml") or filename.endswith(".yaml") else "from_json")
         func(open(filename, "r")).check(allow_placeholders=False)
         return True
-    except Exception:
+    except Exception as error:
         return False
 
 
