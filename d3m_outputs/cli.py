@@ -127,9 +127,9 @@ def cmd_score(args):
         print('{0: <50} scores={1}'.format(predictions_file, scores))
 
         if args.outfile is not None:
-            to_dump = [s._asdict() for s in scores]
+            to_dump = [s.__dict__ for s in scores]
             json.dump(to_dump, args.outfile, sort_keys=True, indent=4)
-            print(f'Scores written to {args.outfile}')
+            print(f'Scores written to {args.outfile.name}')
             pass
 
 @catch_fnf

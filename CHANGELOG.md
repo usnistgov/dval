@@ -1,3 +1,8 @@
+## 18summer-1.1-alpha  (v2018.6.27)
+
+* Add transformed and normalized scores and baseline scores
+
+
 ## 18summer-1.0-alpha  (v2018.6.10)
 First release for *Summer 2018 Evaluation* Validation and Scoring
 

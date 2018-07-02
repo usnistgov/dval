@@ -59,6 +59,9 @@ class TestD3MDataStructure(unittest.TestCase):
     def testTargetTypes(self):
         self.assertEqual(self.obj.target_types, {'Hall_of_Fame': 'categorical'})
 
+    def testBaselineScores(self):
+        self.assertEqual(round(self.obj.get_baseline_score(), 2), 0.69)
+
 
 def test_params():
     data_dir = Path(__file__).parent / 'data'
