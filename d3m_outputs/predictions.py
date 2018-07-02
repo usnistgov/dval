@@ -71,7 +71,7 @@ class Predictions:
         targets_valid = self._are_targets_valid()
         index_valid = self._is_index_valid()
 
-        valid = file_readable and targets_valid and index_valid
+        valid = file_readable and targets_valid and index_valid and header_valid
         return valid
 
     def score(self, targets_filepath):
@@ -126,7 +126,10 @@ class Predictions:
 
     def _is_index_valid(self):
         valid = valid_d3mindex(self.ds.expected_index)
-
+        is_nan = pandas.isnull(self.frame).any().all().all()
+        if is_nan:
+            valid = False
+            logging.error(f'Certain entries are invalid or empty')
         if valid:
             for i, (e1, e2) in enumerate(
                     zip(self.frame.index, self.ds.expected_index)):
