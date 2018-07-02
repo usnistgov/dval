@@ -91,7 +91,7 @@ def cmd_valid_exec_dir(args):
 @catch_fnf
 def cmd_valid_gen_problems(args):
     
-    is_valid = generated_problems.check_generated_problems_directory(args.problems_directory)
+    is_valid = generated_problems.check_generated_problems_directory(args.problems_directory, args.output_file)
 
     if is_valid:
         print('Directory {} is valid'.format(args.problems_directory))
@@ -201,6 +201,7 @@ def cli_parser():
     subparsers['valid_generated_problems'].add_argument('problems_directory',
                                                      help='path to directory containing the generated problems.'
                                                      )
+    subparsers['valid_generated_problems'].add_argument('-o', '--output_file', help='path to csv file containing valid problem ids')
     subparsers['valid_generated_problems'].set_defaults(func=cmd_valid_gen_problems)
 
     # score -d score_dir [-g ground_truth_file] [--validation | --no-validation] predictions_file

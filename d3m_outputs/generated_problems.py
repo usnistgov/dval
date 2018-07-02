@@ -39,7 +39,7 @@ from .pipeline_logs_validator import is_pipeline_valid_full_validation
 logger = logging.Logger(__name__)
 
 
-def check_generated_problems_directory(directory_path):
+def check_generated_problems_directory(directory_path, output_file):
     '''
     Checks that a directory contains a labels.csv file, with 
     the ['problem_id', 'system', 'meaningful'] columns.
@@ -105,6 +105,8 @@ def check_generated_problems_directory(directory_path):
     # Look for the False booleans
     failed_checks = gen_problems_md_df.loc[lambda row: ~row['correct']]
 
+    gen_problems_md_df.to_csv(output_file, index=False)
+
     # Return the list of failures if any
     if failed_checks.size > 0:
         logger.error('Validation of problems {} failed'.format(failed_checks['problem_id'].tolist()))
@@ -149,9 +151,8 @@ def check_generated_problems_subdirectory(directory_path):
     try:
         gen_problem_schema = ProblemSchema(gen_problem_schema_file_path)
     except Exception as e:
-        logger.error('Invalid problem schema at {}. The following error occured: {}'.format(gen_problem_schema_file_path,
+        logger.warning('Invalid problem schema at {}. The following error occured: {}'.format(gen_problem_schema_file_path,
             e))
-        return False
 
     # Generated pipeline check
     gen_pipeline_schema_file_glob = glob.glob(os.path.join(directory_path, 'ssapi*'))

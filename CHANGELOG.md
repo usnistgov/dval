@@ -1,3 +1,9 @@
+## 18summer-1.2-alpha  (v2018.7.02)
+
+* Allow duplicate primitives in steps
+* Add TA3 Task1 validation
+* Fix some bugs
+
 ## 18summer-1.1-alpha  (v2018.6.27)
 
 * Add transformed and normalized scores and baseline scores

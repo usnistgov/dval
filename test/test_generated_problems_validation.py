@@ -20,7 +20,8 @@ class TestGenProblems(unittest.TestCase):
 
         assert len(subdirs) > 0
         for subdir in subdirs:
-            assert generated_problems.check_generated_problems_directory(subdir) == True
+            correct_result = os.path.join(self.generated_problems_path, 'result_generated_problems_' + os.path.basename(subdir) + '.csv')
+            assert generated_problems.check_generated_problems_directory(subdir, correct_result) == True
 
 
     def test_invalid_submissions(self):
@@ -29,8 +30,17 @@ class TestGenProblems(unittest.TestCase):
         
         assert len(subdirs) > 0
         for subdir in subdirs:
-            print(subdir)
-            assert generated_problems.check_generated_problems_directory(subdir) == False
+            wrong_result = os.path.join(self.generated_problems_path, 'result_generated_problems_' + os.path.basename(subdir) + '.csv')
+            assert generated_problems.check_generated_problems_directory(subdir, wrong_result) == False
+
+
+    def test_warning_submissions(self):
+        subdirs = glob(os.path.join(self.generated_problems_path, 'warning*'))
+        
+        assert len(subdirs) > 0
+        for subdir in subdirs:
+            wrong_result = os.path.join(self.generated_problems_path, 'result_generated_problems_' + os.path.basename(subdir) + '.csv')
+            assert generated_problems.check_generated_problems_directory(subdir, wrong_result) == True
 
 if __name__ == '__main__':
     unittest.main()
