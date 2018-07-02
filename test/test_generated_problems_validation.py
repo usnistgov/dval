@@ -1,5 +1,5 @@
     
-    
+
 import os 
 
 import unittest
@@ -17,7 +17,6 @@ class TestGenProblems(unittest.TestCase):
 
     def test_valid_submissions(self):
         subdirs = glob(os.path.join(self.generated_problems_path, 'correct*'))
-        print(subdirs)
 
         assert len(subdirs) > 0
         for subdir in subdirs:
@@ -27,7 +26,6 @@ class TestGenProblems(unittest.TestCase):
     def test_invalid_submissions(self):
         subdirs = glob(os.path.join(self.generated_problems_path, 'wrong*'))
         subdirs.extend(glob(os.path.join(self.generated_problems_path, 'missing*')))
-        print(subdirs)
         
         assert len(subdirs) > 0
         for subdir in subdirs:
