@@ -106,17 +106,6 @@ def is_pipeline_valid_bare(pipeline):
         if len(steps) == 0:
             return False
 
-        try:
-            primitives = [step['primitive']['name'] for step in steps]
-
-            if len(primitives) != len(set(primitives)):
-                # duplicates!
-                return False
-
-        except (KeyError, ):
-            # print some error message
-            return False
-
         return True
 
     required_fields = {

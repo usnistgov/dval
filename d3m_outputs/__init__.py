@@ -1,4 +1,4 @@
-__all__ = ['predictions', 'file_checker', 'metrics',
+__all__ = ['predictions', 'file_checker', 'metrics', 'generated_problems',
            'pipeline_logs_validator', 'schemas', 'validation_type_checks',
            'score', 'transformations',
            'is_predictions_file_valid', 'score_predictions_file', 'Predictions',

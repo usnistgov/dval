@@ -1,0 +1,81 @@
+version: "2018.5.2_pre"
+allowed_value_types: DATASET_URI
+problem:
+  problem:
+    task_type: CLASSIFICATION
+    performance_metrics:
+      metric: ACCURACY
+
+  inputs:
+    dataset_id: "d_185_baseball"
+    targets:
+      target_index: 7
+      resource_id: "0"
+      column_index: 7
+      column_name: "Hall_of_Fame"
+
+template:
+  name: "preprocessing-d_185_baseball-ef134578-f2ed-4b40-a592-cbbd970093ea"
+  description: "Preprocessing pipeline capturing user feature selection and type information. Dataset: `d_185_baseball` ID: `ef134578-f2ed-4b40-a592-cbbd970093ea`"
+  outputs:
+    data: "steps.2.produce"
+
+  steps:
+    primitive:
+      primitive:
+        id: "2eeff053-395a-497d-88db-7374c27812e6"
+        version: "0.1.0"
+        python_path: "d3m.primitives.datasets.RemoveColumns"
+        name: "Column remover"
+
+      arguments:
+        key: "inputs"
+        value:
+          container:
+            data: "inputs.0"
+
+      outputs:
+        id: "produce"
+
+      hyperparams:
+        key: "columns"
+        value:
+          value:
+            data:
+              string: "[\"Player\",\"Number_seasons\",\"At_bats\",\"Hits\",\"Triples\",\"RBIs\",\"Walks\",\"Batting_average\",\"Slugging_pct\",\"Position\"]"
+  steps:
+    primitive:
+      primitive:
+        id: "98c79128-555a-4a6b-85fb-d4f4064c94ab"
+        version: "0.1.0"
+        python_path: "d3m.primitives.datasets.UpdateSemanticTypes"
+        name: "Semantic type updater"
+      arguments:
+        key: "inputs"
+        value:
+          container:
+            data: "steps.0.produce"
+      outputs:
+        id: "produce"
+      hyperparams:
+        key: "add"
+        value:
+          value:
+            data:
+              string: "[{\"col_name\":\"Strikeouts\",\"semantic_type\":\"http://schema.org/Integer\"},{\"col_name\":\"Hall_of_Fame\",\"semantic_type\":\"https://metadata.datadrivendiscovery.org/types/Target\"}]"
+      hyperparams:
+        key: "remove"
+        value:
+          value:
+            data:
+              string: "[{\"col_name\":\"Strikeouts\",\"semantic_type\":\"http://schema.org/Float\"}]"
+  steps:
+    placeholder:
+      inputs:
+        data: "steps.1.produce"
+      outputs:
+        id: "produce"
+
+inputs:
+  dataset_uri:
+    -  "/home/chris/dev/go_workspace/src/github.com/unchartedsoftware/distil/datasets/17639185000793770304/datasetDoc.json"
