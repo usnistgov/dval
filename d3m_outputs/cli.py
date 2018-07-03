@@ -13,10 +13,10 @@ import argparse
 import sys
 import os
 import json
-from . import score_predictions_file, is_predictions_file_valid, is_pipeline_valid
+from . import score_predictions_file, is_predictions_file_valid, is_pipeline_valid, generated_problems
 
 subparsers_l = ['valid_predictions', 'valid_pipelines', 'valid_pipeline_dir', 'valid_executables_dir', 'validate_post_search', 'test_script',
-                'score', 'score_seed_baselines']
+                'valid_generated_problems', 'score', 'score_seed_baselines']
 
 
 def catch_fnf(func):
@@ -89,6 +89,19 @@ def cmd_valid_exec_dir(args):
 
 
 @catch_fnf
+def cmd_valid_gen_problems(args):
+    
+    is_valid = generated_problems.check_generated_problems_directory(args.problems_directory, args.output_file)
+
+    if is_valid:
+        print('Directory {} is valid'.format(args.problems_directory))
+    else:
+        print('Directory {} is not valid'.format(args.problems_directory))
+
+    return is_valid
+
+
+@catch_fnf
 def cmd_score(args):
 
     if args.outfile is not None and len(args.predictions_file) > 1:
@@ -114,9 +127,9 @@ def cmd_score(args):
         print('{0: <50} scores={1}'.format(predictions_file, scores))
 
         if args.outfile is not None:
-            to_dump = [s._asdict() for s in scores]
+            to_dump = [s.__dict__ for s in scores]
             json.dump(to_dump, args.outfile, sort_keys=True, indent=4)
-            print(f'Scores written to {args.outfile}')
+            print(f'Scores written to {args.outfile.name}')
             pass
 
 @catch_fnf
@@ -183,6 +196,13 @@ def cli_parser():
     subparsers['valid_executables_dir'].add_argument('--no-validation', dest='validation', action='store_false')
     subparsers['valid_executables_dir'].set_defaults(validation=True, func=cmd_valid_exec_dir)
 
+
+    subparsers['valid_generated_problems'].description = 'Validate a generated problems directory.'
+    subparsers['valid_generated_problems'].add_argument('problems_directory',
+                                                     help='path to directory containing the generated problems.'
+                                                     )
+    subparsers['valid_generated_problems'].add_argument('-o', '--output_file', help='path to csv file containing valid problem ids')
+    subparsers['valid_generated_problems'].set_defaults(func=cmd_valid_gen_problems)
 
     # score -d score_dir [-g ground_truth_file] [--validation | --no-validation] predictions_file
     subparsers['score'].description = 'Score a predictions file.'

@@ -73,6 +73,16 @@ Parameters:
 * `--validation | --no-validation`: validation is on by default. turn in off with `--no-validation`
 
 
+#### Validate a generated problems directory
+
+```
+d3m_outputs valid_generated_problems ./test/generated_problems/correct_submission/
+```
+
+Parameters:
+* `problems_directory`: path to directory containing the generated problems.
+
+
 ### Docker usage
 
 Same usage as the CLI.
@@ -165,4 +175,5 @@ Checks that the validation code does on the pipeline log files include:
 * Checks that `pipeline_rank` is an integer
 
 ## Run Tests
+
 To run all tests: `python -m unittest discover`
