@@ -127,6 +127,10 @@ class Predictions:
     def _is_index_valid(self):
         valid = valid_d3mindex(self.ds.expected_index)
         is_nan = pandas.isnull(self.frame).any().all().all()
+        targets_path=str(self.score_root)+'/targets.csv'
+        targets = pandas.read_csv(
+            targets_path,
+            delimiter=self.separator)
         if is_nan:
             valid = False
             logging.error(f'Certain entries are invalid or empty')
@@ -136,9 +140,15 @@ class Predictions:
                 if e1 != e2:
                     valid = False
                     logging.error(
-                        f'Index number {i} differs between predictions file and ground truth'
-                        f'Predictions: {e1}'
-                        f'Ground Truth: {e2}')
+                        f'Index number {i} differs between predictions file and ground truth '
+                        f'Predictions: {e1} '
+                        f'Ground Truth: {e2} ')
+                if str(self.frame.iloc[i,0]) != str(targets.iloc[i,0]):
+                    valid = False
+                    logging.error(
+                        f'Index number {i} differs between predictions file and ground truth\n'
+                        f'Predictions: {self.frame.iloc[e1,0]} '
+                        f'Ground Truth: {targets.iloc[e2,0]}')
 
         return valid
 
