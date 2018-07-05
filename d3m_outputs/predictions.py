@@ -55,6 +55,7 @@ class Predictions:
 
         self.separator = separator
         self._load_data()
+        self.ds.load_targets()
 
     def is_valid(self):
         valid = True
@@ -175,9 +176,10 @@ class Predictions:
                 try:
                     authorized_labels = self.ds.targets_df[target].unique()
                 except AttributeError:
-                    pass
+                    logging.exception(f"Wrong categorical values, actual: {self.ds.targets_df[target]} expected: ", exc_info=False)
+                    return False
                 return valid_categorical(
-                    column, authorized_labels=authorized_labels)
+                    column, authorized_labels=authorized_labels.tolist())
             elif ttype == 'dateTime':
                 return valid_datetime(column)
             elif ttype in valid_types :

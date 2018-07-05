@@ -27,12 +27,12 @@ def is_pipeline_valid(pipeline_uri,
     pipeline = load_json(pipeline_uri)
     if allow_2017_format:
         format_2017_valid = is_pipeline_valid_old_schema(pipeline)
-        print("2017 pipeline format, valid=", format_2017_valid)
+        logging.info(f"2017 pipeline format, valid={format_2017_valid}")
 
     bare_2018_valid = is_pipeline_valid_bare(pipeline)
-    print("2018 'bare' format, valid=", bare_2018_valid)
+    logging.info(f"2018 'bare' format, valid={bare_2018_valid}")
     full_2018_valid = is_pipeline_valid_full_validation(pipeline_uri)
-    print("2018 full format, valid=", full_2018_valid)
+    logging.info(f"2018 full format, valid={full_2018_valid}")
 
     valid = (allow_2017_format and format_2017_valid) or \
             (bare_2018_valid and not enforce_2018_format) or \
@@ -48,7 +48,6 @@ def is_pipeline_valid(pipeline_uri,
 
 
 def phase1(pipeline_uri):
-
     valid = is_pipeline_valid_old_schema(pipeline_uri)
 
 
