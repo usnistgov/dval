@@ -78,7 +78,7 @@ class Scores(Collection):
         return self.scores.__repr__()
 
     def to_json(self, fileobject=None):
-        scores_to_json = [score._asdict() for score in self.scores]
+        scores_to_json = [score.__dict__ for score in self.scores]
         if fileobject is not None:
             json.dump(scores_to_json, fileobject, sort_keys=True, indent=4)
         return json.dumps(scores_to_json, sort_keys=True, indent=4)
