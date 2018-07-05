@@ -12,12 +12,12 @@ class TestCmdValidPipelines(unittest.TestCase):
             cli_parser()
 
     def testNotValidate(self):
-        sys.argv[1:] = ['valid_pipelines', 'test/pipelinelogs/missing_rank.json']
+        sys.argv[1:] = ['valid_pipelines', 'test/pipelinelogs/missing_rank.json', '--allow-2017-format']
         with self.assertRaises(SystemExit):
             cli_parser()
 
     def testOk(self):
-        sys.argv[1:] = ['valid_pipelines', 'test/pipelinelogs/correct_pipeline.json']
+        sys.argv[1:] = ['valid_pipelines', 'test/pipelinelogs/correct_pipeline.json', '--allow-2017-format']
         try:
             cli_parser()
         except Exception:
