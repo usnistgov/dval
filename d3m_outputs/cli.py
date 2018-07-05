@@ -134,6 +134,8 @@ def add_yn_flag(subparser, flag_name):
 
 
 def cli_parser():
+    logging.getLogger().setLevel(logging.INFO)
+    
     parser = argparse.ArgumentParser()
     subs = parser.add_subparsers(title='subcommands')
 

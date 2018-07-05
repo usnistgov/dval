@@ -27,7 +27,7 @@ def is_pipeline_valid(pipeline_uri,
     pipeline = load_json(pipeline_uri)
     if allow_2017_format:
         format_2017_valid = is_pipeline_valid_old_schema(pipeline)
-        logging.info(f"2017 pipeline format, valid={allow_2017_format}")
+        logging.info(f"2017 pipeline format, valid={format_2017_valid}")
 
     bare_2018_valid = is_pipeline_valid_bare(pipeline)
     logging.info(f"2018 'bare' format, valid={bare_2018_valid}")
