@@ -12,10 +12,10 @@ import json
 import logging
 import warnings
 
-from d3m.metadata.pipeline import Pipeline
+from d3m.metadata.pipeline import Pipeline, NoResolver
 from .validation_type_checks import is_castable_to_type
 
-ALLOW_2017_FORMAT = True
+ALLOW_2017_FORMAT = False
 ENFORCE_2018_FORMAT = False
 
 logger = logging.Logger(__name__)
@@ -36,7 +36,7 @@ def is_pipeline_valid(pipeline_uri,
 
     valid = (allow_2017_format and format_2017_valid) or \
             (bare_2018_valid and not enforce_2018_format) or \
-            full_2018_valid
+            (full_2018_valid and bare_2018_valid)
 
     if valid and not bare_2018_valid:
         warnings.warn("This pipeline does not follow bare 2018 pipeline format. Update before eval.", UserWarning)
@@ -52,14 +52,32 @@ def phase1(pipeline_uri):
 
 
 
-def is_pipeline_valid_full_validation(filename):
+def is_pipeline_valid_full_validation(pipeline_path):
+
+    resolver = NoResolver()
+    
     try:
-        func = getattr(Pipeline, "from_yaml" if filename.endswith(".yml") or filename.endswith(".yaml") else "from_json")
-        func(open(filename, "r")).check(allow_placeholders=False)
-        return True
+        with open(pipeline_path, 'r') as pipeline_file:
+            if pipeline_path.endswith('.yml'):
+                pipeline = Pipeline.from_yaml(pipeline_file, resolver=resolver)
+            elif pipeline_path.endswith('.json'):
+                pipeline = Pipeline.from_json(pipeline_file, resolver=resolver)
+            else:
+                logger.error("Unknown file extension.")
+                return False
+
     except Exception as error:
+        logger.exception("Unable to parse pipeline: {pipeline_path}".format(pipeline_path=pipeline_path))
         return False
 
+    try:
+        pipeline.check(allow_placeholders=False)
+    except Exception as error:
+        logger.exception("Unable to validate pipeline: {pipeline_path}".format(pipeline_path=pipeline_path))
+        return False
+
+
+    return True
 
 def load_json(pipeline_uri):
     with open(pipeline_uri) as f:
