@@ -1,3 +1,10 @@
+## 18summer-1.3-alpha  (v2018.7.05)
+
+* Fix Pipelines schema full validation
+* Fix categorical targets validation
+* Handle the case where test data and ground truth have different shapes
+
+
 ## 18summer-1.2-alpha  (v2018.7.02)
 
 * Allow duplicate primitives in steps

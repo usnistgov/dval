@@ -68,10 +68,11 @@ def cmd_valid_pipeline(args):
         return False
 
     kwargs = dict()
+
     if 'allow_2017_format' in args and args.allow_2017_format is not None:
         kwargs['allow_2017_format'] = args.allow_2017_format
-    if 'enforce_full_2018_format' in args and args.enforce_2018_format is not None:
-        kwargs['enforce_full_2018_format'] = args.enforce_full_2018_format
+    if 'enforce_full_2018_format' in args and args.enforce_full_2018_format is not None:
+        kwargs['enforce_2018_format'] = args.enforce_full_2018_format
 
     valid = True
     for pipeline_f in args.pipeline_log_file:
@@ -129,11 +130,12 @@ def cmd_score(args):
 
 def add_yn_flag(subparser, flag_name):
     group = subparser.add_mutually_exclusive_group()
-    group.add_argument(f'--{flag_name}', action='store_true', dest=flag_name)
-    group.add_argument(f'--no-{flag_name}', action='store_false', dest=flag_name)
-
+    group.add_argument(f'--{flag_name}', action='store_true')
+    group.add_argument(f'--no-{flag_name}', action='store_false')
 
 def cli_parser():
+    logging.getLogger().setLevel(logging.INFO)
+    
     parser = argparse.ArgumentParser()
     subs = parser.add_subparsers(title='subcommands')
 
@@ -162,6 +164,7 @@ def cli_parser():
     # flag_allow_2017.add_argument(f'--allow-2017-format', action='store_true', dest='verbose')
     # flag_allow_2017.add_argument(f'--no-allow-2017-format', action='store_false', dest='verbose')
     # flag_allow_2017.set_defaults(verbose=True)
+
 
     add_yn_flag(subparsers['valid_pipelines'], 'allow-2017-format')
     add_yn_flag(subparsers['valid_pipelines'], 'enforce-full-2018-format')
