@@ -13,7 +13,9 @@ logging.disable(logging.CRITICAL)
 
 def setUpModule():
     global results_path
-    results_path = os.path.join('test', 'results')
+    current_path = os.path.abspath(__file__)
+    test_dir_path = os.path.dirname(current_path)
+    results_path = os.path.join(test_dir_path, 'results')
 
 
 class TestFileChecker(unittest.TestCase):
