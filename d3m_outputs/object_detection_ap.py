@@ -166,14 +166,14 @@ def objectDetectionAP(dets,
     BB = np.array([[float(z) for z in x[1:5]] for x in dets])
 
     if det_length == 6:
-        print('confidence scores are present')
+        logging.info('confidence scores are present')
         confidence = np.array([float(x[-1]) for x in dets])
         # sort by confidence
         sorted_ind = np.argsort(-confidence)
         sorted_scores = np.sort(-confidence)
 
     else:
-        print('confidence scores are not present')
+        logging.info('confidence scores are not present')
         num_dets = len(dets)
         sorted_ind = np.arange(num_dets)
         sorted_scores = np.ones(num_dets)

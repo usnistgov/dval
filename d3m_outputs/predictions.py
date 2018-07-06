@@ -55,6 +55,7 @@ class Predictions:
 
         self.separator = separator
         self._load_data()
+        self.ds.load_targets()
 
     def is_valid(self):
         valid = True
@@ -128,6 +129,10 @@ class Predictions:
     def _is_index_valid(self):
         valid = valid_d3mindex(self.ds.expected_index)
         is_nan = pandas.isnull(self.frame).any().all().all()
+        targets_path=str(self.score_root)+'/targets.csv'
+        targets = pandas.read_csv(
+            targets_path,
+            delimiter=self.separator)
         if is_nan:
             valid = False
             logging.error(f'Certain entries are invalid or empty')
@@ -137,9 +142,15 @@ class Predictions:
                 if e1 != e2:
                     valid = False
                     logging.error(
-                        f'Index number {i} differs between predictions file and ground truth'
-                        f'Predictions: {e1}'
-                        f'Ground Truth: {e2}')
+                        f'Index number {i} differs between predictions file and ground truth '
+                        f'Predictions: {e1} '
+                        f'Ground Truth: {e2} ')
+                if str(self.frame.iloc[i,0]) != str(targets.iloc[i,0]):
+                    valid = False
+                    logging.error(
+                        f'Index number {i} differs between predictions file and ground truth\n'
+                        f'Predictions: {self.frame.iloc[e1,0]} '
+                        f'Ground Truth: {targets.iloc[e2,0]}')
 
         return valid
 
@@ -165,9 +176,10 @@ class Predictions:
                 try:
                     authorized_labels = self.ds.targets_df[target].unique()
                 except AttributeError:
-                    pass
+                    logging.exception(f"Wrong categorical values, actual: {self.ds.targets_df[target]} expected: ", exc_info=False)
+                    return False
                 return valid_categorical(
-                    column, authorized_labels=authorized_labels)
+                    column, authorized_labels=authorized_labels.tolist())
             elif ttype == 'dateTime':
                 return valid_datetime(column)
             elif ttype in valid_types :

@@ -13,6 +13,7 @@ import argparse
 import sys
 import os
 import json
+import logging
 from . import score_predictions_file, is_predictions_file_valid, is_pipeline_valid, generated_problems
 
 subparsers_l = ['valid_predictions', 'valid_pipelines', 'valid_pipeline_dir', 'valid_executables_dir', 'validate_post_search', 'test_script',
@@ -41,7 +42,7 @@ def cmd_valid_predictions(args):
         try:
             return is_predictions_file_valid(predictions_file, score_dir)
         except Exception as e:
-            print(e)
+            logging.exception(e)
         return False
 
     valid = True
@@ -60,13 +61,18 @@ def cmd_valid_predictions(args):
 def cmd_valid_pipeline(args):
     @catch_fnf
     def single_valid_pipeline(pipeline_file, **kwargs):
-        return is_pipeline_valid(pipeline_file, **kwargs)
+        try:
+            return is_pipeline_valid(pipeline_file, **kwargs)
+        except Exception as e:
+            logging.exception(e)
+        return False
 
     kwargs = dict()
+
     if 'allow_2017_format' in args and args.allow_2017_format is not None:
         kwargs['allow_2017_format'] = args.allow_2017_format
-    if 'enforce_full_2018_format' in args and args.enforce_2018_format is not None:
-        kwargs['enforce_full_2018_format'] = args.enforce_full_2018_format
+    if 'enforce_full_2018_format' in args and args.enforce_full_2018_format is not None:
+        kwargs['enforce_2018_format'] = args.enforce_full_2018_format
 
     valid = True
     for pipeline_f in args.pipeline_log_file:
@@ -76,16 +82,6 @@ def cmd_valid_pipeline(args):
 
     if not valid:
         sys.exit('ERROR: At least one pipeline log is invalid. ')
-
-
-@catch_fnf
-def cmd_valid_pipeline_dir(args):
-    raise NotImplementedError("Validating a pipeline directory has not been implemented yet")
-
-
-@catch_fnf
-def cmd_valid_exec_dir(args):
-    raise NotImplementedError("Validating the executable directory has not been implemented yet")
 
 
 @catch_fnf
@@ -118,33 +114,29 @@ def cmd_score(args):
                                           args.ground_truth_file, check_valid=args.validation)
             return scores
         except Exception as e:
-            print(e)
-            print(f'Predictions file {predictions_file} could not be scored. try validating your file first')
+            logging.exception(f'Predictions file {predictions_file} could not be scored. try validating your file first')
 
     for predictions_file in args.predictions_file:
         scores = single_score_predictions(predictions_file)
 
-        print('{0: <50} scores={1}'.format(predictions_file, scores))
-
-        if args.outfile is not None:
-            to_dump = [s.__dict__ for s in scores]
-            json.dump(to_dump, args.outfile, sort_keys=True, indent=4)
-            print(f'Scores written to {args.outfile.name}')
-            pass
-
-@catch_fnf
-def cmd_seed_dir(args):
-    raise NotImplementedError("Recursively scoring the baselines for multiple problems has not been implemented yet")
+        if scores and args.outfile is None:
+            print('{0: <50} scores={1}'.format(predictions_file, scores.to_json()))
+        else:
+            if scores and args.outfile is not None:
+                to_dump = [s.__dict__ for s in scores]
+                json.dump(to_dump, args.outfile, sort_keys=True, indent=4)
+                print(f'Scores written to {args.outfile.name}')
 
 
 def add_yn_flag(subparser, flag_name):
     group = subparser.add_mutually_exclusive_group()
-    group.add_argument(f'--{flag_name}', action='store_true', dest=flag_name)
-    group.add_argument(f'--no-{flag_name}', action='store_false', dest=flag_name)
-
+    group.add_argument(f'--{flag_name}', action='store_true')
+    group.add_argument(f'--no-{flag_name}', action='store_false')
 
 
 def cli_parser():
+    logging.getLogger().setLevel(logging.INFO)
+    
     parser = argparse.ArgumentParser()
     subs = parser.add_subparsers(title='subcommands')
 
@@ -174,28 +166,11 @@ def cli_parser():
     # flag_allow_2017.add_argument(f'--no-allow-2017-format', action='store_false', dest='verbose')
     # flag_allow_2017.set_defaults(verbose=True)
 
+
     add_yn_flag(subparsers['valid_pipelines'], 'allow-2017-format')
     add_yn_flag(subparsers['valid_pipelines'], 'enforce-full-2018-format')
 
     subparsers['valid_pipelines'].set_defaults(func=cmd_valid_pipeline)
-
-    # valid_pipeline_dir pipeline_log_dir
-    subparsers['valid_pipeline_dir'].description = 'Validate a directory of pipeline log files.'
-    subparsers['valid_pipeline_dir'].add_argument('pipeline_log_dir', type=str,
-                                                  help='path to directory with the pipeline logs to validate.'
-                                                  )
-    subparsers['valid_pipeline_dir'].set_defaults(func=cmd_valid_pipeline_dir)
-
-    # valid_executables_dir -p pipeline_log_dir [--validation | --no-validation] executables_dir
-    subparsers['valid_executables_dir'].description = 'Validate the directory of executables against the pipelines.'
-    subparsers['valid_executables_dir'].add_argument('-p', '--pipeline-log-dir',
-                                                     help='path to directory with the pipeline logs to validate.'
-                                                     )
-    subparsers['valid_executables_dir'].add_argument('executables_dir', help='path to directory with the executables')
-    subparsers['valid_executables_dir'].add_argument('--validation', dest='validation', action='store_true')
-    subparsers['valid_executables_dir'].add_argument('--no-validation', dest='validation', action='store_false')
-    subparsers['valid_executables_dir'].set_defaults(validation=True, func=cmd_valid_exec_dir)
-
 
     subparsers['valid_generated_problems'].description = 'Validate a generated problems directory.'
     subparsers['valid_generated_problems'].add_argument('problems_directory',
