@@ -43,10 +43,13 @@ class Score():
         :param baseline_score: baseline score
         :type baseline_score: float
         """
-        if not transformation.isCost:
-            return (score - baseline_score) / abs(baseline_score)
+        if baseline_score != 0:
+            if not transformation.isCost:
+                return (score - baseline_score) / abs(baseline_score)
+            else:
+                return (baseline_score - score) / abs(baseline_score)
         else:
-            return (baseline_score - score) / abs(baseline_score)
+            return "None"
 
     def transform_normalize(self):
         """ Transform and normalize the score to allow cross comparison
