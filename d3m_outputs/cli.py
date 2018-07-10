@@ -71,6 +71,8 @@ def cmd_valid_pipeline(args):
 
     if 'allow_2017_format' in args and args.allow_2017_format is not None:
         kwargs['allow_2017_format'] = args.allow_2017_format
+    if 'check_bare_2018_format' in args and args.check_bare_2018_format is not None:
+        kwargs['check_bare_2018_format'] = args.check_bare_2018_format
     if 'enforce_full_2018_format' in args and args.enforce_full_2018_format is not None:
         kwargs['enforce_2018_format'] = args.enforce_full_2018_format
 
@@ -168,6 +170,7 @@ def cli_parser():
 
     add_yn_flag(subparsers['valid_pipelines'], 'allow-2017-format')
     add_yn_flag(subparsers['valid_pipelines'], 'enforce-full-2018-format')
+    add_yn_flag(subparsers['valid_pipelines'], 'check-bare-2018-format')
 
     subparsers['valid_pipelines'].set_defaults(func=cmd_valid_pipeline)
 
