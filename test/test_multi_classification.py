@@ -1,11 +1,44 @@
 import unittest
+import math
 
-from d3m_outputs.metrics import f1_micro, f1_macro, roc_auc_micro, roc_auc_macro, jacc_sim, METRICS_DICT
+from d3m_outputs.metrics import f1_micro, f1_macro, roc_auc_micro, roc_auc_macro, jacc_sim, mxe, METRICS_DICT
 
 GROUND_TRUTH = ['a', 'b', 'a', 'b', 'c', 'a', 'a', 'b', 'a', 'c', 'c', 'b']
 PREDICTED_BEST = ['a', 'b', 'a', 'b', 'c', 'a', 'a', 'b', 'a', 'c', 'c', 'b']
 PREDICTED_OK = ['a', 'b', 'a', 'c', 'a', 'a', 'a', 'b', 'b', 'c', 'c', 'b']
 PREDICTED_BAD = ['b', 'c', 'b', 'c', 'a', 'b', 'b', 'c', 'b', 'a', 'a', 'c']
+A = [1, 0, 0]
+B = [0, 1, 0]
+C = [0, 0, 1]
+PREDICTED_BEST_PROB = [A, B, A, B, C, A, A, B, A, C, C, B]
+PREDICTED_WORST_PROB = [B, C, B, C, A, B, B, C, B, A, A, C]
+A = [.9, .05, .05]
+B = [.05, .9, .05]
+C = [.05, .05, .9]
+PREDICTED_OK_PROB = [A, B, A, B, C, A, A, B, A, C, C, B]
+
+
+class TestMXE(unittest.TestCase):
+
+    def runTest(self):
+        self.testBest()
+        self.testOk()
+        self.testBad()
+
+    def testBest(self):
+        # a perfect cross entropy takes 0 bits
+        self.assertAlmostEqual(0.0, mxe(GROUND_TRUTH, PREDICTED_BEST_PROB))
+        self.assertAlmostEqual(0.0, METRICS_DICT['cross_entropy'](GROUND_TRUTH, PREDICTED_BEST_PROB))
+
+    def testOk(self):
+        # takes the avg of the log predicted probabilities for the true class
+        self.assertAlmostEqual(-math.log(.9), mxe(GROUND_TRUTH, PREDICTED_OK_PROB))
+        self.assertAlmostEqual(-math.log(.9), METRICS_DICT['cross_entropy'](GROUND_TRUTH, PREDICTED_OK_PROB))
+
+    def testBad(self):
+        eps = 1e-15 # log(0) is undefined, so mxe uses log(eps) instead of log(0)
+        self.assertAlmostEqual(-math.log(eps), mxe(GROUND_TRUTH, PREDICTED_WORST_PROB))
+        self.assertAlmostEqual(-math.log(eps), METRICS_DICT['cross_entropy'](GROUND_TRUTH, PREDICTED_WORST_PROB))
 
 
 class TestF1Micro(unittest.TestCase):
