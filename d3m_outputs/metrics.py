@@ -34,7 +34,7 @@ def f1_macro(ground_truth, predicted):
 
 
 def roc_auc(ground_truth, predicted, pos_label=None):
-    if pos_label:
+    if pos_label is not None:
         ground_truth, predicted = _binarize(ground_truth, predicted, pos_label)
     return skm.roc_auc_score(ground_truth, predicted)
 
