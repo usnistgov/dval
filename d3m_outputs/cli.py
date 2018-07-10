@@ -133,7 +133,6 @@ def add_yn_flag(subparser, flag_name):
     group.add_argument(f'--{flag_name}', action='store_true')
     group.add_argument(f'--no-{flag_name}', action='store_false')
 
-
 def cli_parser():
     logging.getLogger().setLevel(logging.INFO)
     
