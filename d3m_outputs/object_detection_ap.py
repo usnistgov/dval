@@ -1,16 +1,36 @@
 import numpy as np
-
+import logging
 
 def group_gt_boxes_by_image_name(gt_boxes):
+    '''
+    This function takes a list of ground truth boxes and turn them into a
+    dict mapping an image name to an array containing the 4 coordinates of 
+    the edges delimiting a bounding box 
+
+    Parameters:
+    -----------
+    gt_boxes: list
+     List of ground truth boxes. Each box is represented as a list with the
+     following format: [image_name, x_min, y_min, x_max, y_max].
+
+    Returns:
+    --------
+    gt_dict: dict
+     Dictionary mapping every image name to an array of the bounding boxes:
+        {'image_name' : [
+                {'bbox': [x_min, y_min, x_max, y_max]},
+                {'bbox': [x_min, y_min, x_max, y_max]},
+                ...
+            ]
+        }
+
+    '''
     gt_dict = {}
 
     for box in gt_boxes:
-        #x = box.split()
-        #image_name = x[0]
-        #bbox = [float(z) for z in x[1:]]
+
         image_name = box[0]
         bbox = box[1:]
-        #print(image_name, bbox)
 
         if image_name not in gt_dict.keys():
             gt_dict[image_name] = []
@@ -18,6 +38,55 @@ def group_gt_boxes_by_image_name(gt_boxes):
         gt_dict[image_name].append({'bbox': bbox})
 
     return gt_dict
+
+
+def unvectorize(targets):
+    """
+    If ``targets`` have two columns (index, object detection target) or three (index, object detection
+    target, confidence), we make it into 5 or 6, respectively, by splitting the second column into
+    4 columns for each bounding box edge.
+    
+    Parameters:
+    -----------
+    targets: list
+     List of bounding boxes. Each box is represented as a list with the
+     following format: 
+        
+        Case 1 (confidence provided):
+             ['image_name', 'x_min, 'y_min, x_max, y_max', 'confidence']
+        Case 2 (confidence not provided):
+             ['image_name', 'x_min, 'y_min, x_max, y_max']
+        Case 3: (List with more than three elements) 
+            ['image_name', ... ]
+
+    Returns:
+    --------
+    new_targets: list
+        List following the following format:
+    
+         Case 1 (confidence provided): 
+             ['image_name', 'x_min', 'y_min', 'x_max', 'y_max', 'confidence']
+         Case 2 (confidence not provided):
+             ['image_name', 'x_min', 'y_min', 'x_max', 'y_max']
+         Case 3: (List with more than three elements) 
+            ['image_name', ... ]
+        
+
+
+    """
+
+    new_targets = []
+
+    for target in targets:
+        if len(target) == 2:
+            new_targets.append([target[0]] + target[1].split(','))
+        elif len(target) == 3:
+            new_targets.append([target[0]] + target[1].split(',') + list(target[2:]))
+        else:
+            new_targets.append(target)
+
+    return new_targets
+
 
 
 def voc_ap(rec, prec, use_07_metric=False):
@@ -72,6 +141,10 @@ def objectDetectionAP(dets,
              ['image_name', 'x_min', 'y_min', 'x_max', 'y_max', 'confidence']
          Case 2 (confidence not provided):
              ['image_name', 'x_min', 'y_min', 'x_max', 'y_max']
+         Case 3 (confidence provided, coordinates as string):
+             ['image_name', 'x_min, 'y_min, x_max, y_max', 'confidence']
+         Case 4 (confidence not provided, coordinates as string):
+             ['image_name', 'x_min, 'y_min, x_max, y_max']
 
     gts: list
      List of ground truth boxes. Each box is represented as a list with the
@@ -139,6 +212,10 @@ def objectDetectionAP(dets,
 
     """
 
+    # Unvectorize the detected bounding boxes
+    dets = unvectorize(dets)
+    gts = unvectorize(gts)
+
     # Load ground truth
     gt_dict = group_gt_boxes_by_image_name(gts)
 
@@ -161,6 +238,8 @@ def objectDetectionAP(dets,
     # Check that all boxes are the same size
     for det in dets:
         assert len(det) == det_length, 'Not all boxes have the same dimensions.'
+
+
 
     image_ids = [x[0] for x in dets]
     BB = np.array([[float(z) for z in x[1:5]] for x in dets])
@@ -244,3 +323,5 @@ def objectDetectionAP(dets,
     ap = voc_ap(rec, prec, use_07_metric)
 
     return rec, prec, ap
+
+
