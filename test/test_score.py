@@ -84,6 +84,16 @@ class TestScore(unittest.TestCase):
 
         del METRIC_RANGES_DICT['metric']
 
+    def testTransformNormalizeTransformedBaselineEqualsZero(self):
+        score = Score("Target", "MEAN_SQUARED_ERROR", 6985715.52, 6985715.52)
+        score.transform_normalize()
+
+        self.assertEqual(score.scorevalue, 6985715.52)
+        self.assertEqual(score.baseline_scorevalue, 6985715.52)
+        self.assertEqual(score.transformed_scorevalue, 0.0)
+        self.assertEqual(score.transformed_baseline_scorevalue, 0.0)
+        self.assertEqual(score.transformed_normalized_scorevalue, "None")
+
 class TestScores(unittest.TestCase):
 
     def testToJson(self):

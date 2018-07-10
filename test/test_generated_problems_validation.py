@@ -42,5 +42,10 @@ class TestGenProblems(unittest.TestCase):
             wrong_result = os.path.join(self.generated_problems_path, 'result_generated_problems_' + os.path.basename(subdir) + '.csv')
             assert generated_problems.check_generated_problems_directory(subdir, wrong_result) == True
 
+    def tearDown(self):
+        subdirs = glob(os.path.join(self.generated_problems_path, 'result_generated_problems_*'))
+        for file in subdirs:
+            os.remove(file)
+
 if __name__ == '__main__':
     unittest.main()
