@@ -16,6 +16,7 @@ from d3m.metadata.pipeline import Pipeline, NoResolver
 from .validation_type_checks import is_castable_to_type
 
 ALLOW_2017_FORMAT = False
+CHECK_BARE_2018_FORMAT = True
 ENFORCE_2018_FORMAT = False
 
 logger = logging.Logger(__name__)
@@ -23,33 +24,27 @@ logger = logging.Logger(__name__)
 
 def is_pipeline_valid(pipeline_uri,
                       allow_2017_format=ALLOW_2017_FORMAT,
+                      check_bare_2018_format=CHECK_BARE_2018_FORMAT,
                       enforce_2018_format=ENFORCE_2018_FORMAT):
     pipeline = load_json(pipeline_uri)
+    
+    valid = True
     if allow_2017_format:
         format_2017_valid = is_pipeline_valid_old_schema(pipeline)
         logging.info(f"2017 pipeline format, valid={format_2017_valid}")
+        valid &= format_2017_valid
 
-    bare_2018_valid = is_pipeline_valid_bare(pipeline)
-    logging.info(f"2018 'bare' format, valid={bare_2018_valid}")
-    full_2018_valid = is_pipeline_valid_full_validation(pipeline_uri)
-    logging.info(f"2018 full format, valid={full_2018_valid}")
+    if check_bare_2018_format:
+        bare_2018_valid = is_pipeline_valid_bare(pipeline)
+        logging.info(f"2018 'bare' format, valid={bare_2018_valid}")
+        valid &= bare_2018_valid
 
-    valid = (allow_2017_format and format_2017_valid) or \
-            (bare_2018_valid and not enforce_2018_format) or \
-            (full_2018_valid and bare_2018_valid)
-
-    if valid and not bare_2018_valid:
-        warnings.warn("This pipeline does not follow bare 2018 pipeline format. Update before eval.", UserWarning)
-
-    if valid and not full_2018_valid:
-        warnings.warn("This pipeline does not follow full pipeline format. Update before eval.", UserWarning)
+    if enforce_2018_format:
+        full_2018_valid = is_pipeline_valid_full_validation(pipeline_uri)
+        logging.info(f"2018 full format, valid={full_2018_valid}")
+        valid &= full_2018_valid
 
     return valid
-
-
-def phase1(pipeline_uri):
-    valid = is_pipeline_valid_old_schema(pipeline_uri)
-
 
 
 def is_pipeline_valid_full_validation(pipeline_path):

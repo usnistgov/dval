@@ -13,12 +13,6 @@
       "name": "input dataset"
     }
   ],
-  "outputs": [
-    {
-      "name": "output dataset",
-      "data": "steps.2.produce"
-    }
-  ],
   "steps": [
     {
       "type": "PRIMITIVE",
@@ -138,5 +132,5 @@
       }
     }
   ],
-  "pipeline_rank": -0.1
+  "pipeline_rank": "0.1"
 }
