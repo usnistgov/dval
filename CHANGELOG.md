@@ -1,9 +1,15 @@
+## 18summer-1.4-alpha  (v2018.7.11)
+
+* Fix bugs occuring when running unittest discover 
+* Fix division by zero in normalize method
+* Add an option in pipelines validation to skip the rank validation
+* objectDetectionAP metric now supports str parsed arrays as an input
+
 ## 18summer-1.3-alpha  (v2018.7.05)
 
 * Fix Pipelines schema full validation
 * Fix categorical targets validation
 * Handle the case where test data and ground truth have different shapes
-
 
 ## 18summer-1.2-alpha  (v2018.7.02)
 

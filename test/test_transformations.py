@@ -83,6 +83,5 @@ class TestTransformation(unittest.TestCase):
         self.assertEqual(round(transformation.transform(1),2), 0.54)
         
 
-
 if __name__ == '__main__':
     unittest.main()
