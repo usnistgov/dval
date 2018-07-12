@@ -99,6 +99,5 @@ def is_castable_to_type(value, vtype):
     try:
         vtype(value)
     except ValueError:
-        logging.info(f'The entry: {value} could not be converted to {vtype}.')
         return False
     return True
