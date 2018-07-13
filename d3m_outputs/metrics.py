@@ -50,16 +50,57 @@ def roc_auc_macro(ground_truth, predicted):
 
 
 def l2(ground_truth, predicted):
-    return (skm.mean_squared_error(ground_truth, predicted)) ** 0.5
+    return skm.mean_squared_error(ground_truth, predicted) ** 0.5
 
 
 def avg_l2(ground_truth_l, predicted_l):
-    l2_sum = 0.0
-    count = 0
-    for pair in zip(ground_truth_l, predicted_l):
-        l2_sum += l2([pair[0]], [pair[1]])
-        count += 1
-    return l2_sum / count
+    '''
+    This function takes a list of ground truth vectors and a list
+    of predicted vectors and calculates the average L2 metrics between
+    them.
+
+    The vectors are transposed because the skm.mse(multioutputs='raw_values')
+    Will compute the following:
+
+        >>> import sklearn.metrics as skm
+        
+        >>> y_true = [[0.5, 1],[-1, 1],[7, -6]]
+        >>> y_pred = [[0, 2],[-1, 2],[8, -5]]
+
+        >>> skm.mean_squared_error(y_true, y_pred, multioutput='raw_values')
+        array([0.41666667, 1.        ])
+
+    As the skm.mean_squared_error() function expects  vectors
+    We transpose our vectors that come with the following shape:
+        [[X1, X2, X3, ...Xn], ...[Y1, Y2, Y3, ...Yn]]
+        
+        into
+        
+        [[X1, X1], ... , [Xn, Yn, ...]]
+
+
+    Parameters:
+    -----------
+    ground_truth_l: list
+     List of ground truth vectors having the following shape:
+        [[X1, X2, X3, ... Xn], [Y1, Y2, Y3, ...Yn], ...]
+
+    predicted_l: list
+     List of predicted vectors having the following shape:
+        [[x1, x2, x3, ... xn], [y1, y2, y3, ...yn], ...]
+
+    Returns:
+    --------
+    
+    avg_l2:
+     avg(sqrt(mse(X,x)), sqrt(mse(Y,y)) )
+
+    '''
+
+    ground_truth_l = np.transpose(ground_truth_l)
+    predicted_l = np.transpose(predicted_l)
+
+    return np.mean(skm.mean_squared_error(ground_truth_l, predicted_l, multioutput='raw_values') ** 0.5)
 
 
 def mean_se(ground_truth, predicted):
