@@ -43,24 +43,38 @@ def is_pipeline_valid(pipeline_uri,
                       check_bare_2018_format=CHECK_BARE_2018_FORMAT,
                       enforce_2018_format=ENFORCE_2018_FORMAT):
     pipeline = load_json(pipeline_uri)
-    
-    valid = True
+
+    # If we allow 2017 format, return True if the pipeline is valid
+    format_2017_valid = False
     if allow_2017_format:
         format_2017_valid = is_pipeline_valid_old_schema(pipeline)
         logging.info(f"2017 pipeline format, valid={format_2017_valid}")
-        valid &= format_2017_valid
 
-    if check_bare_2018_format:
-        bare_2018_valid = is_pipeline_valid_bare(pipeline)
-        logging.info(f"2018 'bare' format, valid={bare_2018_valid}")
-        valid &= bare_2018_valid
+        if format_2017_valid:
+            return True
 
-    if enforce_2018_format:
-        full_2018_valid = is_pipeline_valid_full_validation(pipeline_uri)
-        logging.info(f"2018 full format, valid={full_2018_valid}")
-        valid &= full_2018_valid
+    # If we check any of the 2018 conditions, &= them
+    if check_bare_2018_format or enforce_2018_format:
+        valid_2018 = True
+        if check_bare_2018_format:
+            bare_2018_valid = is_pipeline_valid_bare(pipeline)
+            logging.info(f"2018 'bare' format, valid={bare_2018_valid}")
+            valid_2018 &= bare_2018_valid
 
-    return valid
+        if enforce_2018_format:
+            full_2018_valid = is_pipeline_valid_full_validation(pipeline_uri)
+            logging.info(f"2018 full format, valid={full_2018_valid}")
+            valid_2018 &= full_2018_valid
+
+        return valid_2018
+
+    # If we come here, either the 2017 test didn't pass, or no check was performed
+    # If the 2017 test didn't happen, no test was performed so it's valid by default
+    if not allow_2017_format:
+        logging.error('No check performed')
+
+    # If the 2017 test has happened, it failed
+    return False
 
 
 def is_pipeline_valid_full_validation(pipeline_path):
