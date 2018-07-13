@@ -27,7 +27,7 @@ logger = logging.Logger(__name__)
 
 class NoPrimitiveCheckResolver(Resolver):
     """
-    A resolver which never look for primitives
+    A resolver which never looks for primitives
     """
 
     def __init__(self):
@@ -69,11 +69,10 @@ def is_pipeline_valid(pipeline_uri,
         return valid_2018
 
     # If we come here, either the 2017 test didn't pass, or no check was performed
-    # If the 2017 test didn't happen, no test was performed so it's valid by default
+    # If the 2017 test didn't happen, no test was performed so it's invalid by default
     if not allow_2017_format:
         logging.error('No check performed')
 
-    # If the 2017 test has happened, it failed
     return False
 
 
