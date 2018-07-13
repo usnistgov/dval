@@ -71,10 +71,10 @@ def cmd_valid_pipeline(args):
 
     if 'allow_2017_format' in args and args.allow_2017_format is not None:
         kwargs['allow_2017_format'] = args.allow_2017_format
-    if 'check_bare_2018_format' in args and args.check_bare_2018_format is not None:
-        kwargs['check_bare_2018_format'] = args.check_bare_2018_format
-    if 'enforce_full_2018_format' in args and args.enforce_full_2018_format is not None:
-        kwargs['enforce_2018_format'] = args.enforce_full_2018_format
+    if 'no_check_bare_2018_format' in args and args.no_check_bare_2018_format is not None:
+        kwargs['check_bare_2018_format'] = not args.no_check_bare_2018_format
+    if 'no_enforce_full_2018_format' in args and args.no_enforce_full_2018_format is not None:
+        kwargs['enforce_2018_format'] = not args.no_enforce_full_2018_format
 
     valid = True
     for pipeline_f in args.pipeline_log_file:
@@ -167,10 +167,9 @@ def cli_parser():
     # flag_allow_2017.add_argument(f'--no-allow-2017-format', action='store_false', dest='verbose')
     # flag_allow_2017.set_defaults(verbose=True)
 
-
-    add_yn_flag(subparsers['valid_pipelines'], 'allow-2017-format')
-    add_yn_flag(subparsers['valid_pipelines'], 'enforce-full-2018-format')
-    add_yn_flag(subparsers['valid_pipelines'], 'check-bare-2018-format')
+    subparsers['valid_pipelines'].add_argument(f'--allow-2017-format', action='store_true')
+    subparsers['valid_pipelines'].add_argument(f'--no-enforce-full-2018-format', action='store_true')
+    subparsers['valid_pipelines'].add_argument(f'--no-check-bare-2018-format', action='store_true')
 
     subparsers['valid_pipelines'].set_defaults(func=cmd_valid_pipeline)
 

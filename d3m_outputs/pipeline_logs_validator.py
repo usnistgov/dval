@@ -10,16 +10,32 @@ True
 
 import json
 import logging
+import typing
 import warnings
 
-from d3m.metadata.pipeline import Pipeline, NoResolver
+from d3m.primitive_interfaces import base
+
+from d3m.metadata.pipeline import Pipeline, NoResolver, Resolver
 from .validation_type_checks import is_castable_to_type
 
 ALLOW_2017_FORMAT = False
 CHECK_BARE_2018_FORMAT = True
-ENFORCE_2018_FORMAT = False
+ENFORCE_2018_FORMAT = True
 
 logger = logging.Logger(__name__)
+
+
+class NoPrimitiveCheckResolver(Resolver):
+    """
+    A resolver which never looks for primitives
+    """
+
+    def __init__(self):
+        super().__init__(strict_resolving=True)
+
+    def _get_primitive(self, primitive_description: typing.Dict) -> typing.Optional[typing.Type[base.PrimitiveBase]]:
+        return None
+
 
 
 def is_pipeline_valid(pipeline_uri,
@@ -27,29 +43,42 @@ def is_pipeline_valid(pipeline_uri,
                       check_bare_2018_format=CHECK_BARE_2018_FORMAT,
                       enforce_2018_format=ENFORCE_2018_FORMAT):
     pipeline = load_json(pipeline_uri)
-    
-    valid = True
+
+    # If we allow 2017 format, return True if the pipeline is valid
+    format_2017_valid = False
     if allow_2017_format:
         format_2017_valid = is_pipeline_valid_old_schema(pipeline)
         logging.info(f"2017 pipeline format, valid={format_2017_valid}")
-        valid &= format_2017_valid
 
-    if check_bare_2018_format:
-        bare_2018_valid = is_pipeline_valid_bare(pipeline)
-        logging.info(f"2018 'bare' format, valid={bare_2018_valid}")
-        valid &= bare_2018_valid
+        if format_2017_valid:
+            return True
 
-    if enforce_2018_format:
-        full_2018_valid = is_pipeline_valid_full_validation(pipeline_uri)
-        logging.info(f"2018 full format, valid={full_2018_valid}")
-        valid &= full_2018_valid
+    # If we check any of the 2018 conditions, &= them
+    if check_bare_2018_format or enforce_2018_format:
+        valid_2018 = True
+        if check_bare_2018_format:
+            bare_2018_valid = is_pipeline_valid_bare(pipeline)
+            logging.info(f"2018 'bare' format, valid={bare_2018_valid}")
+            valid_2018 &= bare_2018_valid
 
-    return valid
+        if enforce_2018_format:
+            full_2018_valid = is_pipeline_valid_full_validation(pipeline_uri)
+            logging.info(f"2018 full format, valid={full_2018_valid}")
+            valid_2018 &= full_2018_valid
+
+        return valid_2018
+
+    # If we come here, either the 2017 test didn't pass, or no check was performed
+    # If the 2017 test didn't happen, no test was performed so it's invalid by default
+    if not allow_2017_format:
+        logging.error('No check performed')
+
+    return False
 
 
 def is_pipeline_valid_full_validation(pipeline_path):
 
-    resolver = NoResolver()
+    resolver = NoPrimitiveCheckResolver()
     
     try:
         with open(pipeline_path, 'r') as pipeline_file:
@@ -135,3 +164,9 @@ def is_pipeline_valid_bare(pipeline):
             valid = False
 
     return valid
+
+
+if __name__ == '__main__':
+
+    pipeline_path = '/Users/mnh11/Downloads/D3M-Summer-2018_TA1_Development_SYS-00042_UBC-Oxford_20180711-185150-1389/pipelines/5fbedb8a-ee10-491a-9d1a-d42c0435949b.json'
+    is_pipeline_valid_full_validation(pipeline_path)
