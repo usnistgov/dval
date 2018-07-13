@@ -10,16 +10,32 @@ True
 
 import json
 import logging
+import typing
 import warnings
 
-from d3m.metadata.pipeline import Pipeline, NoResolver
+from d3m.primitive_interfaces import base
+
+from d3m.metadata.pipeline import Pipeline, NoResolver, Resolver
 from .validation_type_checks import is_castable_to_type
 
 ALLOW_2017_FORMAT = False
 CHECK_BARE_2018_FORMAT = True
-ENFORCE_2018_FORMAT = False
+ENFORCE_2018_FORMAT = True
 
 logger = logging.Logger(__name__)
+
+
+class NoPrimitiveCheckResolver(Resolver):
+    """
+    A resolver which never look for primitives
+    """
+
+    def __init__(self):
+        super().__init__(strict_resolving=True)
+
+    def _get_primitive(self, primitive_description: typing.Dict) -> typing.Optional[typing.Type[base.PrimitiveBase]]:
+        return None
+
 
 
 def is_pipeline_valid(pipeline_uri,
@@ -49,7 +65,7 @@ def is_pipeline_valid(pipeline_uri,
 
 def is_pipeline_valid_full_validation(pipeline_path):
 
-    resolver = NoResolver()
+    resolver = NoPrimitiveCheckResolver()
     
     try:
         with open(pipeline_path, 'r') as pipeline_file:
@@ -135,3 +151,9 @@ def is_pipeline_valid_bare(pipeline):
             valid = False
 
     return valid
+
+
+if __name__ == '__main__':
+
+    pipeline_path = '/Users/mnh11/Downloads/D3M-Summer-2018_TA1_Development_SYS-00042_UBC-Oxford_20180711-185150-1389/pipelines/5fbedb8a-ee10-491a-9d1a-d42c0435949b.json'
+    is_pipeline_valid_full_validation(pipeline_path)
