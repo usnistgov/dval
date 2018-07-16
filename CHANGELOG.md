@@ -1,3 +1,11 @@
+## 18summer-1.5-alpha  (v2018.7.16)
+
+* Validation of categorical data no longer fails with unknown values
+* Columns and rows being in the target's order is not required anymore
+* Add subpipelines support
+* Remove a noisy logging print when validating non-numerical prediction files
+* New implementation of l2_avg
+
 ## 18summer-1.4-alpha  (v2018.7.11)
 
 * Fix bugs occuring when running unittest discover 
