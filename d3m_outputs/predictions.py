@@ -116,8 +116,8 @@ class Predictions:
         """
         :return: bool
         """
-        headers = list(self.frame)
-        expected = self.ds.expected_header
+        headers = set(self.frame)
+        expected = set(self.ds.expected_header)
         if headers != expected:
             logging.error(
                 f'Invalid header. Found {headers}, expected {expected}')
@@ -137,7 +137,7 @@ class Predictions:
             valid = False
             logging.error(f'Certain entries are invalid or empty')
         if valid:
-            if set(targets.iloc[:,0])!=set(self.frame.iloc[:,0]):
+            if set(targets.loc[:,'d3mIndex'])!=set(self.frame.loc[:,'d3mIndex']):
     	        valid=False
     	        logging.error('Missing indexes in predictions file')
             for i, (e1, e2) in enumerate(

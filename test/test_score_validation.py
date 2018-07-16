@@ -55,8 +55,6 @@ class TestValidateScores(unittest.TestCase):
     def test_swapped_columns(self):
         sys.argv[1:] = ['valid_predictions', '-d', os.path.join(TEST_DIR_PATH, 'data/1491_one_hundred_plants_margin'),
                         os.path.join(TEST_DIR_PATH, 'bad_data_input/mitll_predictions_column_error(swapped_columns).csv')]
-        with self.assertRaises(SystemExit):
-            cli_parser()
 
     def test_predictions_error(self):
         sys.argv[1:] = ['valid_predictions', '-d', 'data/1491_one_hundred_plants_margin',
