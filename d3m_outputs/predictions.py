@@ -137,10 +137,9 @@ class Predictions:
             valid = False
             logging.error(f'Certain entries are invalid or empty')
         if valid:
-    	    if set(targets.iloc[:,0])!=set(self.frame.iloc[:,0]):
-    		    valid=False
-    		    logging.error('Missing indexes in predictions file')
-        if valid:
+            if set(targets.iloc[:,0])!=set(self.frame.iloc[:,0]):
+    	        valid=False
+    	        logging.error('Missing indexes in predictions file')
             for i, (e1, e2) in enumerate(
                     zip(self.frame.index, self.ds.expected_index)):
                 if e1 != e2:
