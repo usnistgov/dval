@@ -70,24 +70,15 @@ def avg_l2(ground_truth_l, predicted_l):
         >>> skm.mean_squared_error(y_true, y_pred, multioutput='raw_values')
         array([0.41666667, 1.        ])
 
-    As the skm.mean_squared_error() function expects  vectors
-    We transpose our vectors that come with the following shape:
-        [[X1, X2, X3, ...Xn], ...[Y1, Y2, Y3, ...Yn]]
-        
-        into
-        
-        [[X1, X1], ... , [Xn, Yn, ...]]
-
-
     Parameters:
     -----------
     ground_truth_l: list
      List of ground truth vectors having the following shape:
-        [[X1, X2, X3, ... Xn], [Y1, Y2, Y3, ...Yn], ...]
+        [[X1, Y1], ... , [Xn, Yn, ...]]
 
     predicted_l: list
      List of predicted vectors having the following shape:
-        [[x1, x2, x3, ... xn], [y1, y2, y3, ...yn], ...]
+        [[x1, y1], ... , [xn, yn, ...]]
 
     Returns:
     --------
@@ -96,9 +87,6 @@ def avg_l2(ground_truth_l, predicted_l):
      avg(sqrt(mse(X,x)), sqrt(mse(Y,y)) )
 
     '''
-
-    ground_truth_l = np.transpose(ground_truth_l)
-    predicted_l = np.transpose(predicted_l)
 
     return np.mean(skm.mean_squared_error(ground_truth_l, predicted_l, multioutput='raw_values') ** 0.5)
 

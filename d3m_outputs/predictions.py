@@ -94,8 +94,16 @@ class Predictions:
 
             # In the metric is applicable to all, need to
             if 'applicabilityToTarget' in metric['params'] and metric['params']['applicabilityToTarget'] == "allTargets":
+
+                # Reorder and align the targets and the predictions columns
                 gt_l = [self.ds.targets_df[target] for target in self.ds.target_names]
                 pred_l = [self.frame[target] for target in self.ds.target_names]
+
+                # Transpose them into a list of rows
+                gt_l = np.transpose(gt_l)
+                pred_l = np.transpose(pred_l)
+
+                # Apply the metric on the array
                 value = apply_metric(metric['metric'], gt_l, pred_l, **metric['params'])
                 score = Score('allTargets', metric['metric'], value, baseline_score)
             else:

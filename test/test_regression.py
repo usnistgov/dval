@@ -1,4 +1,5 @@
 import unittest
+import numpy as np
 
 from d3m_outputs.metrics import l2, avg_l2, l1, r2, METRICS_DICT
 
@@ -39,6 +40,11 @@ class TestAvgL2(unittest.TestCase):
     def test(self):
         gt = [GROUND_TRUTH, PREDICTED_OK]
         pred = [PREDICTED_BAD, PREDICTED_BEST]
+
+        # We're expecting [[xi,yi],...] as an input,
+        # Not [[xi...], [yi...]]
+        gt = np.transpose(gt)
+        pred = np.transpose(pred)
 
         score1 = l2(GROUND_TRUTH, PREDICTED_BAD)
         score2 = l2(PREDICTED_OK, PREDICTED_BEST)
