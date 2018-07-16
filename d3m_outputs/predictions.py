@@ -116,9 +116,16 @@ class Predictions:
         return Scores(scores)
 
     def _load_data(self):
+        '''
+            Load the predicted targets, sort them by d3mindex if any
+        '''
+
         self.frame = pandas.read_csv(
             self.result_file_path,
             delimiter=self.separator)
+
+        if 'd3mIndex' in self.frame.columns:
+            self.frame.sort_values(by='d3mIndex', inplace=True)
 
     def _is_header_valid(self):
         """
