@@ -137,6 +137,10 @@ class Predictions:
             valid = False
             logging.error(f'Certain entries are invalid or empty')
         if valid:
+    	    if set(targets.iloc[:,0])!=set(self.frame.iloc[:,0]):
+    		    valid=False
+    		    logging.error('Missing indexes in predictions file')
+        if valid:
             for i, (e1, e2) in enumerate(
                     zip(self.frame.index, self.ds.expected_index)):
                 if e1 != e2:
@@ -145,12 +149,6 @@ class Predictions:
                         f'Index number {i} differs between predictions file and ground truth '
                         f'Predictions: {e1} '
                         f'Ground Truth: {e2} ')
-                if str(self.frame.iloc[i,0]) != str(targets.iloc[i,0]):
-                    valid = False
-                    logging.error(
-                        f'Index number {i} differs between predictions file and ground truth\n'
-                        f'Predictions: {self.frame.iloc[e1,0]} '
-                        f'Ground Truth: {targets.iloc[e2,0]}')
 
         return valid
 
