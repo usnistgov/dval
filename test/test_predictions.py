@@ -26,6 +26,7 @@ class TestPredictions(unittest.TestCase):
 
     def testScore(self):
         for name, test_case in self.test_cases.items():
+            print(name, test_case)
             scores = test_case.score(test_case.score_root / 'targets.csv')
             for score in scores:
                 try:
@@ -33,7 +34,14 @@ class TestPredictions(unittest.TestCase):
                 except AssertionError:
                     self.fail(f'Score value {score.scorevalue} is could not be cast to float.'
                               f'Found type {type(score.scorevalue)}')
-                self.assertGreaterEqual(score.scorevalue, 0.)
+                
+                with open(test_case.score_root / 'expectedResult.txt') as expected_result_file:
+                    expected_result = expected_result_file.read()
+                    expected_result = float(expected_result)
+                    self.assertEqual(score.scorevalue, expected_result) 
+
+
+
 
 
 if __name__ == '__main__':

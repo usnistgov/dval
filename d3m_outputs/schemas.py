@@ -163,6 +163,10 @@ class D3MDataStructure:
             self.targets_path = targets_path
 
         self.targets_df = pandas.read_csv(self.targets_path)
+
+        if 'd3mIndex' in self.targets_df.columns:
+            self.targets_df.sort_values(by='d3mIndex', inplace=True)
+        
         self.targets_index = self.targets_df.index
         self.number_targets = len(self.targets_index)
 

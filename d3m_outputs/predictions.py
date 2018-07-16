@@ -94,8 +94,16 @@ class Predictions:
 
             # In the metric is applicable to all, need to
             if 'applicabilityToTarget' in metric['params'] and metric['params']['applicabilityToTarget'] == "allTargets":
+
+                # Reorder and align the targets and the predictions columns
                 gt_l = [self.ds.targets_df[target] for target in self.ds.target_names]
                 pred_l = [self.frame[target] for target in self.ds.target_names]
+
+                # Transpose them into a list of rows
+                gt_l = np.transpose(gt_l)
+                pred_l = np.transpose(pred_l)
+
+                # Apply the metric on the array
                 value = apply_metric(metric['metric'], gt_l, pred_l, **metric['params'])
                 score = Score('allTargets', metric['metric'], value, baseline_score)
             else:
@@ -108,16 +116,23 @@ class Predictions:
         return Scores(scores)
 
     def _load_data(self):
+        '''
+            Load the predicted targets, sort them by d3mindex if any
+        '''
+
         self.frame = pandas.read_csv(
             self.result_file_path,
             delimiter=self.separator)
+
+        if 'd3mIndex' in self.frame.columns:
+            self.frame.sort_values(by='d3mIndex', inplace=True)
 
     def _is_header_valid(self):
         """
         :return: bool
         """
-        headers = list(self.frame)
-        expected = self.ds.expected_header
+        headers = set(self.frame)
+        expected = set(self.ds.expected_header)
         if headers != expected:
             logging.error(
                 f'Invalid header. Found {headers}, expected {expected}')
@@ -137,6 +152,9 @@ class Predictions:
             valid = False
             logging.error(f'Certain entries are invalid or empty')
         if valid:
+            if set(targets.loc[:,'d3mIndex'])!=set(self.frame.loc[:,'d3mIndex']):
+    	        valid=False
+    	        logging.error('Missing indexes in predictions file')
             for i, (e1, e2) in enumerate(
                     zip(self.frame.index, self.ds.expected_index)):
                 if e1 != e2:
@@ -145,12 +163,6 @@ class Predictions:
                         f'Index number {i} differs between predictions file and ground truth '
                         f'Predictions: {e1} '
                         f'Ground Truth: {e2} ')
-                if str(self.frame.iloc[i,0]) != str(targets.iloc[i,0]):
-                    valid = False
-                    logging.error(
-                        f'Index number {i} differs between predictions file and ground truth\n'
-                        f'Predictions: {self.frame.iloc[e1,0]} '
-                        f'Ground Truth: {targets.iloc[e2,0]}')
 
         return valid
 
