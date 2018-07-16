@@ -124,8 +124,8 @@ class Predictions:
         """
         :return: bool
         """
-        headers = list(self.frame)
-        expected = self.ds.expected_header
+        headers = set(self.frame)
+        expected = set(self.ds.expected_header)
         if headers != expected:
             logging.error(
                 f'Invalid header. Found {headers}, expected {expected}')
@@ -145,6 +145,9 @@ class Predictions:
             valid = False
             logging.error(f'Certain entries are invalid or empty')
         if valid:
+            if set(targets.loc[:,'d3mIndex'])!=set(self.frame.loc[:,'d3mIndex']):
+    	        valid=False
+    	        logging.error('Missing indexes in predictions file')
             for i, (e1, e2) in enumerate(
                     zip(self.frame.index, self.ds.expected_index)):
                 if e1 != e2:
@@ -153,12 +156,6 @@ class Predictions:
                         f'Index number {i} differs between predictions file and ground truth '
                         f'Predictions: {e1} '
                         f'Ground Truth: {e2} ')
-                if str(self.frame.iloc[i,0]) != str(targets.iloc[i,0]):
-                    valid = False
-                    logging.error(
-                        f'Index number {i} differs between predictions file and ground truth\n'
-                        f'Predictions: {self.frame.iloc[e1,0]} '
-                        f'Ground Truth: {targets.iloc[e2,0]}')
 
         return valid
 
