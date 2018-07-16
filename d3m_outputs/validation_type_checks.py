@@ -80,7 +80,7 @@ def valid_categorical(cat_column, authorized_labels=None):
             
     if invalid_values_detected:
         logging.warning(
-            f'Some categorical entries didn\'t match any entry in the targets file: {authorized_labels}')
+            f'Some categorical entries didn\'t match any entry in the targets file')
 
     return True
 
