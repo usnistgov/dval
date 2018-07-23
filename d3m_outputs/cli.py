@@ -94,7 +94,7 @@ def cmd_valid_gen_problems(args):
     if is_valid:
         print('Directory {} is valid'.format(args.problems_directory))
     else:
-        print('Directory {} is not valid'.format(args.problems_directory))
+        sys.exit('ERROR: Directory {} is not valid'.format(args.problems_directory))
 
     return is_valid
 

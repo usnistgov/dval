@@ -1,6 +1,7 @@
 import unittest
 import sys
 import os
+from glob import glob
 
 from d3m_outputs.cli import cli_parser, cmd_valid_pipeline
 
@@ -46,6 +47,28 @@ class TestCmdValidPredictions(unittest.TestCase):
             cli_parser()
         except Exception:
             self.fail("valid_predictions raised an exception")
+
+
+class TestCmdValidGeneratedProblem(unittest.TestCase):
+
+    def testLabelsNotValid(self):
+        sys.argv[1:] = ['valid_generated_problems', os.path.join(TEST_DIR_PATH, 'generated_problems/wrong_labels_missing'), '-o', 
+                        os.path.join(TEST_DIR_PATH, 'generated_problems/result_generated_problems.csv')]
+        with self.assertRaises(SystemExit):
+            cli_parser()
+
+    def testOk(self):
+        sys.argv[1:] = ['valid_generated_problems', os.path.join(TEST_DIR_PATH, 'generated_problems/correct_submission'), '-o', 
+                        os.path.join(TEST_DIR_PATH, 'generated_problems/result_generated_problems.csv')]
+        try:
+            cli_parser()
+        except Exception:
+            self.fail("valid_generated_problems raised an exception")
+
+    def tearDown(self):
+        subdirs = glob(os.path.join(TEST_DIR_PATH, 'generated_problems/result_generated_problems.csv'))
+        for file in subdirs:
+            os.remove(file)
 
 
 class TestCmdScore(unittest.TestCase):
