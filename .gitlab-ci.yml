@@ -24,19 +24,12 @@ build:
 
 tests:
   stage: test
-  image:
-    name: $REG_PATH/ci:$CI_COMMIT_SHA
-    entrypoint: [""]
-  
-  before_script:
-    - pip install coverage
   
   script:
-    - coverage run --branch --source=./d3m_outputs -m pytest -s test/ -v
-    - coverage report -m
+    - docker run  --entrypoint "/bin/bash" $REG_PATH/ci:$CI_COMMIT_SHA -c "python -m pip install coverage; coverage run --branch --source=./d3m_outputs -m pytest -s test/ -v; coverage report -m"
 
   tags:
-    - docker
+    - shell
 
 
 branch_release:
