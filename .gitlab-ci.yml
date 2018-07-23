@@ -25,6 +25,9 @@ build:
 tests:
   stage: test
   
+  variables:
+    REG_PATH: registry.datadrivendiscovery.org/$CI_PROJECT_PATH
+  
   script:
     - docker run  --entrypoint "/bin/bash" $REG_PATH/ci:$CI_COMMIT_SHA -c "python -m pip install coverage; coverage run --branch --source=./d3m_outputs -m pytest -s test/ -v; coverage report -m"
 
