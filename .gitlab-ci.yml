@@ -5,10 +5,7 @@ stages:
 
 build:
   stage: build
-  image: docker:stable
-  services:
-    - docker:dind
-
+  
   before_script:
     - docker info
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.datadrivendiscovery.org
@@ -20,31 +17,27 @@ build:
 
   script:
     - echo "destination image" $REG_PATH/ci:$CI_COMMIT_SHA
-    - docker pull "pull"$REG_PATH/d3m_outputs:latest || true
-    - docker build --cache-from "pull"$REG_PATH/d3m_outputs:latest --tag $REG_PATH/ci:$CI_COMMIT_SHA  .
+    - docker build --tag $REG_PATH/ci:$CI_COMMIT_SHA  .
     - docker run $REG_PATH/ci:$CI_COMMIT_SHA -h  # display the help message
-    - docker push $REG_PATH/ci:$CI_COMMIT_SHA
-
+  tags:
+    - shell
 
 tests:
   stage: test
-  image:
-    name: registry.datadrivendiscovery.org/$CI_PROJECT_PATH/ci:$CI_COMMIT_SHA
-    entrypoint: [""]
   
-  before_script:
-    - pip install coverage
+  variables:
+    REG_PATH: registry.datadrivendiscovery.org/$CI_PROJECT_PATH
   
   script:
-    - coverage run --branch --source=./d3m_outputs -m pytest -s test/ -v
-    - coverage report -m
+    - docker run  --entrypoint "/bin/bash" $REG_PATH/ci:$CI_COMMIT_SHA -c "python -m pip install coverage; coverage run --branch --source=./d3m_outputs -m pytest -s test/ -v; coverage report -m"
+
+  tags:
+    - shell
 
 
 branch_release:
   stage: release
-  image: docker:stable
-  services:
-    - docker:dind
+  
   before_script:
     - docker info
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.datadrivendiscovery.org
@@ -55,7 +48,6 @@ branch_release:
 
   script:
     - echo "destination images" $REG_PATH/branches/$CI_COMMIT_REF_NAME:latest
-    - docker pull $REG_PATH/ci:$CI_COMMIT_SHA
     - docker tag $REG_PATH/ci:$CI_COMMIT_SHA $REG_PATH/branches/$CI_COMMIT_REF_NAME:latest
     - docker push $REG_PATH/branches/$CI_COMMIT_REF_NAME:latest
 
@@ -63,12 +55,12 @@ branch_release:
   only:
     - master
     - develop
+  tags:
+    - shell
 
 release:
   stage: release
-  image: docker:stable
-  services:
-    - docker:dind
+  
   before_script:
     - docker info
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.datadrivendiscovery.org
@@ -79,11 +71,12 @@ release:
 
   script:
     - echo "destination images" $REG_PATH/d3m_outputs:CI_COMMIT_TAG $REG_PATH/d3m_outputs:latest
-    - docker pull $REG_PATH/ci:$CI_COMMIT_SHA
     - docker tag $REG_PATH/ci:$CI_COMMIT_SHA $REG_PATH/d3m_outputs:$CI_COMMIT_TAG
     - docker tag $REG_PATH/ci:$CI_COMMIT_SHA $REG_PATH/d3m_outputs:latest
     - docker push $REG_PATH/d3m_outputs:$CI_COMMIT_TAG
     - docker push $REG_PATH/d3m_outputs:latest
+  tags:
+    - shell
 
   only:
     - tags
