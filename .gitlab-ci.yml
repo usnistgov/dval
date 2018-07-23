@@ -19,6 +19,8 @@ build:
     - echo "destination image" $REG_PATH/ci:$CI_COMMIT_SHA
     - docker build --tag $REG_PATH/ci:$CI_COMMIT_SHA  .
     - docker run $REG_PATH/ci:$CI_COMMIT_SHA -h  # display the help message
+  tags:
+    - shell
 
 tests:
   stage: test
@@ -54,6 +56,8 @@ branch_release:
   only:
     - master
     - develop
+  tags:
+    - shell
 
 release:
   stage: release
@@ -72,6 +76,8 @@ release:
     - docker tag $REG_PATH/ci:$CI_COMMIT_SHA $REG_PATH/d3m_outputs:latest
     - docker push $REG_PATH/d3m_outputs:$CI_COMMIT_TAG
     - docker push $REG_PATH/d3m_outputs:latest
+  tags:
+    - shell
 
   only:
     - tags
