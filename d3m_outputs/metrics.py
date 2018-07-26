@@ -175,7 +175,7 @@ METRICS_DICT = {
     'object_detection_average_precision': objectDetectionAP,
     'precision': precision,
     'recall': recall,
-    'cross_entropy': mxe
+    'crossEntropy': mxe
 }
 
 def find_metric(metric, valid_metrics=METRICS_DICT):
