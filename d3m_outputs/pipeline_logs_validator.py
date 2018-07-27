@@ -150,7 +150,6 @@ def is_pipeline_valid_bare(pipeline):
         return True
 
     required_fields = {
-        'name'          : lambda x: isinstance(x, str),
         'pipeline_rank' : lambda x: is_castable_to_type(x, float),
         'steps'         : lambda x: primitives_check(x)
     }
