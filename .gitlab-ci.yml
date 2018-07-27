@@ -18,7 +18,7 @@ build:
   script:
     - echo "destination image" $REG_PATH/ci:$CI_COMMIT_SHA
     - docker build --tag $REG_PATH/ci:$CI_COMMIT_SHA  .
-    - docker run $REG_PATH/ci:$CI_COMMIT_SHA -h  # display the help message
+    - docker run --rm  $REG_PATH/ci:$CI_COMMIT_SHA -h  # display the help message
   tags:
     - shell
 
@@ -29,8 +29,7 @@ tests:
     REG_PATH: registry.datadrivendiscovery.org/$CI_PROJECT_PATH
   
   script:
-    - docker run  --entrypoint "/bin/bash" $REG_PATH/ci:$CI_COMMIT_SHA -c "python -m pip install coverage; coverage run --branch --source=./d3m_outputs -m pytest -s test/ -v; coverage report -m"
-
+    - docker run  --rm --entrypoint "/bin/bash" $REG_PATH/ci:$CI_COMMIT_SHA -c "python -m pip install coverage; coverage run --branch --source=./d3m_outputs -m pytest -s test/ -v && coverage report -m"
   tags:
     - shell
 
