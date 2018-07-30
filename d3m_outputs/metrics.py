@@ -179,6 +179,10 @@ def precision(ground_truth, predicted):
 def recall(ground_truth, predicted):
     return skm.recall_score(ground_truth, predicted)
 
+def log_loss(ground_truth, predicted):
+    return skm.log_loss(ground_truth, predicted)
+
+mxe = log_loss
 
 METRICS_DICT = {
     'accuracy': accuracy,
@@ -199,9 +203,9 @@ METRICS_DICT = {
     'objectDetectionAP': objectDetectionAP,
     'object_detection_average_precision': objectDetectionAP,
     'precision': precision,
-    'recall': recall
+    'recall': recall,
+    'crossEntropy': mxe
 }
-
 
 def find_metric(metric, valid_metrics=METRICS_DICT):
     def transform_string(string):

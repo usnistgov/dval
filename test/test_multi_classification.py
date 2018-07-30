@@ -1,11 +1,64 @@
 import unittest
+import math
 
-from d3m_outputs.metrics import f1_micro, f1_macro, roc_auc_micro, roc_auc_macro, jacc_sim, METRICS_DICT
+from d3m_outputs.metrics import f1_micro, f1_macro, roc_auc_micro, roc_auc_macro, jacc_sim, mxe, METRICS_DICT
 
 GROUND_TRUTH = ['a', 'b', 'a', 'b', 'c', 'a', 'a', 'b', 'a', 'c', 'c', 'b']
 PREDICTED_BEST = ['a', 'b', 'a', 'b', 'c', 'a', 'a', 'b', 'a', 'c', 'c', 'b']
 PREDICTED_OK = ['a', 'b', 'a', 'c', 'a', 'a', 'a', 'b', 'b', 'c', 'c', 'b']
 PREDICTED_BAD = ['b', 'c', 'b', 'c', 'a', 'b', 'b', 'c', 'b', 'a', 'a', 'c']
+A = [1, 0, 0]
+B = [0, 1, 0]
+C = [0, 0, 1]
+PREDICTED_BEST_PROB = [A, B, A, B, C, A, A, B, A, C, C, B]
+PREDICTED_WORST_PROB = [B, C, B, C, A, B, B, C, B, A, A, C]
+A = [.9, .05, .05]
+B = [.05, .9, .05]
+C = [.05, .05, .9]
+PREDICTED_OK_PROB = [A, B, A, B, C, A, A, B, A, C, C, B]
+## test cases with 4 classes
+GROUND_TRUTH_4 = ['a', 'b', 'a', 'd', 'c', 'a', 'a', 'b', 'a', 'c', 'd', 'b']
+A = [1, 0, 0, 0]
+B = [0, 1, 0, 0]
+C = [0, 0, 1, 0]
+D = [0, 0, 0, 1]
+PREDICTED_BEST_PROB_4 = [A, B, A, D, C, A, A, B, A, C, D, B]
+PREDICTED_WORST_PROB_4 = [B, C, C, A, D, B, B, C, B, D, A, C]
+A = [.9, .05, .025, .025]
+B = [.05, .9, .025, .025]
+C = [.05, .025, .9, .025]
+D = [.05, .025, .025, .9]
+PREDICTED_OK_PROB_4 = [A, B, A, D, C, A, A, B, A, C, D, B]
+class TestMXE(unittest.TestCase):
+
+    def runTest(self):
+        self.testBest()
+        self.testOk()
+        self.testBad()
+
+    def testBest(self):
+        # a perfect cross entropy takes 0 bits
+        self.assertAlmostEqual(0.0, mxe(GROUND_TRUTH, PREDICTED_BEST_PROB))
+        self.assertAlmostEqual(0.0, METRICS_DICT['crossEntropy'](GROUND_TRUTH, PREDICTED_BEST_PROB))
+
+        self.assertAlmostEqual(0.0, mxe(GROUND_TRUTH_4, PREDICTED_BEST_PROB_4))
+        self.assertAlmostEqual(0.0, METRICS_DICT['crossEntropy'](GROUND_TRUTH_4, PREDICTED_BEST_PROB_4))
+
+    def testOk(self):
+        # takes the avg of the log predicted probabilities for the true class
+        self.assertAlmostEqual(-math.log(.9), mxe(GROUND_TRUTH, PREDICTED_OK_PROB))
+        self.assertAlmostEqual(-math.log(.9), METRICS_DICT['crossEntropy'](GROUND_TRUTH, PREDICTED_OK_PROB))
+
+        self.assertAlmostEqual(-math.log(.9), mxe(GROUND_TRUTH_4, PREDICTED_OK_PROB_4))
+        self.assertAlmostEqual(-math.log(.9), METRICS_DICT['crossEntropy'](GROUND_TRUTH_4, PREDICTED_OK_PROB_4))
+
+    def testBad(self):
+        eps = 1e-15 # log(0) is undefined, so mxe uses log(eps) instead of log(0)
+        self.assertAlmostEqual(-math.log(eps), mxe(GROUND_TRUTH, PREDICTED_WORST_PROB))
+        self.assertAlmostEqual(-math.log(eps), METRICS_DICT['crossEntropy'](GROUND_TRUTH, PREDICTED_WORST_PROB))
+
+        self.assertAlmostEqual(-math.log(eps), mxe(GROUND_TRUTH_4, PREDICTED_WORST_PROB_4))
+        self.assertAlmostEqual(-math.log(eps), METRICS_DICT['crossEntropy'](GROUND_TRUTH_4, PREDICTED_WORST_PROB_4))
 
 
 class TestF1Micro(unittest.TestCase):
