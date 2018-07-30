@@ -81,6 +81,13 @@ class ProblemSchema:
         return [t['column_name'] for t in self.targets]
 
     @property
+    def task_type(self):
+        """
+        :return: Name of the task type
+        """
+        return self.problem['problem']['task_type'].unparse()
+
+    @property
     def metrics(self):
         try:
             return [l['metric'].name for l in self.problem['problem']['performance_metrics']]

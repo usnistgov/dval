@@ -6,12 +6,16 @@ from collections.abc import Collection
 
 from .transformations import apply_transformation
 
+class MxeScore():
+    """Represents a MXE Score"""
+    def __init__(self, value):
+        self.__dict__ = {'MXE': value}
 
 class Score():
     """ Represents the score: according to a metric or transformed and normalized 
     """
 
-    def __init__(self, target, metric, scorevalue, baseline_scorevalue):
+    def __init__(self, target, metric, scorevalue, baseline_scorevalue='None'):
         self.target = target
         self.metric = metric
         

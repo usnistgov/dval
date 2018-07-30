@@ -179,10 +179,37 @@ def precision(ground_truth, predicted):
 def recall(ground_truth, predicted):
     return skm.recall_score(ground_truth, predicted)
 
-def log_loss(ground_truth, predicted):
-    return skm.log_loss(ground_truth, predicted)
+def mxe_non_bin(ground_truth, predicted):
+    """
+    This function converts non-binarized predicted values
+    and pass them to the crossEntropy function
 
-mxe = log_loss
+
+    Parameters:
+    -----------
+    gt: array
+        Array of non-binarized vectors
+
+    preds: array
+        Array of non-binarized predicted vectors.
+
+    Returns:
+    --------
+    cross_entropy:
+        Cross entropy of the predicted values
+
+
+    Example:
+        >>> gt = [0, 1, 2, 2, 1]
+        >>> pred = [0, 1, 2, 1, 0]
+
+        bin_predicted = [[0, 0, 0], [0, 1, 0], [0, 0, 1], [0, 1, 0], [0, 0, 0]]
+
+        """
+    bin_predicted = _binarize(ground_truth, predicted)[1]
+    return apply_metric('crossEntropy', ground_truth, bin_predicted)
+
+mxe = skm.log_loss
 
 METRICS_DICT = {
     'accuracy': accuracy,
@@ -204,7 +231,8 @@ METRICS_DICT = {
     'object_detection_average_precision': objectDetectionAP,
     'precision': precision,
     'recall': recall,
-    'crossEntropy': mxe
+    'crossEntropy': mxe,
+    'crossEntropyNonBinarized': mxe_non_bin
 }
 
 def find_metric(metric, valid_metrics=METRICS_DICT):

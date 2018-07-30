@@ -113,7 +113,7 @@ def cmd_score(args):
     def single_score_predictions(predictions_file):
         try:
             scores = score_predictions_file(predictions_file, args.score_dir,
-                                          args.ground_truth_file, check_valid=args.validation)
+                                          args.ground_truth_file, check_valid=args.validation, score_mxe=args.mxe)
             return scores
         except Exception as e:
             logging.exception(f'Predictions file {predictions_file} could not be scored. try validating your file first')
@@ -190,6 +190,7 @@ def cli_parser():
     subparsers['score'].add_argument('--no-validation', dest='validation', action='store_false')
     subparsers['score'].add_argument('-o', '--outfile', nargs='?', type=argparse.FileType('w'),
                                      help='Write scores in JSON to file')
+    subparsers['score'].add_argument('--mxe', help='Include the multi-cross-entropy score in the output.', action='store_true')
     subparsers['score'].set_defaults(validation=True, func=cmd_score)
 
     args = parser.parse_args()

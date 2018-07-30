@@ -29,6 +29,7 @@ from collections import namedtuple
 from pathlib import Path
 import json
 
+import numpy as np
 import pandas
 
 from . import schemas
@@ -36,7 +37,7 @@ from .file_checker import FileChecker
 from .metrics import METRICS_DICT, valid_metric, apply_metric
 from .validation_type_checks import valid_d3mindex, valid_boolean, valid_real, valid_integer, valid_string, \
     valid_categorical, valid_datetime
-from .score import Score, Scores
+from .score import Score, Scores, MxeScore
 
 
 class Predictions:
@@ -68,7 +69,7 @@ class Predictions:
         valid = file_readable and targets_valid and index_valid and header_valid
         return valid
 
-    def score(self, targets_filepath):
+    def score(self, targets_filepath, score_mxe=False):
         scores = list()
         # Score = namedtuple('Score', ['target', 'metric', 'scorevalue'])
 
@@ -112,6 +113,25 @@ class Predictions:
                     score = Score(target, metric['metric'], value, baseline_score)
             score.transform_normalize()
             scores.append(score)
+
+        # Add the multi cross entropy if desired, and if the problem is a classification problem
+        if score_mxe:
+            if self.ds.problemschema.task_type == 'classification':
+                # Reorder and align the targets and the predictions columns
+                gt_l = [self.ds.targets_df[target] for target in self.ds.target_names]
+                pred_l = [self.frame[target] for target in self.ds.target_names]
+
+
+                # Transpose them into a list of rows
+                gt_l = np.transpose(gt_l)
+                pred_l = np.transpose(pred_l)
+
+                value = apply_metric('crossEntropyNonBinarized', gt_l, pred_l)
+                score = MxeScore(value)
+                scores.append(score)
+            else:
+                logging.warning(
+                    f'Ignoring MXE. Task is not a classification task')
 
         return Scores(scores)
 
@@ -204,13 +224,13 @@ def is_predictions_file_valid(result_file, score_dir_path):
     return Predictions(result_file, score_dir_path).is_valid()
 
 
-def score_predictions_file(result_file, score_dir_path, groundtruth_path, check_valid=True):
+def score_predictions_file(result_file, score_dir_path, groundtruth_path, check_valid=True, score_mxe=False):
     predictions = Predictions(result_file, score_dir_path)
     if check_valid and not predictions.is_valid():
         logging.error('Invalid predictions file')
         raise InvalidPredictionsError('Invalid predictions file')
 
-    return predictions.score(groundtruth_path)
+    return predictions.score(groundtruth_path, score_mxe)
 
 
 class InvalidPredictionsError(Exception):
