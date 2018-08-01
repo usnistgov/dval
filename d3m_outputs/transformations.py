@@ -53,23 +53,23 @@ class ZeroInfScoreTransformation(Transformation):
 METRIC_RANGES_DICT = {
     'accuracy': CenterizedNormalizedScoreTransformation(0, 1, True),
     'f1': CenterizedNormalizedScoreTransformation(0, 1, False),
-    'f1Micro': None,
+    'f1Micro': CenterizedNormalizedScoreTransformation(0, 1, False),
     'f1Macro': CenterizedNormalizedScoreTransformation(0, 1, False),
-    'rocAuc': None,
-    'rocAucMicro': None,
-    'rocAucMacro': None,
+    'rocAuc': CenterizedNormalizedScoreTransformation(0, 1, False),
+    'rocAucMicro': CenterizedNormalizedScoreTransformation(0, 1, False),
+    'rocAucMacro': CenterizedNormalizedScoreTransformation(0, 1, False),
     'meanSquaredError': ZeroInfScoreTransformation(0, None, True),
     'rootMeanSquaredError': ZeroInfScoreTransformation(0, None, True),
     'rootMeanSquaredErrorAvg': ZeroInfScoreTransformation(0, None, True),
-    'meanAbsoluteError': None,
+    'meanAbsoluteError': ZeroInfScoreTransformation(0, None, True),
     'rSquared': None,
     'normalizedMutualInformation': CenterizedNormalizedScoreTransformation(0, 1, False),
     'jaccardSimilarityScore': None,
     'precisionAtTopK': None,
     'objectDetectionAP': None,
     'object_detection_average_precision': None,
-    'precision': None,
-    'recall': None
+    'precision': CenterizedNormalizedScoreTransformation(0, 1, False),
+    'recall': CenterizedNormalizedScoreTransformation(0, 1, False)
 }
 
 def apply_transformation(metric, *args, **kwargs):
