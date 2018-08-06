@@ -33,6 +33,26 @@ tests:
   tags:
     - shell
 
+pages:
+  stage: build  
+  image: python:3.6.5-slim
+  script:
+  - pip install sphinx sphinx-rtd-theme
+  - python setup.py sdist && pip install $(ls dist/*)
+  - cd doc
+  - sphinx-apidoc -o source/ ../d3m_outputs
+  - sphinx-build -b html source/ build/
+  - mv build/ ../public/
+  artifacts:
+    paths:
+    - public
+
+  # only on develop and master branches
+  #only:
+  #  - master
+  #  - develop
+  tags:
+    - shell
 
 branch_release:
   stage: release
