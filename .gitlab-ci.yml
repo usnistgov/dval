@@ -2,6 +2,7 @@ stages:
   - build
   - test
   - release
+  - documentation
 
 build:
   stage: build
@@ -32,7 +33,6 @@ tests:
     - docker run  --rm --entrypoint "/bin/bash" $REG_PATH/ci:$CI_COMMIT_SHA -c "python -m pip install coverage; coverage run --branch --source=./d3m_outputs -m pytest -s test/ -v && coverage report -m"
   tags:
     - shell
-
 
 branch_release:
   stage: release
@@ -76,6 +76,32 @@ release:
     - docker push $REG_PATH/d3m_outputs:latest
   tags:
     - shell
+
+  only:
+    - tags
+    
+pages:
+  stage: documentation
+  image: 
+    name: $REG_PATH/d3m_outputs:latest
+    entrypoint: [""]
+  
+
+  variables:
+    REG_PATH: registry.datadrivendiscovery.org/$CI_PROJECT_PATH
+  
+  script:
+  - pip install sphinx sphinx-rtd-theme
+  - cd docs
+  - sphinx-apidoc -o source/ ../d3m_outputs
+  - sphinx-build -b html source/ build/
+  - mv build/ ../public/
+  artifacts:
+    paths:
+    - public
+  
+  tags:
+    - docker
 
   only:
     - tags

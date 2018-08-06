@@ -177,3 +177,16 @@ Checks that the validation code does on the pipeline log files include:
 ## Run Tests
 
 To run all tests: `python -m unittest discover`
+
+## Documentation
+
+Docs of the latest version of the master branch are available here: https://nist.datadrivendiscovery.org/nist_eval_output_validation_scoring/
+
+Docs were built using sphinx and autodoc with the following commands in the `docs` directory
+
+```
+sphinx-apidoc -f -o source/ ../d3m_outputs
+sphinx-build -b html source build
+```
+
+And the web docs can be loaded in `docs/build/index.html`
