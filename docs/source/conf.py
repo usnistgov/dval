@@ -23,10 +23,12 @@ project = 'nist_eval_output_validation_scoring'
 copyright = '2018, NIST D3M Team'
 author = 'NIST D3M Team'
 
+import d3m_outputs
+
 # The short X.Y version
-version = ''
+release = d3m_outputs.__version__
 # The full version, including alpha/beta/rc tags
-release = '18summer-1.4-alpha'
+version = release
 
 
 # -- General configuration ---------------------------------------------------

@@ -5,6 +5,7 @@ except ImportError: # for pip <= 9.0.3
 import sys
 import os
 from setuptools import setup
+import d3m_outputs
 
 PACKAGE_NAME = 'd3m_outputs'
 MINIMUM_PYTHON_VERSION = 3, 6
@@ -51,6 +52,7 @@ check_python_version()
 requires, links = parse_requirements()
 
 setup(install_requires=requires,
+      version=d3m_outputs.__version__,
       entry_points='''
           [console_scripts]
           d3moutputs=d3m_outputs.cli:main
