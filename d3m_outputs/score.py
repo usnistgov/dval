@@ -58,10 +58,10 @@ class Score():
     def transform_normalize(self):
         """ Transform and normalize the score to allow cross comparison
         """
-        self.transformed_scorevalue = self._transform(self.scorevalue, transformation)
-        if self.baseline_scorevalue != 'None':
-            transformation = apply_transformation(self.metric)
-            if transformation:
+        transformation = apply_transformation(self.metric)
+        if transformation:
+            self.transformed_scorevalue = self._transform(self.scorevalue, transformation)
+            if self.baseline_scorevalue != 'None':
                 self.transformed_baseline_scorevalue = self._transform(self.baseline_scorevalue, transformation)
                 self.transformed_normalized_scorevalue = self._normalize(self.transformed_scorevalue,
                     self.transformed_baseline_scorevalue, transformation)
