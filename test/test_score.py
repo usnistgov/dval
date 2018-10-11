@@ -43,7 +43,7 @@ class TestScore(unittest.TestCase):
 
         self.assertEqual(score.scorevalue, 0.4)
         self.assertEqual(score.baseline_scorevalue, "None")
-        self.assertEqual(score.transformed_scorevalue, "None")
+        self.assertEqual(score.transformed_scorevalue, 0.4)
         self.assertEqual(score.transformed_baseline_scorevalue, "None")
         self.assertEqual(score.transformed_normalized_scorevalue, "None")
 

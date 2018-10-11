@@ -147,6 +147,10 @@ class D3MDataStructure:
         self.testdata_path = self.root / self.RELATIVE_PATH_TO_TESTDATA
         self.targets_path = self.root / self.RELATIVE_PATH_TO_TARGETS
         self.baseline_scores_path = self.root / self.RELATIVE_PATH_TO_BASELINE_SCORES
+        self.indices_path = None
+
+        if 'indices_file' in kwargs:
+            self.indices_path = kwargs['indices_file']
 
 
     def __getattr__(self, item):
@@ -173,6 +177,10 @@ class D3MDataStructure:
 
         if 'd3mIndex' in self.targets_df.columns:
             self.targets_df.sort_values(by='d3mIndex', inplace=True)
+
+            if self.indices_path:
+                indices = pandas.read_csv(self.indices_path, header=None)[0].values
+                self.targets_df = self.targets_df.loc[self.targets_df.d3mIndex.apply(lambda x: x in indices)]
         
         self.targets_index = self.targets_df.index
         self.number_targets = len(self.targets_index)

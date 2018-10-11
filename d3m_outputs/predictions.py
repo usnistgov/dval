@@ -46,14 +46,16 @@ class Predictions:
     def __init__(self,
                  result_file_path,
                  path_to_score_root,
-                 separator=SEPARATOR):
+                 separator=SEPARATOR,
+                 indices_file=None):
         self.result_file_path = result_file_path
 
         self.score_root = Path(path_to_score_root)
-        self.ds = schemas.D3MDataStructure(root=self.score_root)
+        self.ds = schemas.D3MDataStructure(root=self.score_root, indices_file=indices_file)
         self.dataset_schema_path = self.ds.dataschema.filepath
         self.problem_schema_path = self.ds.problemschema.filepath
 
+        self.indices_path = indices_file
         self.separator = separator
         self._load_data()
         self.ds.load_targets()
@@ -147,6 +149,11 @@ class Predictions:
         if 'd3mIndex' in self.frame.columns:
             self.frame.sort_values(by='d3mIndex', inplace=True)
 
+            if self.indices_path:
+                indices = pandas.read_csv(self.indices_path, header=None)[0].values
+                self.frame = self.frame.loc[self.frame.d3mIndex.apply(lambda x: x in indices)]
+
+
     def _is_header_valid(self):
         """
         :return: bool
@@ -164,10 +171,7 @@ class Predictions:
     def _is_index_valid(self):
         valid = valid_d3mindex(self.ds.expected_index)
         is_nan = pandas.isnull(self.frame).any().all().all()
-        targets_path=str(self.score_root)+'/targets.csv'
-        targets = pandas.read_csv(
-            targets_path,
-            delimiter=self.separator)
+        targets = self.ds.targets_df
         if is_nan:
             valid = False
             logging.error(f'Certain entries are invalid or empty')
@@ -224,8 +228,8 @@ def is_predictions_file_valid(result_file, score_dir_path):
     return Predictions(result_file, score_dir_path).is_valid()
 
 
-def score_predictions_file(result_file, score_dir_path, groundtruth_path, check_valid=True, score_mxe=False):
-    predictions = Predictions(result_file, score_dir_path)
+def score_predictions_file(result_file, score_dir_path, groundtruth_path, check_valid=True, score_mxe=False, indices_file=None):
+    predictions = Predictions(result_file, score_dir_path, indices_file=indices_file)
     if check_valid and not predictions.is_valid():
         logging.error('Invalid predictions file')
         raise InvalidPredictionsError('Invalid predictions file')

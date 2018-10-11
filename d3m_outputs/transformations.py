@@ -77,4 +77,4 @@ def apply_transformation(metric, *args, **kwargs):
         return string.lower().replace('_', '')
 
     reference = {transform_string(k): _ for k,_ in METRIC_RANGES_DICT.items()}
-    return reference[transform_string(metric)]
+    return reference[transform_string(metric)] if transform_string(metric) in reference else None
