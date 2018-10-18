@@ -131,6 +131,8 @@ def cmd_score(args):
                 json.dump(to_dump, args.outfile, sort_keys=True, indent=4)
                 print(f'Scores written to {args.outfile.name}')
 
+def print_package_version(args):
+    print(__import__(__package__).__version__)
 
 def add_yn_flag(subparser, flag_name):
     group = subparser.add_mutually_exclusive_group()
@@ -144,6 +146,10 @@ def cli_parser():
     subs = parser.add_subparsers(title='subcommands')
 
     subparsers = {name: subs.add_parser(name) for name in subparsers_l}
+
+    # Add version subcommand
+    version_parser = subs.add_parser('version', description='Print package version')
+    version_parser.set_defaults(func=print_package_version)
 
     for subparser in subparsers.values():
         group = subparser.add_mutually_exclusive_group()
