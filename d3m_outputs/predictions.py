@@ -61,15 +61,11 @@ class Predictions:
         self.ds.load_targets()
 
     def is_valid(self):
-        valid = True
+        # Check the shape of the predictions first
+        valid = self._is_file_readable() and self._is_header_valid()
 
-        file_readable = self._is_file_readable()
-        header_valid = self._is_header_valid()
-        targets_valid = self._are_targets_valid()
-        index_valid = self._is_index_valid()
-
-        valid = file_readable and targets_valid and index_valid and header_valid
-        return valid
+        # Then compute the other checks
+        return valid and self._is_index_valid() and self._are_targets_valid()
 
     def score(self, targets_filepath, score_mxe=False):
         scores = list()
