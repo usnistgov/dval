@@ -3,6 +3,11 @@ import math
 
 from d3m_outputs.metrics import f1_micro, f1_macro, roc_auc_micro, roc_auc_macro, jacc_sim, mxe, METRICS_DICT
 
+GROUND_TRUTH_BBALL = [1, 0, 0, 2, 1]
+PREDICTED_BBALL = [0, 0, 1, 2, 1]
+PREDICTED_BBALL_PROBS = [[1,0,0], [1,0,0], [0,1,0], [0,0,1], [0,1,0]]
+
+
 GROUND_TRUTH = ['a', 'b', 'a', 'b', 'c', 'a', 'a', 'b', 'a', 'c', 'c', 'b']
 PREDICTED_BEST = ['a', 'b', 'a', 'b', 'c', 'a', 'a', 'b', 'a', 'c', 'c', 'b']
 PREDICTED_OK = ['a', 'b', 'a', 'c', 'a', 'a', 'a', 'b', 'b', 'c', 'c', 'b']
@@ -43,6 +48,7 @@ class TestMXE(unittest.TestCase):
         self.testBest()
         self.testOk()
         self.testBad()
+        self.testBaseballEx1()
 
     def testBest(self):
         # a perfect cross entropy takes 0 bits
@@ -77,7 +83,11 @@ class TestMXE(unittest.TestCase):
         self.assertAlmostEqual(-math.log(eps), METRICS_DICT['crossEntropy'](GROUND_TRUTH_4, PREDICTED_WORST_PROB_4))
         self.assertAlmostEqual(-math.log(eps), METRICS_DICT['crossEntropyNonBinarized'](GROUND_TRUTH_4, PREDICTED_WORST_4))
 
-
+    def testBaseballEx1(self):
+        expected_mxe = (-math.log(1e-15,math.exp(1)))/3
+        self.assertAlmostEqual(expected_mxe, mxe(GROUND_TRUTH_BBALL,PREDICTED_BBALL_PROBS))
+        self.assertAlmostEqual(expected_mxe, METRICS_DICT['crossEntropyNonBinarized'](GROUND_TRUTH_BBALL, PREDICTED_BBALL))
+        self.assertAlmostEquals(mxe(GROUND_TRUTH_BBALL,PREDICTED_BBALL_PROBS),METRICS_DICT['crossEntropyNonBinarized'](GROUND_TRUTH_BBALL, PREDICTED_BBALL))
 
 class TestF1Micro(unittest.TestCase):
     def runTest(self):
