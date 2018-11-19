@@ -1,94 +1,23 @@
 stages:
-  - build
   - test
-  - release
   - documentation
 
 build:
-  stage: build
-  
-  before_script:
-    - docker info
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.datadrivendiscovery.org
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN pullregistry.datadrivendiscovery.org
-
-  variables:
-    REG_PATH: registry.datadrivendiscovery.org/$CI_PROJECT_PATH
-    DOCKER_DRIVER: overlay2
-
-  script:
-    - echo "destination image" $REG_PATH/ci:$CI_COMMIT_SHA
-    - docker build --tag $REG_PATH/ci:$CI_COMMIT_SHA  .
-    - docker run --rm  $REG_PATH/ci:$CI_COMMIT_SHA -h  # display the help message
-  tags:
-    - shell
-
-tests:
   stage: test
-  
-  variables:
-    REG_PATH: registry.datadrivendiscovery.org/$CI_PROJECT_PATH
-  
-  script:
-    - docker run  --rm --entrypoint "/bin/bash" $REG_PATH/ci:$CI_COMMIT_SHA -c "python -m pip install coverage; coverage run --branch --source=./d3m_outputs -m pytest -s test/ -v && coverage report -m"
-  tags:
-    - shell
+  image: python:3.6.5
 
-branch_release:
-  stage: release
-  
   before_script:
-    - docker info
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.datadrivendiscovery.org
-
-  variables:
-    REG_PATH: registry.datadrivendiscovery.org/$CI_PROJECT_PATH
-    DOCKER_DRIVER: overlay2
-
+    - pip install pip==9.0.3
+    - pip install -r requirements.txt
+    - pip install --process-dependency-links git+https://gitlab.com/datadrivendiscovery/d3m.git@v2018.6.5#egg=d3m
+    - python setup.py install
+    - d3m_outputs -h
+    - python -m pip install coverage
   script:
-    - echo "destination images" $REG_PATH/branches/$CI_COMMIT_REF_NAME:latest
-    - docker tag $REG_PATH/ci:$CI_COMMIT_SHA $REG_PATH/branches/$CI_COMMIT_REF_NAME:latest
-    - docker push $REG_PATH/branches/$CI_COMMIT_REF_NAME:latest
+    - coverage run --branch --source=./d3m_outputs -m pytest -s test/ -v && coverage report -m
 
-  # only on develop and master branches
-  only:
-    - master
-    - develop
-  tags:
-    - shell
-
-release:
-  stage: release
-  
-  before_script:
-    - docker info
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.datadrivendiscovery.org
-
-  variables:
-    REG_PATH: registry.datadrivendiscovery.org/$CI_PROJECT_PATH
-    DOCKER_DRIVER: overlay2
-
-  script:
-    - echo "destination images" $REG_PATH/d3m_outputs:CI_COMMIT_TAG $REG_PATH/d3m_outputs:latest
-    - docker tag $REG_PATH/ci:$CI_COMMIT_SHA $REG_PATH/d3m_outputs:$CI_COMMIT_TAG
-    - docker tag $REG_PATH/ci:$CI_COMMIT_SHA $REG_PATH/d3m_outputs:latest
-    - docker push $REG_PATH/d3m_outputs:$CI_COMMIT_TAG
-    - docker push $REG_PATH/d3m_outputs:latest
-  tags:
-    - shell
-
-  only:
-    - tags
-    
 pages:
   stage: documentation
-  image: 
-    name: $REG_PATH/d3m_outputs:latest
-    entrypoint: [""]
-  
-
-  variables:
-    REG_PATH: registry.datadrivendiscovery.org/$CI_PROJECT_PATH
   
   script:
   - pip install sphinx sphinx-rtd-theme
@@ -99,9 +28,6 @@ pages:
   artifacts:
     paths:
     - public
-  
-  tags:
-    - docker
 
   only:
     - tags
