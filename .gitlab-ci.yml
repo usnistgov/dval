@@ -16,7 +16,7 @@ build:
   script:
     - coverage run --branch --source=./d3m_outputs -m pytest -s test/ -v && coverage report -m
     - coverage html
-   artifacts:
+  artifacts:
     paths:
       - $CI_PROJECT_DIR/htmlcov
 
