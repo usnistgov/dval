@@ -178,6 +178,16 @@ Checks that the validation code does on the pipeline log files include:
 
 To run all tests: `python -m unittest discover`
 
+We have a test suite with the `pytest` package and code coverage with `coverage`. This requires the package `coverage` and `pytest`, both of which can be installed with `pip`.
+
+The following command runs all of the unit tests and outputs code coverage into `htmlcov/index.html`
+
+```bash
+coverage run --branch --source=./d3m_outputs -m pytest -s test/ -v
+coverage report -m
+coverage html
+```
+
 ## Documentation
 
 Docs of the latest version of the master branch are available here: https://nist.datadrivendiscovery.org/nist_eval_output_validation_scoring/
