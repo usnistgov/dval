@@ -22,7 +22,8 @@ PREDICTED_WORST_PROB = [B, C, B, C, A, B, B, C, B, A, A, C]
 A = [.9, .05, .05]
 B = [.05, .9, .05]
 C = [.05, .05, .9]
-PREDICTED_OK_PROB = [A, B, A, B, C, A, A, B, A, C, C, B]
+# Picked PREDICTED_OK_PROB to have same predictions as PREDICTED_OK
+PREDICTED_OK_PROB = [A, B, A, C, A, A, A, B, B, C, C, B]
 
 ## test cases with 4 classes
 GROUND_TRUTH_4 = ['a', 'b', 'a', 'd', 'c', 'a', 'a', 'b', 'a', 'c', 'd','b']
@@ -41,7 +42,8 @@ A = [.9, .05, .025, .025]
 B = [.05, .9, .025, .025]
 C = [.05, .025, .9, .025]
 D = [.05, .025, .025, .9]
-PREDICTED_OK_PROB_4 = [A, B, A, D, C, A, A, B, A, C, D, B]
+# Picked PREDICTED_OK_PROB_4 to have same predictions as PREDICTED_OK
+PREDICTED_OK_PROB_4 = [B, B, A, D, C, A, A, B, A, C, D, B]
 PREDICTED_OK_4 = ['b', 'b', 'a', 'd', 'c', 'a', 'a', 'b', 'a', 'c', 'd','b']
 
 class TestMXE(unittest.TestCase):
@@ -54,43 +56,53 @@ class TestMXE(unittest.TestCase):
 
     def testBest(self):
         # a perfect cross entropy takes 0 bits
-        self.assertAlmostEqual(0.0, mxe(GROUND_TRUTH, PREDICTED_BEST_PROB))
-        self.assertAlmostEqual(0.0, METRICS_DICT['crossEntropy'](GROUND_TRUTH, PREDICTED_BEST_PROB))
-        self.assertAlmostEqual(0.0, METRICS_DICT['crossEntropyNonBinarized'](GROUND_TRUTH, PREDICTED_BEST))
+        self.assertAlmostEqual(mxe(GROUND_TRUTH, PREDICTED_BEST_PROB), 0.0)
+        self.assertAlmostEqual(METRICS_DICT['crossEntropy'](GROUND_TRUTH, PREDICTED_BEST_PROB), 0.0)
+        self.assertAlmostEqual(METRICS_DICT['crossEntropyNonBinarized'](GROUND_TRUTH, PREDICTED_BEST), 0.0)
 
-        self.assertAlmostEqual(0.0, mxe(GROUND_TRUTH_4, PREDICTED_BEST_PROB_4))
-        self.assertAlmostEqual(0.0, METRICS_DICT['crossEntropy'](GROUND_TRUTH_4, PREDICTED_BEST_PROB_4))
-        self.assertAlmostEqual(0.0, METRICS_DICT['crossEntropyNonBinarized'](GROUND_TRUTH_4, PREDICTED_BEST_4))
+        self.assertAlmostEqual(mxe(GROUND_TRUTH_4, PREDICTED_BEST_PROB_4), 0.0)
+        self.assertAlmostEqual(METRICS_DICT['crossEntropy'](GROUND_TRUTH_4, PREDICTED_BEST_PROB_4), 0.0)
+        self.assertAlmostEqual(METRICS_DICT['crossEntropyNonBinarized'](GROUND_TRUTH_4, PREDICTED_BEST_4), 0.0)
 
 
     def testOk(self):
         # takes the avg of the log predicted probabilities for the true class
-        self.assertAlmostEqual(-math.log(.9), mxe(GROUND_TRUTH, PREDICTED_OK_PROB))
-        self.assertAlmostEqual(-math.log(.9), METRICS_DICT['crossEntropy'](GROUND_TRUTH, PREDICTED_OK_PROB))
-        self.assertAlmostEqual(math.log(5623.413251903499), METRICS_DICT['crossEntropyNonBinarized'](GROUND_TRUTH, PREDICTED_OK))
+        ## note in this example, the class contribution toward the mxe is the same for all classes
+        ## and the same is true for all trials, so we can compute it for a single trial.
+        # ct is correct trial
+        ct_mxe = math.log2(1/0.9)
+        # it = incorrect trial
+        it_mxe = math.log2(1/0.05)
+        expected_OK_mxe_prob = (1/3)*((1/5)*(4*ct_mxe + 1*it_mxe) + (1/4)*(3*ct_mxe + 1*it_mxe) + (1/3)*(2*ct_mxe + 1*it_mxe))
+        expected_OK_mxe_bin = (-math.log(2**-100,2)/3)*(1/5 + 1/4 + 1/3)
+        self.assertAlmostEqual(mxe(GROUND_TRUTH, PREDICTED_OK_PROB), expected_OK_mxe_prob)
+        self.assertAlmostEqual(METRICS_DICT['crossEntropy'](GROUND_TRUTH, PREDICTED_OK_PROB), expected_OK_mxe_prob)
+        self.assertAlmostEqual(METRICS_DICT['crossEntropyNonBinarized'](GROUND_TRUTH, PREDICTED_OK), expected_OK_mxe_bin)
 
-
-        self.assertAlmostEqual(-math.log(.9), mxe(GROUND_TRUTH_4, PREDICTED_OK_PROB_4))
-        self.assertAlmostEqual(-math.log(.9), METRICS_DICT['crossEntropy'](GROUND_TRUTH_4, PREDICTED_OK_PROB_4))
-        self.assertAlmostEqual(math.log(17.78279410038926), METRICS_DICT['crossEntropyNonBinarized'](GROUND_TRUTH_4, PREDICTED_OK_4))
+        ct4_mxe = math.log2(1 / 0.9)
+        it4ab_mxe = math.log2(1 / 0.05)
+        expected_OK4_mxe_prob = (1/4)*((1/5)*(4*ct4_mxe + 1*it4ab_mxe) + (1/3)*(3*ct4_mxe) + (1/3)*(3*ct4_mxe) + (1/2)*(2*ct4_mxe))
+        expected_OK4_mxe_bin = (-math.log(2 ** -100, 2)/4) * (1/5)
+        self.assertAlmostEqual(mxe(GROUND_TRUTH_4, PREDICTED_OK_PROB_4), expected_OK4_mxe_prob)
+        self.assertAlmostEqual(METRICS_DICT['crossEntropy'](GROUND_TRUTH_4, PREDICTED_OK_PROB_4), expected_OK4_mxe_prob)
+        self.assertAlmostEqual(METRICS_DICT['crossEntropyNonBinarized'](GROUND_TRUTH_4, PREDICTED_OK_4), expected_OK4_mxe_bin)
 
 
     def testBad(self):
-        eps = 1e-15 # log(0) is undefined, so mxe uses log(eps) instead of log(0)
-        self.assertAlmostEqual(-math.log(eps), mxe(GROUND_TRUTH, PREDICTED_WORST_PROB))
-        self.assertAlmostEqual(-math.log(eps), METRICS_DICT['crossEntropy'](GROUND_TRUTH, PREDICTED_WORST_PROB))
-        self.assertAlmostEqual(-math.log(eps), METRICS_DICT['crossEntropyNonBinarized'](GROUND_TRUTH, PREDICTED_BAD))
+        eps = 2**-100 # log2(0) is undefined, so mxe uses log2(eps) instead of log2(0) Log2 is the base, which is what prompts the epsilon
+        self.assertAlmostEqual(mxe(GROUND_TRUTH, PREDICTED_WORST_PROB), -math.log2(eps))
+        self.assertAlmostEqual(METRICS_DICT['crossEntropy'](GROUND_TRUTH, PREDICTED_WORST_PROB), -math.log2(eps))
+        self.assertAlmostEqual(METRICS_DICT['crossEntropyNonBinarized'](GROUND_TRUTH, PREDICTED_BAD), -math.log2(eps))
 
-        self.assertAlmostEqual(-math.log(eps), mxe(GROUND_TRUTH_4, PREDICTED_WORST_PROB_4))
-        self.assertAlmostEqual(-math.log(eps), METRICS_DICT['crossEntropy'](GROUND_TRUTH_4, PREDICTED_WORST_PROB_4))
-        self.assertAlmostEqual(-math.log(eps), METRICS_DICT['crossEntropyNonBinarized'](GROUND_TRUTH_4, PREDICTED_WORST_4))
+        self.assertAlmostEqual(mxe(GROUND_TRUTH_4, PREDICTED_WORST_PROB_4), -math.log2(eps))
+        self.assertAlmostEqual(METRICS_DICT['crossEntropy'](GROUND_TRUTH_4, PREDICTED_WORST_PROB_4), -math.log2(eps))
+        self.assertAlmostEqual(METRICS_DICT['crossEntropyNonBinarized'](GROUND_TRUTH_4, PREDICTED_WORST_4), -math.log2(eps))
 
-    @pytest.mark.skip(reason="this test won't pass until the MXE fix is implemented (TODO)")
     def testBaseballEx1(self):
-        expected_mxe = (-math.log(1e-15,math.exp(1)))/3
-        self.assertAlmostEqual(expected_mxe, mxe(GROUND_TRUTH_BBALL,PREDICTED_BBALL_PROBS))
-        self.assertAlmostEqual(expected_mxe, METRICS_DICT['crossEntropyNonBinarized'](GROUND_TRUTH_BBALL, PREDICTED_BBALL))
-        self.assertAlmostEquals(mxe(GROUND_TRUTH_BBALL,PREDICTED_BBALL_PROBS),METRICS_DICT['crossEntropyNonBinarized'](GROUND_TRUTH_BBALL, PREDICTED_BBALL))
+        expected_mxe = (-math.log(2**-100,2)/3)
+        self.assertAlmostEqual(mxe(GROUND_TRUTH_BBALL,PREDICTED_BBALL_PROBS), expected_mxe)
+        self.assertAlmostEqual(METRICS_DICT['crossEntropyNonBinarized'](GROUND_TRUTH_BBALL, PREDICTED_BBALL), expected_mxe)
+        self.assertAlmostEquals(mxe(GROUND_TRUTH_BBALL,PREDICTED_BBALL_PROBS),METRICS_DICT['crossEntropyNonBinarized'](GROUND_TRUTH_BBALL, PREDICTED_BBALL), expected_mxe)
 
 class TestF1Micro(unittest.TestCase):
     def runTest(self):
