@@ -35,7 +35,9 @@ class Score():
         return json.dumps(self.__dict__)
 
     def _transform(self, score, transformation):
-        """ Transform any score to fit between [0,1]
+        """ Transform any score to fit between [0,1].
+
+        Scores may be transformed before or after normalizing, so this method is made public
 
         :return: transformed score
         """
@@ -43,6 +45,8 @@ class Score():
 
     def _normalize(self, score, baseline_score, transformation):
         """ Normalize a score according to the baseline
+
+        Scores may be transformed before or after normalizing, so this method is made public
 
         :param baseline_score: baseline score
         :type baseline_score: float

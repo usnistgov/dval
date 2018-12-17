@@ -11,6 +11,9 @@ PREDICTED_BEST_LABEL = ['a', 'a', 'b', 'a', 'a', 'b', 'b', 'b', 'a', 'b', 'a', '
 PREDICTED_OK = [1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0]
 PREDICTED_OK_LABEL = ['a', 'a', 'a', 'b', 'a', 'b', 'a', 'a', 'b', 'b', 'a', 'b']
 
+PREDICTED_OK_B = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+PREDICTED_OK_B_LABEL = ['a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a']
+
 PREDICTED_BAD = [0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0]
 PREDICTED_BAD_LABEL = ['b', 'b', 'a', 'b', 'b', 'a', 'a', 'a', 'b', 'a', 'b', 'b']
 
@@ -24,6 +27,10 @@ class TestAccuracyIndicator(unittest.TestCase):
     def testOk(self):
         self.assertEqual(0.5, accuracy(GROUND_TRUTH, PREDICTED_OK))
         self.assertEqual(0.5, METRICS_DICT['accuracy'](GROUND_TRUTH, PREDICTED_OK))
+
+    def testOkB(self):
+        self.assertEqual(accuracy(GROUND_TRUTH, PREDICTED_OK_B), (7/12))
+        self.assertEqual(METRICS_DICT['accuracy'](GROUND_TRUTH, PREDICTED_OK_B), (7/12))
 
     def testBad(self):
         self.assertEqual(0.0, accuracy(GROUND_TRUTH, PREDICTED_BAD))
