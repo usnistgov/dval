@@ -13,7 +13,8 @@ import sklearn.metrics as skm
 from sklearn.preprocessing import LabelBinarizer
 
 from d3m_outputs.object_detection_ap import objectDetectionAP
-
+from collections import defaultdict
+import math
 
 def accuracy(ground_truth, predicted):
     return skm.accuracy_score(ground_truth, predicted)
@@ -203,13 +204,46 @@ def mxe_non_bin(ground_truth, predicted):
         >>> gt = [0, 1, 2, 2, 1]
         >>> pred = [0, 1, 2, 1, 0]
 
-        bin_predicted = [[0, 0, 0], [0, 1, 0], [0, 0, 1], [0, 1, 0], [0, 0, 0]]
+        bin_predicted = [[1, 0, 0], [0, 1, 0], [0, 0, 1], [0, 0, 1], [0, 1, 0]]
 
         """
     bin_predicted = _binarize(ground_truth, predicted)[1]
     return apply_metric('crossEntropy', ground_truth, bin_predicted)
 
-mxe = skm.log_loss
+
+def _normalize_ground_truth(ground_truth):
+    import string
+    if isinstance(ground_truth[0], str) and ground_truth[0] in string.ascii_lowercase:
+        ground_truth = list( map(lambda x: ord(x) - ord('a'), ground_truth))
+    return ground_truth
+
+def _normalize_predicted(predicted, eps_value=2**-100):
+    norm_predicted = []
+    for trial in predicted:
+        t = []
+        for pd in trial:
+            # Here, we convert any value less than eps_value to eps_value
+            if (pd == 0 or (pd < eps_value) ):
+                pd = eps_value
+            t.append(math.log(pd))
+        norm_predicted.append(t)
+    return norm_predicted
+
+def mxe(ground_truth, predicted):
+    """Computes the Multiclass Cross Entropy (MXE)."""
+    log_base = 2
+    ground_truth = _normalize_ground_truth(ground_truth)
+    predicted = _normalize_predicted(predicted)
+    class_to_trials = defaultdict(list)
+    for gt, pd in zip(ground_truth, predicted):
+        class_to_trials[gt].append(pd)
+    numerator = 0
+    for cls, trials in class_to_trials.items():
+        class_loss = sum([math.log(sum([math.e ** (pd) for pd in trial]) / math.e ** (trial[cls]), log_base) for trial in trials])
+        numerator += (class_loss / len(trials))
+    num_classes = len(class_to_trials)
+    return numerator / num_classes
+
 
 METRICS_DICT = {
     'accuracy': accuracy,
