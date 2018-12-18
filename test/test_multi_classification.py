@@ -46,6 +46,11 @@ D = [.05, .025, .025, .9]
 PREDICTED_OK_PROB_4 = [B, B, A, D, C, A, A, B, A, C, D, B]
 PREDICTED_OK_4 = ['b', 'b', 'a', 'd', 'c', 'a', 'a', 'b', 'a', 'c', 'd','b']
 
+GROUND_TRUTH_REAL_EXAMPLE = ['value_a','value_b','value_a','value_b',
+                             'value_c','value_a','value_a','value_b',
+                             'value_a','value_c','value_c','value_b']
+
+
 class TestMXE(unittest.TestCase):
 
     def runTest(self):
@@ -87,6 +92,15 @@ class TestMXE(unittest.TestCase):
         self.assertAlmostEqual(METRICS_DICT['crossEntropy'](GROUND_TRUTH_4, PREDICTED_OK_PROB_4), expected_OK4_mxe_prob)
         self.assertAlmostEqual(METRICS_DICT['crossEntropyNonBinarized'](GROUND_TRUTH_4, PREDICTED_OK_4), expected_OK4_mxe_bin)
 
+    def testOkRealExample(self):
+        ct_mxe = math.log2(1/0.9)
+        # it = incorrect trial
+        it_mxe = math.log2(1/0.05)
+        expected_OK_mxe_prob = (1/3)*((1/5)*(4*ct_mxe + 1*it_mxe) + (1/4)*(3*ct_mxe + 1*it_mxe) + (1/3)*(2*ct_mxe + 1*it_mxe))
+        expected_OK_mxe_bin = (-math.log(2**-100,2)/3)*(1/5 + 1/4 + 1/3)
+        self.assertAlmostEqual(mxe(GROUND_TRUTH_REAL_EXAMPLE, PREDICTED_OK_PROB), expected_OK_mxe_prob)
+        self.assertAlmostEqual(METRICS_DICT['crossEntropy'](GROUND_TRUTH_REAL_EXAMPLE, PREDICTED_OK_PROB), expected_OK_mxe_prob)
+        self.assertAlmostEqual(METRICS_DICT['crossEntropyNonBinarized'](GROUND_TRUTH_REAL_EXAMPLE, PREDICTED_OK), expected_OK_mxe_bin)
 
     def testBad(self):
         eps = 2**-100 # log2(0) is undefined, so mxe uses log2(eps) instead of log2(0) Log2 is the base, which is what prompts the epsilon
