@@ -115,16 +115,8 @@ class Predictions:
         # Add the multi cross entropy if desired, and if the problem is a classification problem
         if score_mxe:
             if self.ds.problemschema.task_type == 'classification':
-                # Reorder and align the targets and the predictions columns
-                gt_l = [self.ds.targets_df[target] for target in self.ds.target_names]
-                pred_l = [self.frame[target] for target in self.ds.target_names]
-
-
-                # Transpose them into a list of rows
-                gt_l = np.transpose(gt_l)
-                pred_l = np.transpose(pred_l)
-
-                value = apply_metric('crossEntropyNonBinarized', gt_l, pred_l)
+                # MXE handles only one target currently
+                value = apply_metric('crossEntropyNonBinarized', self.ds.targets_df[target], self.frame[target])
                 score = MxeScore(value)
                 scores.append(score)
             else:
