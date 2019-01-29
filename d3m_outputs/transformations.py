@@ -20,7 +20,13 @@ class CenterizedNormalizedScoreTransformation(Transformation):
         super(CenterizedNormalizedScoreTransformation, self).__init__(left_interval, right_interval, isCost)
 
     def transform(self, score):
-        t_score = (score - self.left_interval)/(self.right_interval - self.left_interval)
+        if self.left_interval < self.right_interval:
+            t_score = (score - self.left_interval)/(self.right_interval - self.left_interval)
+        elif self.left_interval == self.right_interval:
+            t_score = self.left_interval / self.right_interval
+        else:
+            t_score = None
+
         if self.isCost:
             t_score = 1 - t_score
         return t_score
@@ -51,7 +57,7 @@ class ZeroInfScoreTransformation(Transformation):
 
 
 METRIC_RANGES_DICT = {
-    'accuracy': CenterizedNormalizedScoreTransformation(0, 1, True),
+    'accuracy': CenterizedNormalizedScoreTransformation(0, 1, False),
     'f1': CenterizedNormalizedScoreTransformation(0, 1, False),
     'f1Micro': CenterizedNormalizedScoreTransformation(0, 1, False),
     'f1Macro': CenterizedNormalizedScoreTransformation(0, 1, False),

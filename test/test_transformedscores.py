@@ -176,7 +176,7 @@ class TestTransformations(object):
     def testTransformedScore0Inf(self):
         for i in np.arange(-50, 50, 0.5):
             score = d3m_outputs.score.Score('class', 'meanSquaredError', i, 0.5)
-            transformation_true = InfInfScoreTransformation(None, None, True)
-            transformation_false = InfInfScoreTransformation(None, None, False)
+            transformation_true = ZeroInfScoreTransformation(None, None, True)
+            transformation_false = ZeroInfScoreTransformation(None, None, False)
             assert score._transform(i, transformation_false) == pytest.approx(-1 + (2 / (1 + math.exp(-i))), 1e-8)
             assert score._transform(i, transformation_true) == pytest.approx(2 - 2 / (1 + math.exp(-i)), 1e-8)

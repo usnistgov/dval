@@ -15,17 +15,22 @@ class Score():
     """ Represents the score: according to a metric or transformed and normalized 
     """
 
-    def __init__(self, target, metric, scorevalue, baseline_scorevalue='None'):
+    def __init__(self, target, metric, scorevalue, baseline_scorevalue=None):
         self.target = target
         self.metric = metric
-        
+
         self.scorevalue = scorevalue
+
+        # baseline_scorevalue may be None but will be represented under string format
+        if baseline_scorevalue == 'None':
+            baseline_scorevalue = None
+
         self.baseline_scorevalue = baseline_scorevalue
 
-        self.transformed_scorevalue = "None"
-        self.transformed_baseline_scorevalue = "None"
+        self.transformed_scorevalue = None
+        self.transformed_baseline_scorevalue = None
 
-        self.transformed_normalized_scorevalue = "None"
+        self.transformed_normalized_scorevalue = None
 
     @property
     def json(self):
@@ -57,7 +62,7 @@ class Score():
             else:
                 return (baseline_score - score) / abs(baseline_score)
         else:
-            return "None"
+            return None
 
     def transform_normalize(self):
         """ Transform and normalize the score to allow cross comparison
@@ -65,7 +70,7 @@ class Score():
         transformation = apply_transformation(self.metric)
         if transformation:
             self.transformed_scorevalue = self._transform(self.scorevalue, transformation)
-            if self.baseline_scorevalue != 'None':
+            if self.baseline_scorevalue != None:
                 self.transformed_baseline_scorevalue = self._transform(self.baseline_scorevalue, transformation)
                 self.transformed_normalized_scorevalue = self._normalize(self.transformed_scorevalue,
                     self.transformed_baseline_scorevalue, transformation)

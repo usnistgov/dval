@@ -11,8 +11,8 @@ class TestScore(unittest.TestCase):
         score = Score("Target", "F1_MACRO", 0.4, 0.6)
         expected_score = '{"target": "Target", "metric": "F1_MACRO", '
         expected_score += '"scorevalue": 0.4, "baseline_scorevalue": 0.6, ' 
-        expected_score += '"transformed_scorevalue": "None", "transformed_baseline_scorevalue": "None", '
-        expected_score += '"transformed_normalized_scorevalue": "None"}'
+        expected_score += '"transformed_scorevalue": null, "transformed_baseline_scorevalue": null, '
+        expected_score += '"transformed_normalized_scorevalue": null}'
         self.assertEqual(str(score.json), expected_score)
 
     def testNormalizeScore(self):
@@ -42,19 +42,19 @@ class TestScore(unittest.TestCase):
         score.transform_normalize()
 
         self.assertEqual(score.scorevalue, 0.4)
-        self.assertEqual(score.baseline_scorevalue, "None")
+        self.assertEqual(score.baseline_scorevalue, None)
         self.assertEqual(score.transformed_scorevalue, 0.4)
-        self.assertEqual(score.transformed_baseline_scorevalue, "None")
-        self.assertEqual(score.transformed_normalized_scorevalue, "None")
+        self.assertEqual(score.transformed_baseline_scorevalue, None)
+        self.assertEqual(score.transformed_normalized_scorevalue, None)
 
     def testTransformNormalizeUnknownMetricWithoutBaseline(self):
         score = Score("Target", "Unknown_Metric", 0.4, "None")
         score.transform_normalize()
 
         self.assertEqual(score.scorevalue, 0.4)
-        self.assertEqual(score.baseline_scorevalue, "None")
-        self.assertEqual(score.transformed_scorevalue, "None")
-        self.assertEqual(score.transformed_baseline_scorevalue, "None")
+        self.assertEqual(score.baseline_scorevalue, None)
+        self.assertEqual(score.transformed_scorevalue, None)
+        self.assertEqual(score.transformed_baseline_scorevalue, None)
 
     def testTransformNormalizeUnknownTransformation(self):
         METRIC_RANGES_DICT['metric'] = None
@@ -64,9 +64,9 @@ class TestScore(unittest.TestCase):
 
         self.assertEqual(score.scorevalue, 0.4)
         self.assertEqual(score.baseline_scorevalue, 0.6)
-        self.assertEqual(score.transformed_scorevalue, "None")
-        self.assertEqual(score.transformed_baseline_scorevalue, "None")
-        self.assertEqual(score.transformed_normalized_scorevalue, "None")
+        self.assertEqual(score.transformed_scorevalue, None)
+        self.assertEqual(score.transformed_baseline_scorevalue, None)
+        self.assertEqual(score.transformed_normalized_scorevalue, None)
 
         del METRIC_RANGES_DICT['metric']
 
@@ -77,10 +77,10 @@ class TestScore(unittest.TestCase):
         score.transform_normalize()
 
         self.assertEqual(score.scorevalue, 0.4)
-        self.assertEqual(score.baseline_scorevalue, "None")
-        self.assertEqual(score.transformed_scorevalue, "None")
-        self.assertEqual(score.transformed_baseline_scorevalue, "None")
-        self.assertEqual(score.transformed_normalized_scorevalue, "None")
+        self.assertEqual(score.baseline_scorevalue, None)
+        self.assertEqual(score.transformed_scorevalue, None)
+        self.assertEqual(score.transformed_baseline_scorevalue, None)
+        self.assertEqual(score.transformed_normalized_scorevalue, None)
 
         del METRIC_RANGES_DICT['metric']
 
@@ -92,7 +92,7 @@ class TestScore(unittest.TestCase):
         self.assertEqual(score.baseline_scorevalue, 6985715.52)
         self.assertEqual(score.transformed_scorevalue, 0.0)
         self.assertEqual(score.transformed_baseline_scorevalue, 0.0)
-        self.assertEqual(score.transformed_normalized_scorevalue, "None")
+        self.assertEqual(score.transformed_normalized_scorevalue, None)
 
 class TestScores(unittest.TestCase):
 
