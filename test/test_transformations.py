@@ -21,65 +21,65 @@ class TestTransformation(unittest.TestCase):
         self.assertEqual(transformation.transform(0.4), 0.66)
         
     def testInfInfScoreTransformation(self):
-        transformation = InfInfScoreTransformation(None, None, False)
+        transformation = InfInfScoreTransformation(False)
         self.assertEqual(round(transformation.transform(-99), 2), 0.0)
 
-        transformation = InfInfScoreTransformation(None, None, False)
+        transformation = InfInfScoreTransformation(False)
         self.assertEqual(round(transformation.transform(99),2), 1.0)
 
-        transformation = InfInfScoreTransformation(None, None, True)
+        transformation = InfInfScoreTransformation(True)
         self.assertEqual(round(transformation.transform(-99),2), 1.0)
 
-        transformation = InfInfScoreTransformation(None, None, True)
+        transformation = InfInfScoreTransformation(True)
         self.assertEqual(round(transformation.transform(99),2), 0.0)
 
-        transformation = InfInfScoreTransformation(None, None, False)
+        transformation = InfInfScoreTransformation(False)
         self.assertEqual(round(transformation.transform(0),2), 0.5)
 
-        transformation = InfInfScoreTransformation(None, None, True)
+        transformation = InfInfScoreTransformation(True)
         self.assertEqual(round(transformation.transform(0),2), 0.5)
 
-        transformation = InfInfScoreTransformation(None, None, False)
+        transformation = InfInfScoreTransformation(False)
         self.assertEqual(round(transformation.transform(5),2), 0.99)
 
-        transformation = InfInfScoreTransformation(None, None, True)
+        transformation = InfInfScoreTransformation(True)
         self.assertEqual(round(transformation.transform(5),2), 0.01)
 
-        transformation = InfInfScoreTransformation(None, None, False)
+        transformation = InfInfScoreTransformation(False)
         self.assertEqual(round(transformation.transform(1),2), 0.73)
 
-        transformation = InfInfScoreTransformation(None, None, True)
+        transformation = InfInfScoreTransformation(True)
         self.assertEqual(round(transformation.transform(1),2), 0.27)
 
-        transformation = InfInfScoreTransformation(None, None, False)
+        transformation = InfInfScoreTransformation(False)
         self.assertEqual(round(transformation.transform(-1),2), 0.27)
 
-        transformation = InfInfScoreTransformation(None, None, True)
+        transformation = InfInfScoreTransformation(True)
         self.assertEqual(round(transformation.transform(-1),2), 0.73)
 
     def testZeroInfScoreTransformation(self):
-        transformation = ZeroInfScoreTransformation(None, None, False)
+        transformation = ZeroInfScoreTransformation(False)
         self.assertEqual(round(transformation.transform(0), 2), 0.0)
 
-        transformation = ZeroInfScoreTransformation(None, None, False)
+        transformation = ZeroInfScoreTransformation(False)
         self.assertEqual(round(transformation.transform(99),2), 1.0)
 
-        transformation = ZeroInfScoreTransformation(None, None, True)
+        transformation = ZeroInfScoreTransformation(True)
         self.assertEqual(round(transformation.transform(0),2), 1.0)
 
-        transformation = ZeroInfScoreTransformation(None, None, True)
+        transformation = ZeroInfScoreTransformation(True)
         self.assertEqual(round(transformation.transform(99),2), 0.0)
 
-        transformation = ZeroInfScoreTransformation(None, None, False)
+        transformation = ZeroInfScoreTransformation(False)
         self.assertEqual(round(transformation.transform(5),2), 0.99)
 
-        transformation = ZeroInfScoreTransformation(None, None, True)
+        transformation = ZeroInfScoreTransformation(True)
         self.assertEqual(round(transformation.transform(5),2), 0.01)
 
-        transformation = ZeroInfScoreTransformation(None, None, False)
+        transformation = ZeroInfScoreTransformation(False)
         self.assertEqual(round(transformation.transform(1),2), 0.46)
 
-        transformation = ZeroInfScoreTransformation(None, None, True)
+        transformation = ZeroInfScoreTransformation(True)
         self.assertEqual(round(transformation.transform(1),2), 0.54)
         
 

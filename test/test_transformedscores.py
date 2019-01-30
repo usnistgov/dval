@@ -119,10 +119,10 @@ class TestRegressionClass(object):
     def testMissingAndInfiniteScores(self):
         # This test may not be expected behavior and may need to be modified
         score_list = [float("-inf"), float('nan'), math.nan]
-        expected_transformed_list = [0, 0, 0]
+        expected_transformed_list = [None, None, None]
         for (score, expected_score) in zip(score_list, expected_transformed_list):
             computed_score = apply_transformation("rootMeanSquaredError").transform(score)
-            assert computed_score == pytest.approx(expected_score, 1e-6)
+            assert computed_score is expected_score
 
 class TestTransformations(object):
     """Test transformedscore transformations directly"""
@@ -156,7 +156,7 @@ class TestTransformations(object):
         # put in a dummy target, metric, and baseline score to do testing
         score = d3m_outputs.score.Score('Hall_of_Fame', 'f1Macro', 0.5, 1)
         transformation_false = CenterizedNormalizedScoreTransformation(1, 1, False)
-        assert score._transform(0.5, transformation_false) == 1
+        assert score._transform(0.5, transformation_false) == None
 
     def testTransformedScoreAExceedsB(self):
         # put in a dummy target, metric, and baseline score to do testing
@@ -168,15 +168,21 @@ class TestTransformations(object):
         for i in np.arange(-50, 50, 0.5):
             # put in a dummy target, metric, and baseline score to do testing
             score = d3m_outputs.score.Score('class', 'meanSquaredError', i, 0.5)
-            transformation_true = InfInfScoreTransformation(None, None, True)
-            transformation_false = InfInfScoreTransformation(None, None, False)
+            transformation_true = InfInfScoreTransformation(True)
+            transformation_false = InfInfScoreTransformation(False)
             assert score._transform(i, transformation_false) == pytest.approx((1 / (1 + math.exp(-i))), 1e-8)
             assert score._transform(i, transformation_true) == pytest.approx(1 - 1 / (1 + math.exp(-i)), 1e-8)
 
     def testTransformedScore0Inf(self):
-        for i in np.arange(-50, 50, 0.5):
+        for i in np.arange(-50, 0, 0.5):
             score = d3m_outputs.score.Score('class', 'meanSquaredError', i, 0.5)
-            transformation_true = ZeroInfScoreTransformation(None, None, True)
-            transformation_false = ZeroInfScoreTransformation(None, None, False)
+            transformation_true = ZeroInfScoreTransformation(True)
+            transformation_false = ZeroInfScoreTransformation(False)
+            assert score._transform(i, transformation_false) is None
+            assert score._transform(i, transformation_true) is None
+        for i in np.arange(0, 50, 0.5):
+            score = d3m_outputs.score.Score('class', 'meanSquaredError', i, 0.5)
+            transformation_true = ZeroInfScoreTransformation(True)
+            transformation_false = ZeroInfScoreTransformation(False)
             assert score._transform(i, transformation_false) == pytest.approx(-1 + (2 / (1 + math.exp(-i))), 1e-8)
             assert score._transform(i, transformation_true) == pytest.approx(2 - 2 / (1 + math.exp(-i)), 1e-8)
