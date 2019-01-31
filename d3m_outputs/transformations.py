@@ -1,5 +1,6 @@
 import abc
 import math
+import logging
 
 
 class Transformation():
@@ -20,16 +21,21 @@ class CenterizedNormalizedScoreTransformation(Transformation):
         super(CenterizedNormalizedScoreTransformation, self).__init__(left_interval, right_interval, isCost)
 
     def transform(self, score):
-        t_score = (score - self.left_interval)/(self.right_interval - self.left_interval)
+        if score >= self.left_interval and score <= self.right_interval:
+            t_score = (score - self.left_interval)/(self.right_interval - self.left_interval)
+        else:
+            logging.warning("Score %.2f is not included between %d and %d" % (score, self.left_interval, self.right_interval))
+            t_score = None
+
         if self.isCost:
             t_score = 1 - t_score
         return t_score
 
-    
+
 class InfInfScoreTransformation(Transformation):
 
-    def __init__(self, left_interval, right_interval, isCost):
-        super(InfInfScoreTransformation, self).__init__(left_interval, right_interval, isCost)
+    def __init__(self, isCost):
+        super(InfInfScoreTransformation, self).__init__(None, None, isCost)
 
     def transform(self, score):
         if not self.isCost:
@@ -40,28 +46,32 @@ class InfInfScoreTransformation(Transformation):
 
 class ZeroInfScoreTransformation(Transformation):
 
-    def __init__(self, left_interval, right_interval, isCost):
-        super(ZeroInfScoreTransformation, self).__init__(left_interval, right_interval, isCost)
+    def __init__(self, isCost):
+        super(ZeroInfScoreTransformation, self).__init__(0, None, isCost)
 
     def transform(self, score):
-        if not self.isCost:
-            return 2/(1+math.exp(-score)) - 1
+        if score >= 0:
+            if not self.isCost:
+                return 2/(1+math.exp(-score)) - 1
+            else:
+                return 2 - 2/(1+math.exp(-score))
         else:
-            return 2 - 2/(1+math.exp(-score))
+            logging.warning("Score %.2f is not included between 0 and inf" % score)
+            return None
 
 
 METRIC_RANGES_DICT = {
-    'accuracy': CenterizedNormalizedScoreTransformation(0, 1, True),
+    'accuracy': CenterizedNormalizedScoreTransformation(0, 1, False),
     'f1': CenterizedNormalizedScoreTransformation(0, 1, False),
     'f1Micro': CenterizedNormalizedScoreTransformation(0, 1, False),
     'f1Macro': CenterizedNormalizedScoreTransformation(0, 1, False),
     'rocAuc': CenterizedNormalizedScoreTransformation(0, 1, False),
     'rocAucMicro': CenterizedNormalizedScoreTransformation(0, 1, False),
     'rocAucMacro': CenterizedNormalizedScoreTransformation(0, 1, False),
-    'meanSquaredError': ZeroInfScoreTransformation(0, None, True),
-    'rootMeanSquaredError': ZeroInfScoreTransformation(0, None, True),
-    'rootMeanSquaredErrorAvg': ZeroInfScoreTransformation(0, None, True),
-    'meanAbsoluteError': ZeroInfScoreTransformation(0, None, True),
+    'meanSquaredError': ZeroInfScoreTransformation(True),
+    'rootMeanSquaredError': ZeroInfScoreTransformation(True),
+    'rootMeanSquaredErrorAvg': ZeroInfScoreTransformation(True),
+    'meanAbsoluteError': ZeroInfScoreTransformation(True),
     'rSquared': None,
     'normalizedMutualInformation': CenterizedNormalizedScoreTransformation(0, 1, False),
     'jaccardSimilarityScore': None,
