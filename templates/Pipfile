@@ -1,0 +1,19 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pytest = "*"
+testfixtures = "*"
+
+[packages]
+rbv = {editable = true,file = "./human_readable_validation"}
+pandas = "*"
+scikit-learn = "*"
+scipy = "*"
+d3m = {editable = true,git = "https://gitlab.com/datadrivendiscovery/d3m.git",ref = "v2018.6.5"}
+d3m-outputs = {editable = true,path = "."}
+
+[requires]
+python_version = "3.6"
