@@ -34,9 +34,25 @@ pipenv shell
 
 ## Running the validation
 
-```
+```bash
 rbv -d submission_package template.yml
 ```
 
 The standard output will reflect whether the validation
 passed and the return code will be 0 (or 1) if it passed (or failed).
+
+Some validation runs require environment variables.
+
+You can set them in the same shell:
+```bash
+SCORE_DIR='/path/to/data'
+[...]
+rbv -d submission_package template.yml
+```
+
+or prepend the `rbv` command with a set of environment variables.
+This will override variables set earlier in the same shell. 
+
+```bash
+SCORE_DIR='/path/to/data' rbv -d submission_package template.yml
+```
