@@ -1,0 +1,30 @@
+- rulename: metadata
+  filters:
+    path: metadata.yml
+  actions:
+    exists: true
+
+- rulename: pipeline_file
+  filters:
+    path: pipelines/*.json
+  actions:
+    exists: true
+    match: predictions/{FILENAME_NOEXT}/predictions.csv
+    scripts: d3m_outputs valid_pipelines {FILEPATH} --no-check-bare-2018-format
+
+- rulename: predictions_file
+  filters:
+    path: predictions/*/predictions.csv
+  actions:
+    exists: true
+    match: pipelines/{DIR_NAME}.json
+    scripts:
+      - echo "Using data at $SCORE_DIR"
+      - d3m_outputs valid_predictions -d $SCORE_DIR {FILEPATH}
+
+- rulename: executable_file
+  filters:
+    path: executables/*
+  actions:
+    count: 1
+    match: pipelines/{FILENAME_NOEXT}.json

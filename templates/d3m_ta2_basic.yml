@@ -1,0 +1,14 @@
+
+- rulename: pipeline_file
+  filters:
+    path: pipelines/*.json
+  actions:
+    exists: true
+    match: predictions/{FILENAME_NOEXT}/predictions.csv
+
+- rulename: predictions_file
+  filters:
+    path: predictions/*/predictions.csv
+  actions:
+    exists: true
+    match: pipelines/{DIR_NAME}.json
