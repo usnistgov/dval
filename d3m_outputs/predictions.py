@@ -122,7 +122,6 @@ class Predictions:
             else:
                 logging.warning(
                     f'Ignoring MXE. Task is not a classification task')
-
         return Scores(scores)
 
     def _load_data(self):
