@@ -36,17 +36,17 @@ def f1_macro(ground_truth, predicted):
 
 def roc_auc(ground_truth, predicted, pos_label=None):
     if pos_label is not None:
-        ground_truth, predicted = _binarize(ground_truth, predicted, pos_label)
+        ground_truth, predicted, _ = _binarize(ground_truth, predicted, pos_label)
     return skm.roc_auc_score(ground_truth, predicted)
 
 
 def roc_auc_micro(ground_truth, predicted):
-    ground_truth, predicted = _binarize(ground_truth, predicted)
+    ground_truth, predicted, _ = _binarize(ground_truth, predicted)
     return skm.roc_auc_score(ground_truth, predicted, average='micro')
 
 
 def roc_auc_macro(ground_truth, predicted):
-    ground_truth, predicted = _binarize(ground_truth, predicted)
+    ground_truth, predicted, _ = _binarize(ground_truth, predicted)
     return skm.roc_auc_score(ground_truth, predicted, average='macro')
 
 
@@ -113,14 +113,40 @@ def jacc_sim(ground_truth, predicted):
 
 
 def _binarize(ground, pred, pos_label=None):
+    """
+    Binarize a prediction according to the classes
+    available in the ground truth
+
+    Parameters:
+    -----------
+    ground: 1d array
+        Array of ground truth labels.
+
+    pred: 1d array
+        Array of predicted labels.
+
+    Returns:
+    --------
+    (binary_ground, binary_pred, classes): tuples
+        Tuple composed of binarized ground truth, binarized predictions and associated classes.
+
+    Example:
+        >>> ground = [0, 1, 2, 1]
+        >>> pred = [0, 0, 2, 1]
+
+        binary_ground = [[1,0,0], [0,1,0], [0,0,1], [0,1,0]]
+        binary_pred = [[1,0,0], [1,0,0], [0,0,1], [0,1,0]]
+        classes = [0, 1, 2]
+    """
     lb = LabelBinarizer()
     binary_ground = lb.fit_transform(ground)
+    classes = lb.classes_
     binary_pred = lb.transform(pred)
 
     if pos_label is not None and lb.classes_[0] == pos_label:
-        return 1 - binary_ground, 1 - binary_pred
+        return 1 - binary_ground, 1 - binary_pred, classes
     else:
-        return binary_ground, binary_pred
+        return binary_ground, binary_pred, classes
 
 
 def precision_at_top_K_meta(gt, preds, K=20):
@@ -188,10 +214,10 @@ def mxe_non_bin(ground_truth, predicted):
 
     Parameters:
     -----------
-    gt: array
-        Array of non-binarized vectors
+    ground_truth: array
+        Array of non-binarized vectors.
 
-    preds: array
+    predicted: array
         Array of non-binarized predicted vectors.
 
     Returns:
@@ -201,21 +227,57 @@ def mxe_non_bin(ground_truth, predicted):
 
 
     Example:
-        >>> gt = [0, 1, 2, 2, 1]
-        >>> pred = [0, 1, 2, 1, 0]
+        >>> ground_truth = [0, 1, 2, 2, 1]
+        >>> predicted = [0, 1, 2, 1, 0]
 
         bin_predicted = [[1, 0, 0], [0, 1, 0], [0, 0, 1], [0, 0, 1], [0, 1, 0]]
+        classes = [0, 1, 2]
+    """
+    _, bin_predicted, classes = _binarize(ground_truth, predicted)
+    return apply_metric('crossEntropy', ground_truth, bin_predicted, classes)
 
-        """
-    bin_predicted = _binarize(ground_truth, predicted)[1]
-    return apply_metric('crossEntropy', ground_truth, bin_predicted)
 
+def _normalize_ground_truth(ground_truth, classes):
+    """
+    Convert the ground truth list into a list of classe indices.
+    First it transforms the list of classes into a dictionary where
+    the key is the class name and the value is its indice in the list.
+    The order of the classes in the list is mapped to the order of the
+    confidence factors in the predictions.
+    Then, it replace every class value in the ground truth by its indice.
 
-def _normalize_ground_truth(ground_truth):
-    import string
-    if isinstance(ground_truth[0], str) and ground_truth[0] in string.ascii_lowercase:
-        ground_truth = list( map(lambda x: ord(x) - ord('a'), ground_truth))
-    return ground_truth
+    Parameters:
+    -----------
+    ground_truth: 1d array
+        Array of ground truth.
+
+    classes: 1d array
+        Array of the classes available in the ground truth.
+
+    Return:
+    -------
+    ground_truth_normalized: array
+        Array of class indices.
+
+    Example:
+        >>> ground truth = ['val_a', 'val_c', 'val_b, 'val_c']
+        >>> classes = ['val_a', 'val_b', 'val_c']
+
+        ground_truth_classes = {'val_a': 0, 'val_b': 1, 'val_c': 2}
+        ground_truth_normalized = [0, 2, 1, 2]
+    """
+    # Build dictionary based on ground_truth classes order
+    i = 0
+    ground_truth_classes = {}
+    for gt_class in classes:
+        ground_truth_classes[gt_class] = i
+        i += 1
+
+    # Process the ground truth
+    ground_truth_normalized = []
+    for value in ground_truth:
+        ground_truth_normalized.append(ground_truth_classes[value])
+    return ground_truth_normalized
 
 def _normalize_predicted(predicted, eps_value=2**-100):
     norm_predicted = []
@@ -229,17 +291,35 @@ def _normalize_predicted(predicted, eps_value=2**-100):
         norm_predicted.append(t)
     return norm_predicted
 
-def mxe(ground_truth, predicted):
-    """Computes the Multiclass Cross Entropy (MXE)."""
+def mxe(ground_truth, predicted, classes):
+    """
+    Computes the Multiclass Cross Entropy (MXE).
+
+    Parameters:
+    -----------
+    ground_truth: 1d array
+        Array of ground truth
+
+    predicted: 1d array
+        Array of predictions
+
+    classes: 1d array
+        Array of classes composing the ground truth. The order of the class values
+        defines the order of prediction values.
+
+    Return:
+    -------
+        mxe_score
+    """
     log_base = 2
-    ground_truth = _normalize_ground_truth(ground_truth)
+    ground_truth = _normalize_ground_truth(ground_truth, classes)
     predicted = _normalize_predicted(predicted)
     class_to_trials = defaultdict(list)
     for gt, pd in zip(ground_truth, predicted):
         class_to_trials[gt].append(pd)
     numerator = 0
-    for cls, trials in class_to_trials.items():
-        class_loss = sum([math.log(sum([math.e ** (pd) for pd in trial]) / math.e ** (trial[cls]), log_base) for trial in trials])
+    for gt_cls, trials in class_to_trials.items():
+        class_loss = sum([math.log(sum([math.e ** (pd) for pd in trial]) / math.e ** (trial[gt_cls]), log_base) for trial in trials])
         numerator += (class_loss / len(trials))
     num_classes = len(class_to_trials)
     return numerator / num_classes
