@@ -1,4 +1,4 @@
--e human_readable_validation
+./human_readable_validation
 pandas
 scikit-learn
 scipy
