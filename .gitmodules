@@ -1,3 +1,4 @@
 [submodule "human_readable_validation"]
-	path = human_readable_validation
-	url = ../rules-based-validator.git
+	path = valid8
+	url = ../valid8.git
+	branch = master
