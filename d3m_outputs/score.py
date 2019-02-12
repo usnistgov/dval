@@ -12,8 +12,7 @@ class MxeScore:
 
 
 class Score:
-    """ Represents the score: according to a metric or transformed and normalized 
-    """
+    """ Represents the score: according to a metric or transformed and normalized"""
 
     def __init__(self, target, metric, scorevalue, baseline_scorevalue=None):
         self.target = target
@@ -34,7 +33,7 @@ class Score:
 
     @property
     def json(self):
-        """ 
+        """
         :return: a Score instance Json formatted
         """
         return json.dumps(self.__dict__)
@@ -65,14 +64,13 @@ class Score:
             return None
 
     def transform_normalize(self):
-        """ Transform and normalize the score to allow cross comparison
-        """
+        """ Transform and normalize the score to allow cross comparison"""
         transformation = apply_transformation(self.metric)
         if transformation:
             self.transformed_scorevalue = self._transform(
                 self.scorevalue, transformation
             )
-            if self.baseline_scorevalue != None:
+            if self.baseline_scorevalue is not None:
                 self.transformed_baseline_scorevalue = self._transform(
                     self.baseline_scorevalue, transformation
                 )

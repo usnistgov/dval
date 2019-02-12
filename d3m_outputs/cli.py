@@ -144,7 +144,7 @@ def cmd_score(args):
                 indices_file=args.subset_indices[0] if args.subset_indices else None,
             )
             return scores
-        except Exception as e:
+        except Exception:
             logging.exception(
                 f"Predictions file {predictions_file} could not be scored. try validating your file first"
             )

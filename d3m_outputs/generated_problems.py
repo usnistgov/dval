@@ -4,7 +4,7 @@ Validate a generated problem directory (TA3 problem generation).
 Usage:
     python3.6 -m d3m_outputs.generated_problems your/problems/dir/
 
-Checks that your/problems/dir/labels.csv exists with 
+Checks that your/problems/dir/labels.csv exists with
 
     labels.csv:
 
@@ -25,8 +25,6 @@ Checks that your/problems/dir/labels.csv exists with
 import glob
 import logging
 import os
-import sys
-
 import pandas as pd
 
 from .file_checker import FileChecker
@@ -37,11 +35,11 @@ logger = logging.Logger(__name__)
 
 def check_generated_problems_directory(directory_path, output_file):
     """
-    Checks that a directory contains a labels.csv file, with 
+    Checks that a directory contains a labels.csv file, with
     the ['problem_id', 'system', 'meaningful'] columns.
 
-    Then, for each entry p in the 'problem_id' column, 
-    look for the directory_path/p subfolder 
+    Then, for each entry p in the 'problem_id' column,
+    look for the directory_path/p subfolder
     and run the check_generated_problems_subdirectory
     function over it.
 
@@ -54,7 +52,7 @@ def check_generated_problems_directory(directory_path, output_file):
     Returns:
     --------
     is_valid: boolean
-        True if and only if every subdirectory referenced by 
+        True if and only if every subdirectory referenced by
         the labels file is valid subdirectory.
 
 
@@ -124,7 +122,7 @@ def check_generated_problems_directory(directory_path, output_file):
 
 def check_generated_problems_subdirectory(directory_path):
     """
-    Checks that a directory contains a 'schema.json' file, 
+    Checks that a directory contains a 'schema.json' file,
     that satisfies the .schemas.ProblemSchema syntax.
 
     then, check that a ssapi.* file exists
@@ -137,7 +135,7 @@ def check_generated_problems_subdirectory(directory_path):
     Returns:
     --------
     is_valid: boolean
-        True if and only if the required files exist 
+        True if and only if the required files exists
         and 'schema.json' is valid
 
 
@@ -155,7 +153,7 @@ def check_generated_problems_subdirectory(directory_path):
 
     # Check schema structure
     try:
-        gen_problem_schema = ProblemSchema(gen_problem_schema_file_path)
+        _ = ProblemSchema(gen_problem_schema_file_path)
     except Exception as e:
         logger.warning(
             "Invalid problem schema at {}. The following error occured: {}".format(
@@ -182,8 +180,3 @@ def check_generated_problems_subdirectory(directory_path):
     #     return False
 
     return True
-
-
-if __name__ == "__main__":
-    # Temporary for testing
-    print(check_generated_problems_directory(sys.argv[1]))
