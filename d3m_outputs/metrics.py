@@ -264,7 +264,7 @@ def _normalize_ground_truth(ground_truth, classes):
         Array of class indices.
 
     Example:
-        >>> ground_truth = ['val_a', 'val_c', 'val_b, 'val_c']
+        >>> ground_truth = ['val_a', 'val_c', 'val_b', 'val_c']
         >>> classes = ['val_a', 'val_b', 'val_c']
 
         ground_truth_classes = {'val_a': 0, 'val_b': 1, 'val_c': 2}
