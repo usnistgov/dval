@@ -6,8 +6,8 @@ import numpy as np
 def group_gt_boxes_by_image_name(gt_boxes):
     """
     This function takes a list of ground truth boxes and turn them into a
-    dict mapping an image name to an array containing the 4 coordinates of 
-    the edges delimiting a bounding box 
+    dict mapping an image name to an array containing the 4 coordinates of
+    the edges delimiting a bounding box
 
     Parameters:
     -----------
@@ -47,34 +47,31 @@ def unvectorize(targets):
     If ``targets`` have two columns (index, object detection target) or three (index, object detection
     target, confidence), we make it into 5 or 6, respectively, by splitting the second column into
     4 columns for each bounding box edge.
-    
+
     Parameters:
     -----------
     targets: list
      List of bounding boxes. Each box is represented as a list with the
-     following format: 
-        
+     following format:
+
         Case 1 (confidence provided):
              ['image_name', 'x_min, 'y_min, x_max, y_max', 'confidence']
         Case 2 (confidence not provided):
              ['image_name', 'x_min, 'y_min, x_max, y_max']
-        Case 3: (List with more than three elements) 
+        Case 3: (List with more than three elements)
             ['image_name', ... ]
 
     Returns:
     --------
     new_targets: list
         List following the following format:
-    
-         Case 1 (confidence provided): 
+
+         Case 1 (confidence provided):
              ['image_name', 'x_min', 'y_min', 'x_max', 'y_max', 'confidence']
          Case 2 (confidence not provided):
              ['image_name', 'x_min', 'y_min', 'x_max', 'y_max']
-         Case 3: (List with more than three elements) 
+         Case 3: (List with more than three elements)
             ['image_name', ... ]
-        
-
-
     """
 
     new_targets = []
@@ -244,21 +241,14 @@ def objectDetectionAP(dets, gts, ovthresh=0.5, use_07_metric=False):
         confidence = np.array([float(x[-1]) for x in dets])
         # sort by confidence
         sorted_ind = np.argsort(-confidence)
-        sorted_scores = np.sort(-confidence)
 
     else:
         logging.info("confidence scores are not present")
         num_dets = len(dets)
         sorted_ind = np.arange(num_dets)
-        sorted_scores = np.ones(num_dets)
 
     BB = BB[sorted_ind, :]
     image_ids = [image_ids[x] for x in sorted_ind]
-
-    # print('sorted_ind: ', sorted_ind)
-    # print('sorted_scores: ', sorted_scores)
-    # print('BB: ', BB)
-    # print('image_ids: ', image_ids)
 
     # go down dets and mark TPs and FPs
     nd = len(image_ids)
@@ -269,8 +259,6 @@ def objectDetectionAP(dets, gts, ovthresh=0.5, use_07_metric=False):
         bb = BB[d, :].astype(float)
         ovmax = -np.inf
         BBGT = R["bbox"].astype(float)
-        # print('det %d: ' % d)
-        # print('bb: ', bb)
 
         if BBGT.size > 0:
             # compute overlaps
@@ -293,7 +281,6 @@ def objectDetectionAP(dets, gts, ovthresh=0.5, use_07_metric=False):
             overlaps = inters / uni
             ovmax = np.max(overlaps)
             jmax = np.argmax(overlaps)
-            # print('overlaps: ', overlaps)
 
         if ovmax > ovthresh:
             if not R["det"][jmax]:
@@ -306,9 +293,6 @@ def objectDetectionAP(dets, gts, ovthresh=0.5, use_07_metric=False):
         else:
             # print('No match with sufficient overlap!')
             fp[d] = 1.0
-
-    # print('tp: ', tp)
-    # print('fp: ', fp)
 
     # compute precision recall
     fp = np.cumsum(fp)

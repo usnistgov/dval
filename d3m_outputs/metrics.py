@@ -64,7 +64,7 @@ def avg_l2(ground_truth_l, predicted_l):
     Will compute the following:
 
         >>> import sklearn.metrics as skm
-        
+
         >>> y_true = [[0.5, 1],[-1, 1],[7, -6]]
         >>> y_pred = [[0, 2],[-1, 2],[8, -5]]
 
@@ -83,7 +83,7 @@ def avg_l2(ground_truth_l, predicted_l):
 
     Returns:
     --------
-    
+
     avg_l2:
      avg(sqrt(mse(X,x)), sqrt(mse(Y,y)) )
 
