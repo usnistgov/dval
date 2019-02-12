@@ -28,12 +28,14 @@ build:
 
 lint:
   stage: quality
-  before_script: pip install tox
+  before_script:
+    - pip install tox
   script: tox -e lint
 
 formatting:
   stage: quality
-  before_script: pip install tox
+  before_script:
+    - pip install tox
   script: tox -e formatting
 
 docs:
