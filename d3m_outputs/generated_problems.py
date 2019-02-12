@@ -26,7 +26,7 @@ import json
 import logging
 
 import pandas as pd
-import os 
+import os
 import sys
 import glob
 
@@ -40,7 +40,7 @@ logger = logging.Logger(__name__)
 
 
 def check_generated_problems_directory(directory_path, output_file):
-    '''
+    """
     Checks that a directory contains a labels.csv file, with 
     the ['problem_id', 'system', 'meaningful'] columns.
 
@@ -62,31 +62,32 @@ def check_generated_problems_directory(directory_path, output_file):
         the labels file is valid subdirectory.
 
 
-    '''
+    """
 
     # Get the labels file path
-    gen_problems_md_file_path = os.path.join(directory_path, 'labels.csv')
-    
+    gen_problems_md_file_path = os.path.join(directory_path, "labels.csv")
+
     # Check that it exists
     gen_problems_md_file = FileChecker(gen_problems_md_file_path)
 
     if not gen_problems_md_file._exists():
-        logger.error('Cannot find {}'.format(gen_problems_md_file_path))
+        logger.error("Cannot find {}".format(gen_problems_md_file_path))
         return False
 
     # Load the labels.csv file content
     gen_problems_md_df = pd.read_csv(gen_problems_md_file_path)
 
     # Check that the headers of this file are correct
-    expected_columns = ['problem_id', 'system', 'meaningful']
+    expected_columns = ["problem_id", "system", "meaningful"]
 
     if set(expected_columns) != set(gen_problems_md_df.columns):
 
-        logger.error('Wrong headers: {}, Expected: {}'.format(
-            gen_problems_md_df.columns.tolist(),
-            expected_columns 
-            ))
-        
+        logger.error(
+            "Wrong headers: {}, Expected: {}".format(
+                gen_problems_md_df.columns.tolist(), expected_columns
+            )
+        )
+
         return False
 
     # Define a function to call on each subdirectory
@@ -94,29 +95,40 @@ def check_generated_problems_directory(directory_path, output_file):
         full_path = os.path.join(root_dir, sub_dir)
 
         if not os.path.isdir(full_path):
-            logger.error('Cannot find subdirectory named {} at {}'.format(sub_dir, root_dir))
+            logger.error(
+                "Cannot find subdirectory named {} at {}".format(sub_dir, root_dir)
+            )
             return False
-        
+
         return check_generated_problems_subdirectory(full_path)
 
     # Gather the results in a boolean array
-    gen_problems_md_df['correct'] = gen_problems_md_df.apply(lambda row: check_all_generated_problems_subdirectories(directory_path, row['problem_id']), axis=1)
+    gen_problems_md_df["correct"] = gen_problems_md_df.apply(
+        lambda row: check_all_generated_problems_subdirectories(
+            directory_path, row["problem_id"]
+        ),
+        axis=1,
+    )
 
     # Look for the False booleans
-    failed_checks = gen_problems_md_df.loc[lambda row: ~row['correct']]
+    failed_checks = gen_problems_md_df.loc[lambda row: ~row["correct"]]
 
     gen_problems_md_df.to_csv(output_file, index=False)
 
     # Return the list of failures if any
     if failed_checks.size > 0:
-        logger.error('Validation of problems {} failed'.format(failed_checks['problem_id'].tolist()))
+        logger.error(
+            "Validation of problems {} failed".format(
+                failed_checks["problem_id"].tolist()
+            )
+        )
         return False
 
     return True
 
 
 def check_generated_problems_subdirectory(directory_path):
-    '''
+    """
     Checks that a directory contains a 'schema.json' file, 
     that satisfies the .schemas.ProblemSchema syntax.
 
@@ -134,38 +146,39 @@ def check_generated_problems_subdirectory(directory_path):
         and 'schema.json' is valid
 
 
-    '''
+    """
 
     # Generated problem check
-    gen_problem_schema_file_path = os.path.join(directory_path, 'schema.json')
+    gen_problem_schema_file_path = os.path.join(directory_path, "schema.json")
 
     # Check that it exists
     gen_problem_schema_file = FileChecker(gen_problem_schema_file_path)
 
     if not gen_problem_schema_file._exists():
-        logger.error('Cannot find {}'.format(gen_problem_schema_file_path))
+        logger.error("Cannot find {}".format(gen_problem_schema_file_path))
         return False
-
 
     # Check schema structure
     try:
         gen_problem_schema = ProblemSchema(gen_problem_schema_file_path)
     except Exception as e:
-        logger.warning('Invalid problem schema at {}. The following error occured: {}'.format(gen_problem_schema_file_path,
-            e))
+        logger.warning(
+            "Invalid problem schema at {}. The following error occured: {}".format(
+                gen_problem_schema_file_path, e
+            )
+        )
 
     # Generated pipeline check
-    gen_pipeline_schema_file_glob = glob.glob(os.path.join(directory_path, 'ssapi*'))
+    gen_pipeline_schema_file_glob = glob.glob(os.path.join(directory_path, "ssapi*"))
 
     # Check that a ssapi file exists
     if not gen_pipeline_schema_file_glob:
-        logger.error('Cannot find any ssapi file at {}'.format(directory_path))
+        logger.error("Cannot find any ssapi file at {}".format(directory_path))
         return False
 
     # if not gen_problem_schema_file._exists():
     #     logger.error('Cannot find {}'.format(gen_pipeline_schema_file_path))
     #     return False
-
 
     # Check schema structure
     # Right now the only check will be that the ssapi file exists
@@ -175,7 +188,8 @@ def check_generated_problems_subdirectory(directory_path):
 
     return True
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
 
     # Temporary for testing
     print(check_generated_problems_directory(sys.argv[1]))

@@ -6,12 +6,15 @@ from collections.abc import Collection
 
 from .transformations import apply_transformation
 
-class MxeScore():
-    """Represents a MXE Score"""
-    def __init__(self, value):
-        self.__dict__ = {'MXE': value}
 
-class Score():
+class MxeScore:
+    """Represents a MXE Score"""
+
+    def __init__(self, value):
+        self.__dict__ = {"MXE": value}
+
+
+class Score:
     """ Represents the score: according to a metric or transformed and normalized 
     """
 
@@ -22,7 +25,7 @@ class Score():
         self.scorevalue = scorevalue
 
         # baseline_scorevalue may be None but will be represented under string format
-        if baseline_scorevalue == 'None':
+        if baseline_scorevalue == "None":
             baseline_scorevalue = None
 
         self.baseline_scorevalue = baseline_scorevalue
@@ -69,11 +72,18 @@ class Score():
         """
         transformation = apply_transformation(self.metric)
         if transformation:
-            self.transformed_scorevalue = self._transform(self.scorevalue, transformation)
+            self.transformed_scorevalue = self._transform(
+                self.scorevalue, transformation
+            )
             if self.baseline_scorevalue != None:
-                self.transformed_baseline_scorevalue = self._transform(self.baseline_scorevalue, transformation)
-                self.transformed_normalized_scorevalue = self._normalize(self.transformed_scorevalue,
-                    self.transformed_baseline_scorevalue, transformation)
+                self.transformed_baseline_scorevalue = self._transform(
+                    self.baseline_scorevalue, transformation
+                )
+                self.transformed_normalized_scorevalue = self._normalize(
+                    self.transformed_scorevalue,
+                    self.transformed_baseline_scorevalue,
+                    transformation,
+                )
 
 
 class Scores(Collection):
@@ -98,6 +108,3 @@ class Scores(Collection):
         if fileobject is not None:
             json.dump(scores_to_json, fileobject, sort_keys=True, indent=4)
         return json.dumps(scores_to_json, sort_keys=True, indent=4)
-
-
-

@@ -16,6 +16,7 @@ from d3m_outputs.object_detection_ap import objectDetectionAP
 from collections import defaultdict
 import math
 
+
 def accuracy(ground_truth, predicted):
     return skm.accuracy_score(ground_truth, predicted)
 
@@ -27,11 +28,11 @@ def f1(ground_truth, predicted, pos_label=1):
 
 
 def f1_micro(ground_truth, predicted):
-    return skm.f1_score(ground_truth, predicted, average='micro')
+    return skm.f1_score(ground_truth, predicted, average="micro")
 
 
 def f1_macro(ground_truth, predicted):
-    return skm.f1_score(ground_truth, predicted, average='macro')
+    return skm.f1_score(ground_truth, predicted, average="macro")
 
 
 def roc_auc(ground_truth, predicted, pos_label=None):
@@ -42,12 +43,12 @@ def roc_auc(ground_truth, predicted, pos_label=None):
 
 def roc_auc_micro(ground_truth, predicted):
     ground_truth, predicted, _ = _binarize(ground_truth, predicted)
-    return skm.roc_auc_score(ground_truth, predicted, average='micro')
+    return skm.roc_auc_score(ground_truth, predicted, average="micro")
 
 
 def roc_auc_macro(ground_truth, predicted):
     ground_truth, predicted, _ = _binarize(ground_truth, predicted)
-    return skm.roc_auc_score(ground_truth, predicted, average='macro')
+    return skm.roc_auc_score(ground_truth, predicted, average="macro")
 
 
 def l2(ground_truth, predicted):
@@ -55,7 +56,7 @@ def l2(ground_truth, predicted):
 
 
 def avg_l2(ground_truth_l, predicted_l):
-    '''
+    """
     This function takes a list of ground truth vectors and a list
     of predicted vectors and calculates the average L2 metrics between
     them.
@@ -87,9 +88,12 @@ def avg_l2(ground_truth_l, predicted_l):
     avg_l2:
      avg(sqrt(mse(X,x)), sqrt(mse(Y,y)) )
 
-    '''
+    """
 
-    return np.mean(skm.mean_squared_error(ground_truth_l, predicted_l, multioutput='raw_values') ** 0.5)
+    return np.mean(
+        skm.mean_squared_error(ground_truth_l, predicted_l, multioutput="raw_values")
+        ** 0.5
+    )
 
 
 def mean_se(ground_truth, predicted):
@@ -206,6 +210,7 @@ def precision(ground_truth, predicted):
 def recall(ground_truth, predicted):
     return skm.recall_score(ground_truth, predicted)
 
+
 def mxe_non_bin(ground_truth, predicted):
     """
     This function converts non-binarized predicted values
@@ -234,7 +239,7 @@ def mxe_non_bin(ground_truth, predicted):
         classes = [0, 1, 2]
     """
     _, bin_predicted, classes = _binarize(ground_truth, predicted)
-    return apply_metric('crossEntropy', ground_truth, bin_predicted, classes)
+    return apply_metric("crossEntropy", ground_truth, bin_predicted, classes)
 
 
 def _normalize_ground_truth(ground_truth, classes):
@@ -279,17 +284,19 @@ def _normalize_ground_truth(ground_truth, classes):
         ground_truth_normalized.append(ground_truth_classes[value])
     return ground_truth_normalized
 
-def _normalize_predicted(predicted, eps_value=2**-100):
+
+def _normalize_predicted(predicted, eps_value=2 ** -100):
     norm_predicted = []
     for trial in predicted:
         t = []
         for pd in trial:
             # Here, we convert any value less than eps_value to eps_value
-            if (pd == 0 or (pd < eps_value) ):
+            if pd == 0 or (pd < eps_value):
                 pd = eps_value
             t.append(math.log(pd))
         norm_predicted.append(t)
     return norm_predicted
+
 
 def mxe(ground_truth, predicted, classes):
     """
@@ -319,41 +326,50 @@ def mxe(ground_truth, predicted, classes):
         class_to_trials[gt].append(pd)
     numerator = 0
     for gt_cls, trials in class_to_trials.items():
-        class_loss = sum([math.log(sum([math.e ** (pd) for pd in trial]) / math.e ** (trial[gt_cls]), log_base) for trial in trials])
-        numerator += (class_loss / len(trials))
+        class_loss = sum(
+            [
+                math.log(
+                    sum([math.e ** (pd) for pd in trial]) / math.e ** (trial[gt_cls]),
+                    log_base,
+                )
+                for trial in trials
+            ]
+        )
+        numerator += class_loss / len(trials)
     num_classes = len(class_to_trials)
     return numerator / num_classes
 
 
 METRICS_DICT = {
-    'accuracy': accuracy,
-    'f1': f1,
-    'f1Micro': f1_micro,
-    'f1Macro': f1_macro,
-    'rocAuc': roc_auc,
-    'rocAucMicro': roc_auc_micro,
-    'rocAucMacro': roc_auc_macro,
-    'meanSquaredError': mean_se,
-    'rootMeanSquaredError': l2,
-    'rootMeanSquaredErrorAvg': avg_l2,
-    'meanAbsoluteError': l1,
-    'rSquared': r2,
-    'normalizedMutualInformation': norm_mut_info,
-    'jaccardSimilarityScore': jacc_sim,
-    'precisionAtTopK': precision_at_top_K_meta,
-    'objectDetectionAP': objectDetectionAP,
-    'object_detection_average_precision': objectDetectionAP,
-    'precision': precision,
-    'recall': recall,
-    'crossEntropy': mxe,
-    'crossEntropyNonBinarized': mxe_non_bin
+    "accuracy": accuracy,
+    "f1": f1,
+    "f1Micro": f1_micro,
+    "f1Macro": f1_macro,
+    "rocAuc": roc_auc,
+    "rocAucMicro": roc_auc_micro,
+    "rocAucMacro": roc_auc_macro,
+    "meanSquaredError": mean_se,
+    "rootMeanSquaredError": l2,
+    "rootMeanSquaredErrorAvg": avg_l2,
+    "meanAbsoluteError": l1,
+    "rSquared": r2,
+    "normalizedMutualInformation": norm_mut_info,
+    "jaccardSimilarityScore": jacc_sim,
+    "precisionAtTopK": precision_at_top_K_meta,
+    "objectDetectionAP": objectDetectionAP,
+    "object_detection_average_precision": objectDetectionAP,
+    "precision": precision,
+    "recall": recall,
+    "crossEntropy": mxe,
+    "crossEntropyNonBinarized": mxe_non_bin,
 }
+
 
 def find_metric(metric, valid_metrics=METRICS_DICT):
     def transform_string(string):
-        return string.lower().replace('_', '')
+        return string.lower().replace("_", "")
 
-    reference = {transform_string(k): _ for k,_ in valid_metrics.items()}
+    reference = {transform_string(k): _ for k, _ in valid_metrics.items()}
     return reference[transform_string(metric)]
 
 
