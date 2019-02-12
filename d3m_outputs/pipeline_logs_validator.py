@@ -11,11 +11,10 @@ True
 import json
 import logging
 import typing
-import warnings
 
+from d3m.metadata.pipeline import Pipeline, Resolver
 from d3m.primitive_interfaces import base
 
-from d3m.metadata.pipeline import Pipeline, NoResolver, Resolver
 from .validation_type_checks import is_castable_to_type
 
 ALLOW_2017_FORMAT = False
@@ -80,7 +79,6 @@ def is_pipeline_valid(
 
 
 def is_pipeline_valid_full_validation(pipeline_path):
-
     resolver = NoPrimitiveCheckResolver()
 
     try:
@@ -183,6 +181,5 @@ def is_pipeline_valid_bare(pipeline):
 
 
 if __name__ == "__main__":
-
     pipeline_path = "/Users/mnh11/Downloads/D3M-Summer-2018_TA1_Development_SYS-00042_UBC-Oxford_20180711-185150-1389/pipelines/5fbedb8a-ee10-491a-9d1a-d42c0435949b.json"
     is_pipeline_valid_full_validation(pipeline_path)

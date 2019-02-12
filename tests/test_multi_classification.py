@@ -1,8 +1,6 @@
 import math
 import unittest
 
-import pytest
-
 from d3m_outputs.metrics import (
     f1_micro,
     f1_macro,

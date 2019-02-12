@@ -1,4 +1,5 @@
 import unittest
+
 import numpy as np
 
 from d3m_outputs.metrics import l2, avg_l2, l1, r2, METRICS_DICT

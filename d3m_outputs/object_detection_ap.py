@@ -1,5 +1,6 @@
-import numpy as np
 import logging
+
+import numpy as np
 
 
 def group_gt_boxes_by_image_name(gt_boxes):

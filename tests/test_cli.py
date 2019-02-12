@@ -1,9 +1,9 @@
-import unittest
-import sys
 import os
+import sys
+import unittest
 from glob import glob
 
-from d3m_outputs.cli import cli_parser, cmd_valid_pipeline
+from d3m_outputs.cli import cli_parser
 
 CURRENT_PATH = os.path.abspath(__file__)
 TEST_DIR_PATH = os.path.dirname(CURRENT_PATH)

@@ -4,12 +4,9 @@ Representations of v3 D3M schemas and data structures.
 
 import json
 from pathlib import Path
-import os
 
 import pandas
-
 from d3m.metadata.problem import parse_problem_description
-from d3m.container.dataset import Dataset
 
 
 class DatasetSchema:

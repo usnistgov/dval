@@ -8,13 +8,14 @@ All metrics used in the D3M Program, mapped to their function.
 0.42
 """
 
+import math
+from collections import defaultdict
+
 import numpy as np
 import sklearn.metrics as skm
 from sklearn.preprocessing import LabelBinarizer
 
 from d3m_outputs.object_detection_ap import objectDetectionAP
-from collections import defaultdict
-import math
 
 
 def accuracy(ground_truth, predicted):
@@ -22,8 +23,6 @@ def accuracy(ground_truth, predicted):
 
 
 def f1(ground_truth, predicted, pos_label=1):
-    # if pos_label:
-    #     return skm.f1_score(ground_truth, predicted, pos_label=pos_label)
     return skm.f1_score(ground_truth, predicted, pos_label=pos_label)
 
 
@@ -265,7 +264,7 @@ def _normalize_ground_truth(ground_truth, classes):
         Array of class indices.
 
     Example:
-        >>> ground truth = ['val_a', 'val_c', 'val_b, 'val_c']
+        >>> ground_truth = ['val_a', 'val_c', 'val_b, 'val_c']
         >>> classes = ['val_a', 'val_b', 'val_c']
 
         ground_truth_classes = {'val_a': 0, 'val_b': 1, 'val_c': 2}

@@ -1,7 +1,6 @@
 import unittest
-from pathlib import Path
 
-from d3m_outputs.score import Score, Scores
+from d3m_outputs.score import Score
 from d3m_outputs.transformations import METRIC_RANGES_DICT
 
 

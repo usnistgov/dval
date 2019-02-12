@@ -22,19 +22,15 @@ Checks that your/problems/dir/labels.csv exists with
 
 """
 
-import json
+import glob
 import logging
-
-import pandas as pd
 import os
 import sys
-import glob
 
-from d3m.metadata.pipeline import Pipeline
+import pandas as pd
 
 from .file_checker import FileChecker
 from .schemas import ProblemSchema
-from .pipeline_logs_validator import is_pipeline_valid_full_validation
 
 logger = logging.Logger(__name__)
 
@@ -81,7 +77,6 @@ def check_generated_problems_directory(directory_path, output_file):
     expected_columns = ["problem_id", "system", "meaningful"]
 
     if set(expected_columns) != set(gen_problems_md_df.columns):
-
         logger.error(
             "Wrong headers: {}, Expected: {}".format(
                 gen_problems_md_df.columns.tolist(), expected_columns
@@ -190,6 +185,5 @@ def check_generated_problems_subdirectory(directory_path):
 
 
 if __name__ == "__main__":
-
     # Temporary for testing
     print(check_generated_problems_directory(sys.argv[1]))

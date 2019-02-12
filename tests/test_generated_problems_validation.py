@@ -1,8 +1,7 @@
 import os
-
 import unittest
-
 from glob import glob
+
 from d3m_outputs import generated_problems
 
 

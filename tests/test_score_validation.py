@@ -1,9 +1,8 @@
-import unittest
-from pathlib import Path
-import sys
 import os
-from d3m_outputs.cli import cli_parser, cmd_valid_pipeline
-from d3m_outputs.predictions import is_predictions_file_valid
+import sys
+import unittest
+
+from d3m_outputs.cli import cli_parser
 
 CURRENT_PATH = os.path.abspath(__file__)
 TEST_DIR_PATH = os.path.dirname(CURRENT_PATH)

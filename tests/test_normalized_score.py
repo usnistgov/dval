@@ -1,11 +1,8 @@
-import pytest
-import os
-from d3m_outputs.metrics import *
-from d3m_outputs.transformations import *
-import d3m_outputs.score
 import numpy as np
-import math
-import pandas as pd
+import pytest
+
+import d3m_outputs.score
+from d3m_outputs.transformations import *
 
 
 class TestNormalizations(object):

@@ -1,10 +1,10 @@
+import numpy as np
+import pandas as pd
 import pytest
-import os
+
+import d3m_outputs.score
 from d3m_outputs.metrics import *
 from d3m_outputs.transformations import *
-import numpy as np
-import d3m_outputs.score
-import pandas as pd
 
 GROUND_TRUTH_MC = ["a", "b", "a", "b", "c", "a", "a", "b", "a", "c", "c", "b"]
 PREDICTED_BEST_MC = ["a", "b", "a", "b", "c", "a", "a", "b", "a", "c", "c", "b"]

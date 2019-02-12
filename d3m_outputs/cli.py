@@ -10,10 +10,11 @@ score_seed_baselines  [--validation | --no-validation] seed_root_dir
 """
 
 import argparse
-import sys
-import os
 import json
 import logging
+import os
+import sys
+
 from . import (
     score_predictions_file,
     is_predictions_file_valid,
@@ -108,7 +109,6 @@ def cmd_valid_pipeline(args):
 
 @catch_fnf
 def cmd_valid_gen_problems(args):
-
     is_valid = generated_problems.check_generated_problems_directory(
         args.problems_directory, args.output_file
     )
@@ -123,7 +123,6 @@ def cmd_valid_gen_problems(args):
 
 @catch_fnf
 def cmd_score(args):
-
     if args.outfile is not None and len(args.predictions_file) > 1:
         sys.exit(
             "Writing JSON scores only supported for one predictions file at the time"

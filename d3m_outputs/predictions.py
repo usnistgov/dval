@@ -25,9 +25,7 @@ True
 """
 
 import logging
-from collections import namedtuple
 from pathlib import Path
-import json
 
 import numpy as np
 import pandas
@@ -35,6 +33,7 @@ import pandas
 from . import schemas
 from .file_checker import FileChecker
 from .metrics import METRICS_DICT, valid_metric, apply_metric
+from .score import Score, Scores, MxeScore
 from .validation_type_checks import (
     valid_d3mindex,
     valid_boolean,
@@ -44,7 +43,6 @@ from .validation_type_checks import (
     valid_categorical,
     valid_datetime,
 )
-from .score import Score, Scores, MxeScore
 
 
 class Predictions:

@@ -1,10 +1,7 @@
+import getpass
 import logging
 import os
 import unittest
-
-import logging
-import getpass
-
 
 from d3m_outputs.file_checker import FileChecker
 

@@ -1,5 +1,4 @@
 import unittest
-from pathlib import Path
 
 from d3m_outputs.transformations import (
     CenterizedNormalizedScoreTransformation,

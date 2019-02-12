@@ -62,7 +62,6 @@ def valid_string(text_column):
 
 
 def valid_categorical(cat_column, authorized_labels=None):
-
     # "Invalid" means that the predicted categorical value doesn't appear in the
     # targets.csv file
     invalid_values_detected = False

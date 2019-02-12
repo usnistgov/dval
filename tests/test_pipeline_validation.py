@@ -1,4 +1,3 @@
-import logging
 from glob import glob
 from d3m_outputs.pipeline_logs_validator import (
     load_json,
@@ -7,6 +6,16 @@ from d3m_outputs.pipeline_logs_validator import (
     is_pipeline_valid,
     is_pipeline_valid_full_validation,
 )
+from glob import glob
+
+from d3m_outputs.pipeline_logs_validator import (
+    load_json,
+    is_pipeline_valid_old_schema,
+    is_pipeline_valid_bare,
+    is_pipeline_valid,
+    is_pipeline_valid_full_validation,
+)
+
 
 # logging.disable(logging.NOTSET)
 # logging.getLogger().setLevel(logging.DEBUG)
