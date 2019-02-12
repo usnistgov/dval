@@ -2,6 +2,9 @@ stages:
   - test
   - documentation
 
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+  
 build:
   stage: test
   image: python:3.6.5

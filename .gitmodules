@@ -1,0 +1,4 @@
+[submodule "human_readable_validation"]
+	path = valid8
+	url = ../valid8.git
+	branch = master
