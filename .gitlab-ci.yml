@@ -45,8 +45,9 @@ docs:
   script:
     - mkdir -p docs/_static/coverage
     - cp -r htmlcov/* docs/_static/coverage/
-    - pip install tox
-    - tox -e docs
+    - pip install sphinx sphinx-rtd-theme
+    - sphinx-apidoc -o docs/source/ d3m_outputs
+    - sphinx-build -b html docs/source/ html_docs
   artifacts:
     paths:
     - html_docs
