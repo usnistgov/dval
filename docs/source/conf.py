@@ -16,7 +16,7 @@ import os
 import datetime
 import sys
 
-# sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath("../.."))
 
 # Get configuration information from setup.cfg
 try:
