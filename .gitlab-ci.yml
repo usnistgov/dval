@@ -1,13 +1,16 @@
+image: python:3.6
+
 stages:
   - test
+  - quality
   - documentation
+  - deploy
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
   
 build:
   stage: test
-  image: python:3.6.5
 
   before_script:
     - pip install pip==9.0.3
@@ -15,26 +18,57 @@ build:
     - pip install --process-dependency-links git+https://gitlab.com/datadrivendiscovery/d3m.git@v2018.6.5#egg=d3m
     - python setup.py install
     - d3m_outputs -h
-    - python -m pip install coverage
+    - pip install pytest coverage
   script:
-    - coverage run --branch --source=./d3m_outputs -m pytest -s test/ -v && coverage report -m && coverage html
+    - coverage run --source d3m_outputs -m pytest --junitxml=report.xml
+    - coverage report
+    - coverage html
   artifacts:
     paths:
-      - $CI_PROJECT_DIR/htmlcov
+      - htmlcov
+    reports:
+      junit: report*.xml
+
+lint:
+  stage: quality
+  before_script:
+    - pip install tox
+  script: tox -e lint
+
+formatting:
+  stage: quality
+  before_script:
+    - pip install tox
+  script: tox -e formatting
+
+docs:
+  stage: documentation
+  dependencies:
+    - build
+  before_script:
+    - pip install pip==9.0.3 sphinx sphinx-rtd-theme
+    - pip install -r requirements.txt
+    - pip install --process-dependency-links git+https://gitlab.com/datadrivendiscovery/d3m.git@v2018.6.5#egg=d3m
+    - python setup.py install
+    - d3m_outputs -h
+  script:
+    - mkdir -p docs/_static/coverage
+    - cp -r htmlcov/* docs/_static/coverage/
+    - sphinx-apidoc -o docs/source/ d3m_outputs
+    - sphinx-build -b html docs/source/ html_docs
+  artifacts:
+    paths:
+    - html_docs
 
 
 pages:
-  stage: documentation
-  
+  stage: deploy
+  dependencies:
+    - docs
   script:
-  - pip install sphinx sphinx-rtd-theme
-  - cd docs
-  - sphinx-apidoc -o source/ ../d3m_outputs
-  - sphinx-build -b html source/ build/
-  - mv build/ ../public/
+    - mv html_docs public
   artifacts:
     paths:
-    - public
-
+      - public
   only:
     - tags

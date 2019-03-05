@@ -4,12 +4,9 @@ Representations of v3 D3M schemas and data structures.
 
 import json
 from pathlib import Path
-import os
 
 import pandas
-
 from d3m.metadata.problem import parse_problem_description
-from d3m.container.dataset import Dataset
 
 
 class DatasetSchema:
@@ -26,16 +23,18 @@ class DatasetSchema:
 
     @property
     def _learningDataColumns(self):
-        for dr in self.jdata['dataResources']:
-            if dr['resPath'] == 'tables/learningData.csv':
-                return dr['columns']
+        for dr in self.jdata["dataResources"]:
+            if dr["resPath"] == "tables/learningData.csv":
+                return dr["columns"]
 
     @property
     def index_name(self):
         """
         :return: the first index column found in the dataset schema
         """
-        indexcolumns = (c['colName'] for c in self._learningDataColumns if 'index' in c['role'])
+        indexcolumns = (
+            c["colName"] for c in self._learningDataColumns if "index" in c["role"]
+        )
         # assuming one index
         return indexcolumns.__next__()
 
@@ -49,10 +48,10 @@ class DatasetSchema:
         """
         expected_fields = dict()
 
-        target_colids = [t['column_index'] for t in targets]
+        target_colids = [t["column_index"] for t in targets]
         for c in self._learningDataColumns:
-            if c['colIndex'] in target_colids:
-                expected_fields[c['colName']] = c['colType']
+            if c["colIndex"] in target_colids:
+                expected_fields[c["colName"]] = c["colType"]
         return expected_fields
 
 
@@ -71,28 +70,30 @@ class ProblemSchema:
         :return: list of dictionaries describing the targets
         ONLY SUPPORTS one dataset and target, i.e. ['inputs']['data'] of length 1
         """
-        return self.problem['inputs'][0]['targets']
+        return self.problem["inputs"][0]["targets"]
 
     @property
     def target_names(self):
         """
         :return: List of target names
         """
-        return [t['column_name'] for t in self.targets]
+        return [t["column_name"] for t in self.targets]
 
     @property
     def task_type(self):
         """
         :return: Name of the task type
         """
-        return self.problem['problem']['task_type'].unparse()
+        return self.problem["problem"]["task_type"].unparse()
 
     @property
     def metrics(self):
         try:
-            return [l['metric'].name for l in self.problem['problem']['performance_metrics']]
+            return [
+                l["metric"].name for l in self.problem["problem"]["performance_metrics"]
+            ]
         except AttributeError:
-            return [l['metric'] for l in self.problem['problem']['performance_metrics']]
+            return [l["metric"] for l in self.problem["problem"]["performance_metrics"]]
 
     @property
     def metrics_wparams(self):
@@ -113,11 +114,11 @@ class ProblemSchema:
         :rtype: list<dict>
 
         """
-        data = self.problem['problem']['performance_metrics']
+        data = self.problem["problem"]["performance_metrics"]
         for metric_d in data:
             # try:
             try:
-                metric_d['metric'] = metric_d['metric'].name
+                metric_d["metric"] = metric_d["metric"].name
             except AttributeError:
                 pass
             # except AttributeError:
@@ -129,29 +130,31 @@ class D3MDataStructure:
     """
     Class representing a (problem, dataset) pair with associated data files.
     """
-    DATASETSCHEMA_ARG = 'dataschema'
-    PROBLEMSCHEMA_ARG = 'problemschema'
-    ROOT_TO_SCORE_ARG = 'root'
 
-    RELATIVE_PATH_TO_DATASCHEMA = 'dataset_TEST/datasetDoc.json'
-    RELATIVE_PATH_TO_PROBLEMSCHEMA = 'problem_TEST/problemDoc.json'
-    RELATIVE_PATH_TO_TESTDATA = 'dataset_TEST/tables/learningData.csv'
-    RELATIVE_PATH_TO_TARGETS = 'targets.csv'
-    RELATIVE_PATH_TO_BASELINE_SCORES = 'baseline_scores.csv'
+    DATASETSCHEMA_ARG = "dataschema"
+    PROBLEMSCHEMA_ARG = "problemschema"
+    ROOT_TO_SCORE_ARG = "root"
+
+    RELATIVE_PATH_TO_DATASCHEMA = "dataset_TEST/datasetDoc.json"
+    RELATIVE_PATH_TO_PROBLEMSCHEMA = "problem_TEST/problemDoc.json"
+    RELATIVE_PATH_TO_TESTDATA = "dataset_TEST/tables/learningData.csv"
+    RELATIVE_PATH_TO_TARGETS = "targets.csv"
+    RELATIVE_PATH_TO_BASELINE_SCORES = "baseline_scores.csv"
 
     def __init__(self, **kwargs):
 
         self.root = Path(kwargs[self.ROOT_TO_SCORE_ARG])
         self.dataschema = DatasetSchema(self.root / self.RELATIVE_PATH_TO_DATASCHEMA)
-        self.problemschema = ProblemSchema(self.root / self.RELATIVE_PATH_TO_PROBLEMSCHEMA)
+        self.problemschema = ProblemSchema(
+            self.root / self.RELATIVE_PATH_TO_PROBLEMSCHEMA
+        )
         self.testdata_path = self.root / self.RELATIVE_PATH_TO_TESTDATA
         self.targets_path = self.root / self.RELATIVE_PATH_TO_TARGETS
         self.baseline_scores_path = self.root / self.RELATIVE_PATH_TO_BASELINE_SCORES
         self.indices_path = None
 
-        if 'indices_file' in kwargs:
-            self.indices_path = kwargs['indices_file']
-
+        if "indices_file" in kwargs:
+            self.indices_path = kwargs["indices_file"]
 
     def __getattr__(self, item):
         """
@@ -167,7 +170,7 @@ class D3MDataStructure:
         elif hasattr(self.problemschema, item):
             return self.problemschema.__getattribute__(item)
         else:
-            raise AttributeError(f'{item} not found in class or class schemas')
+            raise AttributeError(f"{item} not found in class or class schemas")
 
     def load_targets(self, targets_path=None):
         if targets_path:
@@ -175,13 +178,15 @@ class D3MDataStructure:
 
         self.targets_df = pandas.read_csv(self.targets_path)
 
-        if 'd3mIndex' in self.targets_df.columns:
-            self.targets_df.sort_values(by='d3mIndex', inplace=True)
+        if "d3mIndex" in self.targets_df.columns:
+            self.targets_df.sort_values(by="d3mIndex", inplace=True)
 
             if self.indices_path:
                 indices = pandas.read_csv(self.indices_path, header=None)[0].values
-                self.targets_df = self.targets_df.loc[self.targets_df.d3mIndex.apply(lambda x: x in indices)]
-        
+                self.targets_df = self.targets_df.loc[
+                    self.targets_df.d3mIndex.apply(lambda x: x in indices)
+                ]
+
         self.targets_index = self.targets_df.index
         self.number_targets = len(self.targets_index)
 
@@ -190,7 +195,7 @@ class D3MDataStructure:
             self.baseline_scores_path = baseline_scores_path
 
         self.baseline_scores_df = pandas.read_csv(self.baseline_scores_path)
-        return self.baseline_scores_df.iloc[0]['value']
+        return self.baseline_scores_df.iloc[0]["value"]
 
     @property
     def target_types(self):

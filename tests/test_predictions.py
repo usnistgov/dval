@@ -5,19 +5,17 @@ from d3m_outputs.predictions import Predictions
 
 
 class TestPredictions(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         cls.test_cases = dict()
 
-        path = Path(__file__).parent / 'data'
+        path = Path(__file__).parent / "data"
         directories = (i for i in path.iterdir() if i.is_dir())
 
         for d in directories:
-            result_file = d / 'mitll_predictions.csv'
+            result_file = d / "mitll_predictions.csv"
             cls.test_cases[d.name] = Predictions(
-                result_file_path=result_file,
-                path_to_score_root=d
+                result_file_path=result_file, path_to_score_root=d
             )
 
     def testIsValid(self):
@@ -27,22 +25,23 @@ class TestPredictions(unittest.TestCase):
     def testScore(self):
         for name, test_case in self.test_cases.items():
             print(name, test_case)
-            scores = test_case.score(test_case.score_root / 'targets.csv')
+            scores = test_case.score(test_case.score_root / "targets.csv")
             for score in scores:
                 try:
                     float(score.scorevalue)
                 except AssertionError:
-                    self.fail(f'Score value {score.scorevalue} is could not be cast to float.'
-                              f'Found type {type(score.scorevalue)}')
-                
-                with open(test_case.score_root / 'expectedResult.txt') as expected_result_file:
+                    self.fail(
+                        f"Score value {score.scorevalue} is could not be cast to float."
+                        f"Found type {type(score.scorevalue)}"
+                    )
+
+                with open(
+                    test_case.score_root / "expectedResult.txt"
+                ) as expected_result_file:
                     expected_result = expected_result_file.read()
                     expected_result = float(expected_result)
-                    self.assertEqual(score.scorevalue, expected_result) 
+                    self.assertEqual(score.scorevalue, expected_result)
 
 
-
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

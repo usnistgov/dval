@@ -1,11 +1,13 @@
-import numpy as np
 import logging
 
+import numpy as np
+
+
 def group_gt_boxes_by_image_name(gt_boxes):
-    '''
+    """
     This function takes a list of ground truth boxes and turn them into a
-    dict mapping an image name to an array containing the 4 coordinates of 
-    the edges delimiting a bounding box 
+    dict mapping an image name to an array containing the 4 coordinates of
+    the edges delimiting a bounding box
 
     Parameters:
     -----------
@@ -24,7 +26,7 @@ def group_gt_boxes_by_image_name(gt_boxes):
             ]
         }
 
-    '''
+    """
     gt_dict = {}
 
     for box in gt_boxes:
@@ -35,7 +37,7 @@ def group_gt_boxes_by_image_name(gt_boxes):
         if image_name not in gt_dict.keys():
             gt_dict[image_name] = []
 
-        gt_dict[image_name].append({'bbox': bbox})
+        gt_dict[image_name].append({"bbox": bbox})
 
     return gt_dict
 
@@ -45,48 +47,44 @@ def unvectorize(targets):
     If ``targets`` have two columns (index, object detection target) or three (index, object detection
     target, confidence), we make it into 5 or 6, respectively, by splitting the second column into
     4 columns for each bounding box edge.
-    
+
     Parameters:
     -----------
     targets: list
      List of bounding boxes. Each box is represented as a list with the
-     following format: 
-        
+     following format:
+
         Case 1 (confidence provided):
              ['image_name', 'x_min, 'y_min, x_max, y_max', 'confidence']
         Case 2 (confidence not provided):
              ['image_name', 'x_min, 'y_min, x_max, y_max']
-        Case 3: (List with more than three elements) 
+        Case 3: (List with more than three elements)
             ['image_name', ... ]
 
     Returns:
     --------
     new_targets: list
         List following the following format:
-    
-         Case 1 (confidence provided): 
+
+         Case 1 (confidence provided):
              ['image_name', 'x_min', 'y_min', 'x_max', 'y_max', 'confidence']
          Case 2 (confidence not provided):
              ['image_name', 'x_min', 'y_min', 'x_max', 'y_max']
-         Case 3: (List with more than three elements) 
+         Case 3: (List with more than three elements)
             ['image_name', ... ]
-        
-
-
     """
 
     new_targets = []
 
     for target in targets:
         if len(target) == 2:
-            new_targets.append([target[0]] + target[1].split(','))
+            new_targets.append([target[0]] + target[1].split(","))
         elif len(target) == 3:
-            new_targets.append([target[0]] + target[1].split(',') + list(target[2:]))
+            new_targets.append([target[0]] + target[1].split(",") + list(target[2:]))
         else:
             new_targets.append(target)
 
     return new_targets
-
 
 
 def voc_ap(rec, prec, use_07_metric=False):
@@ -97,18 +95,18 @@ def voc_ap(rec, prec, use_07_metric=False):
     """
     if use_07_metric:
         # 11 point metric
-        ap = 0.
-        for t in np.arange(0., 1.1, 0.1):
+        ap = 0.0
+        for t in np.arange(0.0, 1.1, 0.1):
             if np.sum(rec >= t) == 0:
                 p = 0
             else:
                 p = np.max(prec[rec >= t])
-            ap = ap + p / 11.
+            ap = ap + p / 11.0
     else:
         # correct AP calculation
         # first append sentinel values at the end
-        mrec = np.concatenate(([0.], rec, [1.]))
-        mpre = np.concatenate(([0.], prec, [0.]))
+        mrec = np.concatenate(([0.0], rec, [1.0]))
+        mpre = np.concatenate(([0.0], prec, [0.0]))
 
         # compute the precision envelope
         for i in range(mpre.size - 1, 0, -1):
@@ -123,10 +121,7 @@ def voc_ap(rec, prec, use_07_metric=False):
     return ap
 
 
-def objectDetectionAP(dets,
-                      gts,
-                      ovthresh=0.5,
-                      use_07_metric=False):
+def objectDetectionAP(dets, gts, ovthresh=0.5, use_07_metric=False):
     """
     This function takes a list of ground truth boxes and a list of detected bounding boxes
     for a given class and computes the average precision of the detections with respect to
@@ -226,44 +221,34 @@ def objectDetectionAP(dets,
     imagenames = sorted(gt_dict.keys())
     for imagename in imagenames:
         R = [obj for obj in gt_dict[imagename]]
-        bbox = np.array([x['bbox'] for x in R])
+        bbox = np.array([x["bbox"] for x in R])
         det = [False] * len(R)
         npos = npos + len(R)
-        recs[imagename] = {'bbox': bbox,
-                           'det': det}
+        recs[imagename] = {"bbox": bbox, "det": det}
 
     # Load detections
     det_length = len(dets[0])
 
     # Check that all boxes are the same size
     for det in dets:
-        assert len(det) == det_length, 'Not all boxes have the same dimensions.'
-
-
+        assert len(det) == det_length, "Not all boxes have the same dimensions."
 
     image_ids = [x[0] for x in dets]
     BB = np.array([[float(z) for z in x[1:5]] for x in dets])
 
     if det_length == 6:
-        logging.info('confidence scores are present')
+        logging.info("confidence scores are present")
         confidence = np.array([float(x[-1]) for x in dets])
         # sort by confidence
         sorted_ind = np.argsort(-confidence)
-        sorted_scores = np.sort(-confidence)
 
     else:
-        logging.info('confidence scores are not present')
+        logging.info("confidence scores are not present")
         num_dets = len(dets)
         sorted_ind = np.arange(num_dets)
-        sorted_scores = np.ones(num_dets)
 
     BB = BB[sorted_ind, :]
     image_ids = [image_ids[x] for x in sorted_ind]
-
-    # print('sorted_ind: ', sorted_ind)
-    # print('sorted_scores: ', sorted_scores)
-    # print('BB: ', BB)
-    # print('image_ids: ', image_ids)
 
     # go down dets and mark TPs and FPs
     nd = len(image_ids)
@@ -273,9 +258,7 @@ def objectDetectionAP(dets,
         R = recs[image_ids[d]]
         bb = BB[d, :].astype(float)
         ovmax = -np.inf
-        BBGT = R['bbox'].astype(float)
-        # print('det %d: ' % d)
-        # print('bb: ', bb)
+        BBGT = R["bbox"].astype(float)
 
         if BBGT.size > 0:
             # compute overlaps
@@ -284,34 +267,32 @@ def objectDetectionAP(dets,
             iymin = np.maximum(BBGT[:, 1], bb[1])
             ixmax = np.minimum(BBGT[:, 2], bb[2])
             iymax = np.minimum(BBGT[:, 3], bb[3])
-            iw = np.maximum(ixmax - ixmin + 1., 0.)
-            ih = np.maximum(iymax - iymin + 1., 0.)
+            iw = np.maximum(ixmax - ixmin + 1.0, 0.0)
+            ih = np.maximum(iymax - iymin + 1.0, 0.0)
             inters = iw * ih
 
             # union
-            uni = ((bb[2] - bb[0] + 1.) * (bb[3] - bb[1] + 1.) +
-                   (BBGT[:, 2] - BBGT[:, 0] + 1.) *
-                   (BBGT[:, 3] - BBGT[:, 1] + 1.) - inters)
+            uni = (
+                (bb[2] - bb[0] + 1.0) * (bb[3] - bb[1] + 1.0)
+                + (BBGT[:, 2] - BBGT[:, 0] + 1.0) * (BBGT[:, 3] - BBGT[:, 1] + 1.0)
+                - inters
+            )
 
             overlaps = inters / uni
             ovmax = np.max(overlaps)
             jmax = np.argmax(overlaps)
-            # print('overlaps: ', overlaps)
 
         if ovmax > ovthresh:
-            if not R['det'][jmax]:
+            if not R["det"][jmax]:
                 # print('Box matched!')
-                tp[d] = 1.
-                R['det'][jmax] = 1
+                tp[d] = 1.0
+                R["det"][jmax] = 1
             else:
                 # print('Box was already taken!')
-                fp[d] = 1.
+                fp[d] = 1.0
         else:
             # print('No match with sufficient overlap!')
-            fp[d] = 1.
-
-    # print('tp: ', tp)
-    # print('fp: ', fp)
+            fp[d] = 1.0
 
     # compute precision recall
     fp = np.cumsum(fp)
@@ -323,5 +304,3 @@ def objectDetectionAP(dets,
     ap = voc_ap(rec, prec, use_07_metric)
 
     return rec, prec, ap
-
-
