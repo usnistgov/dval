@@ -41,20 +41,20 @@ $ pip install git+https://gitlab.datadrivendiscovery.org/nist/nist_eval_output_v
 
 #### Validate a pipeline log
 ```
-d3m_outputs valid_pipelines pipeline_log_file [pipeline_log_file ...]
+dval valid_pipelines pipeline_log_file [pipeline_log_file ...]
 ```
 Parameters:
 * `pipeline_log_file`: path to the predictions file to validate
 
 For example
-`d3m_outputs valid_pipelines mylog1.json mylog2.json`
+`dval valid_pipelines mylog1.json mylog2.json`
 
-In shells like bash, you can also do : `d3m_outputs valid_pipelines *.json`
+In shells like bash, you can also do : `dval valid_pipelines *.json`
 
 #### Validate a predictions file
 
 ```
-d3m_outputs valid_predictions -d score_dir predictions_file [predictions_file ...]
+dval valid_predictions -d score_dir predictions_file [predictions_file ...]
 ```
 Parameters:
 * `score_dir`: path to the directory described in Section Requirements. Use the `SCORE` directory of the seed datasets.
@@ -63,7 +63,7 @@ Parameters:
 #### Score a predictions file
 
 ```
-d3m_outputs score -d score_dir [-g ground_truth_file] [--validation | --no-validation] predictions_file [predictions_file ...]
+dval score -d score_dir [-g ground_truth_file] [--validation | --no-validation] predictions_file [predictions_file ...]
 ```
 
 Parameters:
@@ -76,7 +76,7 @@ Parameters:
 #### Validate a generated problems directory
 
 ```
-d3m_outputs valid_generated_problems ./test/generated_problems/correct_submission/
+dval valid_generated_problems ./test/generated_problems/correct_submission/
 ```
 
 Parameters:
@@ -97,8 +97,8 @@ docker run -v /hostpath/to/data:/tmp/data $image valid_predictions -d /tmp/data/
 
 Images are in the project registry under `registry.datadrivendiscovery.org/nist/nist_eval_output_validation_scoring/IMAGE_NAME`
 Example images:  
-* `d3m_outputs:latest`, which points to the latest release - e.g. `d3m_outputs:v2018.4.28`
-* `d3m_outputs:v2018.4.20` for a specific release. The commit is the one tagged with `v2018.4.20`.
+* `dval:latest`, which points to the latest release - e.g. `dval:v2018.4.28`
+* `dval:v2018.4.20` for a specific release. The commit is the one tagged with `v2018.4.20`.
 * `branches/develop`: the latest commit on the `develop` branch (unreleased)
 
 
@@ -112,7 +112,7 @@ result_file_path = 'test/data/185_baseball_SCORE/mitll_predictions.csv'
 
 Option 1: Using the Predictions class
 ```python
->>> from d3m_outputs import Predictions
+>>> from dval import Predictions
 >>> p = Predictions(result_file_path, path_to_score_root)
 >>> p.is_valid()
 True
@@ -133,7 +133,7 @@ list of `Score` objects, one for each combination of `(target, metric)`.
 
 Option 2: Using the wrapper functions
 ```python
->>> from d3m_outputs import is_predictions_file_valid, score_predictions_file
+>>> from dval import is_predictions_file_valid, score_predictions_file
 >>> is_predictions_file_valid(result_file_path, path_to_score_root)
 True
 >>> scores = score_predictions_file(result_file_path, path_to_score_root, groundtruth_path)
@@ -159,7 +159,7 @@ Checks that the validation code does on the prediction file include:
 ### Usage
 
 ```python
->>> from d3m_outputs import PipelineLog
+>>> from dval import PipelineLog
 >>> PipelineLog('path/to/my.json').is_valid()
 True
 ```
@@ -183,7 +183,7 @@ We have a test suite with the `pytest` package and code coverage with `coverage`
 The following command runs all of the unit tests and outputs code coverage into `htmlcov/index.html`
 
 ```bash
-coverage run --branch --source=./d3m_outputs -m pytest -s test/ -v
+coverage run --branch --source=./dval -m pytest -s test/ -v
 coverage report -m
 coverage html
 ```
@@ -195,7 +195,7 @@ Docs of the latest version of the master branch are available here: https://nist
 Docs were built using sphinx and autodoc with the following commands in the `docs` directory
 
 ```
-sphinx-apidoc -f -o source/ ../d3m_outputs
+sphinx-apidoc -f -o source/ ../dval
 sphinx-build -b html source build
 ```
 
