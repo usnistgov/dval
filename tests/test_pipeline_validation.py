@@ -1,5 +1,5 @@
 from glob import glob
-from d3m_outputs.pipeline_logs_validator import (
+from dval.pipeline_logs_validator import (
     load_json,
     is_pipeline_valid_old_schema,
     is_pipeline_valid_bare,
@@ -8,7 +8,7 @@ from d3m_outputs.pipeline_logs_validator import (
 )
 from glob import glob
 
-from d3m_outputs.pipeline_logs_validator import (
+from dval.pipeline_logs_validator import (
     load_json,
     is_pipeline_valid_old_schema,
     is_pipeline_valid_bare,

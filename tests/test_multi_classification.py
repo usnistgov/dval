@@ -1,7 +1,7 @@
 import math
 import unittest
 
-from d3m_outputs.metrics import (
+from dval.metrics import (
     f1_micro,
     f1_macro,
     roc_auc_micro,

@@ -91,7 +91,7 @@ Same usage as the CLI.
 
 For example, to validate a `predictions.csv` file:
 ```bash
-image='registry.datadrivendiscovery.org/nist/nist_eval_output_validation_scoring/d3m_outputs:v2018.4.28'
+image=dval
 docker run -v /hostpath/to/data:/tmp/data $image valid_predictions -d /tmp/data/SCORE /tmp/data/predictions.csv
 ```
 

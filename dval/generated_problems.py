@@ -2,7 +2,7 @@
 Validate a generated problem directory (TA3 problem generation).
 
 Usage:
-    python3.6 -m d3m_outputs.generated_problems your/problems/dir/
+    python3.6 -m dval.generated_problems your/problems/dir/
 
 Checks that your/problems/dir/labels.csv exists with
 

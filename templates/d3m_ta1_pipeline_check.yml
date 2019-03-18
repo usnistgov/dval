@@ -10,7 +10,7 @@
   actions:
     count: 1
     match: predictions/{FILENAME_NOEXT}/predictions.csv
-    scripts: d3m_outputs valid_pipelines {FILEPATH} --no-check-bare-2018-format
+    scripts: dval valid_pipelines {FILEPATH} --no-check-bare-2018-format
 
 - rulename: predictions_file
   filters:

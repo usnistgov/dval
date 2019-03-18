@@ -9,7 +9,7 @@ USAGE:
 >>> groundtruth_path = 'test/data/185_baseball_SCORE/targets.csv'
 
 Option 1: Using the Predictions class
->>> from d3m_outputs import Predictions
+>>> from dval import Predictions
 >>> p = Predictions(result_file_path, path_to_score_root)
 >>> p.is_valid()
 True
@@ -17,7 +17,7 @@ True
 [Score(target='Hall_Of_Fame', metric='f1', scorevalue=0.691369766848)]
 
 Option 2: Using the wrapper functions
->>> from d3m_outputs import is_predictions_file_valid, score_predictions_file
+>>> from dval import is_predictions_file_valid, score_predictions_file
 >>> is_predictions_file_valid(result_file_path, path_to_score_root)
 True
 >>> score_predictions_file(result_file_path, path_to_score_root, groundtruth_path)

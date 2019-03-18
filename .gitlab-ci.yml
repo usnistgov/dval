@@ -17,10 +17,10 @@ build:
     - pip install -r requirements.txt
     - pip install --process-dependency-links git+https://gitlab.com/datadrivendiscovery/d3m.git@v2018.6.5#egg=d3m
     - python setup.py install
-    - d3m_outputs -h
+    - dval -h
     - pip install pytest coverage
   script:
-    - coverage run --source d3m_outputs -m pytest --junitxml=report.xml
+    - coverage run --source dval -m pytest --junitxml=report.xml
     - coverage report
     - coverage html
   artifacts:
@@ -50,11 +50,11 @@ docs:
     - pip install -r requirements.txt
     - pip install --process-dependency-links git+https://gitlab.com/datadrivendiscovery/d3m.git@v2018.6.5#egg=d3m
     - python setup.py install
-    - d3m_outputs -h
+    - dval -h
   script:
     - mkdir -p docs/_static/coverage
     - cp -r htmlcov/* docs/_static/coverage/
-    - sphinx-apidoc -o docs/source/ d3m_outputs
+    - sphinx-apidoc -o docs/source/ dval
     - sphinx-build -b html docs/source/ html_docs
   artifacts:
     paths:

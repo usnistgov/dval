@@ -10,7 +10,7 @@
   actions:
     exists: true
     match: predictions/{FILENAME_NOEXT}/predictions.csv
-    scripts: d3m_outputs valid_pipelines {FILEPATH} --no-check-bare-2018-format
+    scripts: dval valid_pipelines {FILEPATH} --no-check-bare-2018-format
 
 - rulename: predictions_file
   filters:
@@ -20,7 +20,7 @@
     match: pipelines/{DIR_NAME}.json
     scripts:
       - echo "Using data at $SCORE_DIR"
-      - d3m_outputs valid_predictions -d $SCORE_DIR {FILEPATH}
+      - dval valid_predictions -d $SCORE_DIR {FILEPATH}
 
 - rulename: executable_file
   filters:

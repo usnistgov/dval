@@ -2,7 +2,7 @@ import os
 import unittest
 from glob import glob
 
-from d3m_outputs import generated_problems
+from dval import generated_problems
 
 
 class TestGenProblems(unittest.TestCase):
