@@ -52,7 +52,6 @@ check_python_version()
 requires, links = parse_requirements()
 
 setup(install_requires=requires,
-      version=d3m_outputs.__version__,
       entry_points='''
           [console_scripts]
           d3moutputs=d3m_outputs.cli:main
