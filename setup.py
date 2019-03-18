@@ -58,6 +58,7 @@ setup(
     entry_points="""
           [console_scripts]
           d3moutputs=dval.cli:main
+          d3m_outputs=dval.cli:main
           dval=dval.cli:main
       """,
 )
