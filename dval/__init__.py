@@ -17,7 +17,7 @@ __all__ = [
     "is_pipeline_valid_bare",
 ]
 
-__version__ = "18summer-1.5-dev4"
+__version__ = "2019.3-dev"
 
 from .pipeline_logs_validator import (
     is_pipeline_valid,

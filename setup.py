@@ -52,6 +52,7 @@ def parse_requirements():
 check_python_version()
 requires, links = parse_requirements()
 
+
 setup(
     install_requires=requires,
     version=dval.__version__,

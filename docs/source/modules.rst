@@ -1,7 +1,7 @@
-d3m_outputs
+dval
 ===========
 
 .. toctree::
    :maxdepth: 4
 
-   d3m_outputs
+   dval
