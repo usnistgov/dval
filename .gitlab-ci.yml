@@ -13,6 +13,7 @@ build:
   stage: test
 
   before_script:
+    - pip install git+https://gitlab.com/datadrivendiscovery/d3m.git@v2018.6.5#egg=d3m
     - pip install -r requirements.txt
     - python setup.py install
     - dval -h
@@ -44,7 +45,7 @@ docs:
   dependencies:
     - build
   before_script:
-    - pip install sphinx sphinx-rtd-theme
+    - pip install git+https://gitlab.com/datadrivendiscovery/d3m.git@v2018.6.5#egg=d3m sphinx sphinx-rtd-theme
     - pip install -r requirements.txt
     - python setup.py install
     - dval -h
