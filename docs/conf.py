@@ -16,7 +16,7 @@ import os
 import datetime
 import sys
 
-sys.path.insert(0, os.path.abspath("../.."))
+sys.path.insert(0, os.path.abspath(".."))
 
 # Get configuration information from setup.cfg
 try:
@@ -25,7 +25,7 @@ except ImportError:
     from configparser import ConfigParser
 conf = ConfigParser()
 
-conf.read([os.path.join(os.path.dirname(__file__), "../..", "setup.cfg")])
+conf.read([os.path.join(os.path.dirname(__file__), "..", "setup.cfg")])
 setup_cfg = dict(conf.items("metadata"))
 
 
@@ -66,6 +66,8 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
     "sphinx.ext.githubpages",
+    "m2r",  # .. mdinclude:: file  directive
+    "sphinxcontrib.autoprogram",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -101,7 +103,7 @@ pygments_style = "sphinx"
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "sphinx_rtd_theme"
+html_theme = "nature"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the

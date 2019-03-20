@@ -272,16 +272,17 @@ def cli_parser():
 
     subparsers["score"].set_defaults(validation=True, func=cmd_score)
 
+    return parser
+
+
+def main():
+    parser = cli_parser()
     args = parser.parse_args()
 
     if hasattr(args, "func") and args.func:
         args.func(args)
     else:
         parser.print_help()
-
-
-def main():
-    cli_parser()
 
 
 if __name__ == "__main__":

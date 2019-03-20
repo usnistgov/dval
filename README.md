@@ -14,7 +14,7 @@ In order to run the tests, it is required to use **python version >3.6**.
 * the problem schema at `path_to_score_root/problem_TEST/problemDoc.json`
 * the test `learningData.csv` at `path_to_score_root/dataset_TEST/tables/learningData.csv`
 
-Download the seed datasets at [https://datadrivendiscovery.org/data/seed_datasets_current/]. Each problem/dataset has a `SCORE` folder that contains this structure.
+Download the seed datasets at  [dse.nist.gov](https://dse.nist.gov). Each problem/dataset has a `SCORE` folder that contains this structure.
 
 ### Installation
 
@@ -23,19 +23,19 @@ This package works with Python 3.6+ and **requires** the [d3m core package](http
 To install latest released version:
 
 ```
-$ pip install git+https://gitlab.datadrivendiscovery.org/nist/nist_eval_output_validation_scoring.git@master
+$ pip install githttps://github.com/usnistgov/dval.git@master
 ```
 
 To install a particular release of the package, e.g., `v2018.4.28`:
 
 ```
-$ pip install git+https://gitlab.datadrivendiscovery.org/nist/nist_eval_output_validation_scoring.git@v2018.4.28
+$ pip install githttps://github.com/usnistgov/dval.git@v2018.4.28
 ```
 
 To install latest development (unreleased) version:
 
 ```
-$ pip install git+https://gitlab.datadrivendiscovery.org/nist/nist_eval_output_validation_scoring.git@develop
+$ pip install githttps://github.com/usnistgov/dval.git@develop
 ```
 
 ### CLI Usage
@@ -126,6 +126,7 @@ True
 
 with the Score object being a named tuple defined the following way
 ```python
+import collections
 Score = collections.namedtuple('Score', ['target', 'metric', 'scorevalue'])
 ```
 
@@ -177,7 +178,7 @@ Checks that the validation code does on the pipeline log files include:
 
 ## Run Tests
 
-To run all tests: `python -m unittest discover`
+To run all tests: `pytest`
 
 We have a test suite with the `pytest` package and code coverage with `coverage`. This requires the package `coverage` and `pytest`, both of which can be installed with `pip`.
 
@@ -193,16 +194,16 @@ coverage html
 
 Docs of the latest version of the master branch are available here: https://nist.datadrivendiscovery.org/nist_eval_output_validation_scoring/
 
-Docs were built using sphinx and autodoc with the following commands in the `docs` directory
+Docs were built using sphinx and autodoc with the following commands at the root directory:
 
 ```
-sphinx-apidoc -f -o source/ ../dval
-sphinx-build -b html source build
+sphinx-apidoc -o docs/api dval
+sphinx-build -b html docs/ html_docs
 ```
 
-And the web docs can be loaded in `docs/build/index.html`
+And the web docs can be loaded in `docs/html_docs/index.html`
 
-# About
+## About
 
 **License**
 
