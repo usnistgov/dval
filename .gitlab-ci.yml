@@ -44,9 +44,8 @@ docs:
   dependencies:
     - build
   before_script:
-    - pip install pip==18.1 sphinx sphinx-rtd-theme
+    - pip install sphinx sphinx-rtd-theme
     - pip install -r requirements.txt
-    - pip install --process-dependency-links git+https://gitlab.com/datadrivendiscovery/d3m.git@v2018.6.5#egg=d3m
     - python setup.py install
     - dval -h
   script:
