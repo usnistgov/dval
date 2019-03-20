@@ -1,0 +1,427 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dval.schemas &mdash; dval 2019.3-dev documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> dval
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2019.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">dval</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>dval.schemas</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for dval.schemas</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Representations of v3 D3M schemas and data structures.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="k">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span>
+<span class="kn">from</span> <span class="nn">d3m.metadata.problem</span> <span class="k">import</span> <span class="n">parse_problem_description</span>
+
+
+<div class="viewcode-block" id="DatasetSchema"><a class="viewcode-back" href="../../dval.html#dval.schemas.DatasetSchema">[docs]</a><span class="k">class</span> <span class="nc">DatasetSchema</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adapter class representing a v3 Dataset Schema</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
+        <span class="c1"># fullpath = &#39;file://{dataset_doc_path}&#39;.format(dataset_doc_path=os.path.abspath(uri))</span>
+        <span class="c1"># self.dataset = Dataset.load(fullpath)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="n">filepath</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span> <span class="k">as</span> <span class="n">schema</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">jdata</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_learningDataColumns</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">dr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">jdata</span><span class="p">[</span><span class="s2">&quot;dataResources&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">dr</span><span class="p">[</span><span class="s2">&quot;resPath&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;tables/learningData.csv&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">dr</span><span class="p">[</span><span class="s2">&quot;columns&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">index_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: the first index column found in the dataset schema</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">indexcolumns</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">c</span><span class="p">[</span><span class="s2">&quot;colName&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_learningDataColumns</span> <span class="k">if</span> <span class="s2">&quot;index&quot;</span> <span class="ow">in</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;role&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="c1"># assuming one index</span>
+        <span class="k">return</span> <span class="n">indexcolumns</span><span class="o">.</span><span class="fm">__next__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="DatasetSchema.target_types"><a class="viewcode-back" href="../../dval.html#dval.schemas.DatasetSchema.target_types">[docs]</a>    <span class="k">def</span> <span class="nf">target_types</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">targets</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Search the dataset schema for the expected types of targets</span>
+<span class="sd">        :param targets: target names</span>
+<span class="sd">        :type targets: list(str)</span>
+<span class="sd">        :return: a dict of {targetName: targetType}</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">expected_fields</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+        <span class="n">target_colids</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;column_index&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_learningDataColumns</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;colIndex&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">target_colids</span><span class="p">:</span>
+                <span class="n">expected_fields</span><span class="p">[</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;colName&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;colType&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">expected_fields</span></div></div>
+
+
+<div class="viewcode-block" id="ProblemSchema"><a class="viewcode-back" href="../../dval.html#dval.schemas.ProblemSchema">[docs]</a><span class="k">class</span> <span class="nc">ProblemSchema</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adapter class representing a v3 Problem Schema</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="n">uri</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">problem</span> <span class="o">=</span> <span class="n">parse_problem_description</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">targets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;&quot;</span>
+<span class="sd">        :return: list of dictionaries describing the targets</span>
+<span class="sd">        ONLY SUPPORTS one dataset and target, i.e. [&#39;inputs&#39;][&#39;data&#39;] of length 1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">problem</span><span class="p">[</span><span class="s2">&quot;inputs&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;targets&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">target_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: List of target names</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;column_name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">task_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Name of the task type</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">problem</span><span class="p">[</span><span class="s2">&quot;problem&quot;</span><span class="p">][</span><span class="s2">&quot;task_type&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unparse</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span>
+                <span class="n">l</span><span class="p">[</span><span class="s2">&quot;metric&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">problem</span><span class="p">[</span><span class="s2">&quot;problem&quot;</span><span class="p">][</span><span class="s2">&quot;performance_metrics&quot;</span><span class="p">]</span>
+            <span class="p">]</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">l</span><span class="p">[</span><span class="s2">&quot;metric&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">problem</span><span class="p">[</span><span class="s2">&quot;problem&quot;</span><span class="p">][</span><span class="s2">&quot;performance_metrics&quot;</span><span class="p">]]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">metrics_wparams</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Produces a list of metrics with any (optional) parameters.</span>
+
+<span class="sd">        If the only key in /inputs/performanceMetrics[i] is &#39;metrics&#39;, there are no paramaters</span>
+<span class="sd">        and metrics_wparams[i][&#39;params&#39;] is an empty dict.</span>
+<span class="sd">        Any other key than &#39;metrics&#39; is treated as a parameter. This handles non-default K values, and</span>
+<span class="sd">        any future additions.</span>
+
+<span class="sd">        Use with metrics.apply_metric:</span>
+
+<span class="sd">        &gt;&gt;&gt; from dval.metrics import apply_metric</span>
+<span class="sd">        &gt;&gt;&gt; apply_metric(metrics_wparams[&#39;metric&#39;], **metrics_wparams[&#39;params&#39;])</span>
+
+<span class="sd">        :return: list of dictionaries { &#39;metric&#39;: metric_name, &#39;params&#39;: dict_of_params }</span>
+<span class="sd">        :rtype: list&lt;dict&gt;</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">problem</span><span class="p">[</span><span class="s2">&quot;problem&quot;</span><span class="p">][</span><span class="s2">&quot;performance_metrics&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">metric_d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="c1"># try:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">metric_d</span><span class="p">[</span><span class="s2">&quot;metric&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">metric_d</span><span class="p">[</span><span class="s2">&quot;metric&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="c1"># except AttributeError:</span>
+            <span class="c1">#     pass   # weird d3m core behavior when params exist</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="D3MDataStructure"><a class="viewcode-back" href="../../dval.html#dval.schemas.D3MDataStructure">[docs]</a><span class="k">class</span> <span class="nc">D3MDataStructure</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class representing a (problem, dataset) pair with associated data files.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">DATASETSCHEMA_ARG</span> <span class="o">=</span> <span class="s2">&quot;dataschema&quot;</span>
+    <span class="n">PROBLEMSCHEMA_ARG</span> <span class="o">=</span> <span class="s2">&quot;problemschema&quot;</span>
+    <span class="n">ROOT_TO_SCORE_ARG</span> <span class="o">=</span> <span class="s2">&quot;root&quot;</span>
+
+    <span class="n">RELATIVE_PATH_TO_DATASCHEMA</span> <span class="o">=</span> <span class="s2">&quot;dataset_TEST/datasetDoc.json&quot;</span>
+    <span class="n">RELATIVE_PATH_TO_PROBLEMSCHEMA</span> <span class="o">=</span> <span class="s2">&quot;problem_TEST/problemDoc.json&quot;</span>
+    <span class="n">RELATIVE_PATH_TO_TESTDATA</span> <span class="o">=</span> <span class="s2">&quot;dataset_TEST/tables/learningData.csv&quot;</span>
+    <span class="n">RELATIVE_PATH_TO_TARGETS</span> <span class="o">=</span> <span class="s2">&quot;targets.csv&quot;</span>
+    <span class="n">RELATIVE_PATH_TO_BASELINE_SCORES</span> <span class="o">=</span> <span class="s2">&quot;baseline_scores.csv&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ROOT_TO_SCORE_ARG</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataschema</span> <span class="o">=</span> <span class="n">DatasetSchema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">RELATIVE_PATH_TO_DATASCHEMA</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">problemschema</span> <span class="o">=</span> <span class="n">ProblemSchema</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">RELATIVE_PATH_TO_PROBLEMSCHEMA</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">testdata_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">RELATIVE_PATH_TO_TESTDATA</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">targets_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">RELATIVE_PATH_TO_TARGETS</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">baseline_scores_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">RELATIVE_PATH_TO_BASELINE_SCORES</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indices_path</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="s2">&quot;indices_file&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">indices_path</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;indices_file&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If the attribute `item` is not found in the class attributes, look up the attributes in:</span>
+<span class="sd">        * the data schema object</span>
+<span class="sd">        * the problem schema object</span>
+<span class="sd">        :param item: the attribute being retrieved</span>
+<span class="sd">        :return: the attribute&#39;s value</span>
+<span class="sd">        :raises: AttributeError is the attribute cannot be found in the objects.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataschema</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataschema</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">problemschema</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">problemschema</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;</span><span class="si">{item}</span><span class="s2"> not found in class or class schemas&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="D3MDataStructure.load_targets"><a class="viewcode-back" href="../../dval.html#dval.schemas.D3MDataStructure.load_targets">[docs]</a>    <span class="k">def</span> <span class="nf">load_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">targets_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">targets_path</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">targets_path</span> <span class="o">=</span> <span class="n">targets_path</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">targets_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">targets_path</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">&quot;d3mIndex&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets_df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">targets_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;d3mIndex&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">indices_path</span><span class="p">:</span>
+                <span class="n">indices</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indices_path</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">targets_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">targets_df</span><span class="o">.</span><span class="n">d3mIndex</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">)</span>
+                <span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">targets_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets_df</span><span class="o">.</span><span class="n">index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">number_targets</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">targets_index</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="D3MDataStructure.get_baseline_score"><a class="viewcode-back" href="../../dval.html#dval.schemas.D3MDataStructure.get_baseline_score">[docs]</a>    <span class="k">def</span> <span class="nf">get_baseline_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">baseline_scores_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">baseline_scores_path</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">baseline_scores_path</span> <span class="o">=</span> <span class="n">baseline_scores_path</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">baseline_scores_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">baseline_scores_path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">baseline_scores_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">]</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">target_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructs a dict of expected target types from the targets listed in the problem schema and</span>
+<span class="sd">        the data field types in the data schema.</span>
+<span class="sd">        :return:</span>
+<span class="sd">        :rtype:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataschema</span><span class="o">.</span><span class="n">target_types</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">problemschema</span><span class="o">.</span><span class="n">targets</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">expected_index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extracts the expected index from the test data tables/learningData.csv</span>
+<span class="sd">        :return: expected index of the predictions file</span>
+<span class="sd">        :rtype: pandas.Series</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">testdata_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">testdata_path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">testdata_df</span><span class="o">.</span><span class="n">index</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">expected_header</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructs the expected header of the predictions file from the data schema&#39;s index name and the</span>
+<span class="sd">        problem schema&#39;s target names.</span>
+<span class="sd">        :return: expected header of the predictions file</span>
+<span class="sd">        :rtype: list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">header_with_index</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">dataschema</span><span class="o">.</span><span class="n">index_name</span><span class="p">]</span>
+        <span class="n">header_with_index</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">problemschema</span><span class="o">.</span><span class="n">target_names</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">header_with_index</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, NIST MIG
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

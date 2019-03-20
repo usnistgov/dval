@@ -1,0 +1,485 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>d3m_outputs.cli &mdash; dval 2019.3-dev documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> dval
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2019.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">dval</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>d3m_outputs.cli</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for d3m_outputs.cli</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">USAGE</span>
+
+<span class="sd">valid_predictions     -d score_dir predictions_file</span>
+<span class="sd">valid_pipelines        pipeline_log_file</span>
+<span class="sd">valid_pipeline_dir     pipeline_log_dir</span>
+<span class="sd">valid_executables_dir -p pipeline_log_dir [--validation | --no-validation] executables_dir</span>
+<span class="sd">score                 -d score_dir [-g ground_truth_file] [--validation | --no-validation] predictions_file</span>
+<span class="sd">score_seed_baselines  [--validation | --no-validation] seed_root_dir</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">score_predictions_file</span><span class="p">,</span>
+    <span class="n">is_predictions_file_valid</span><span class="p">,</span>
+    <span class="n">is_pipeline_valid</span><span class="p">,</span>
+    <span class="n">generated_problems</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">subparsers_l</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;valid_predictions&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;valid_pipelines&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;valid_pipeline_dir&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;valid_executables_dir&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;validate_post_search&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;test_script&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;valid_generated_problems&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;score&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;score_seed_baselines&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="catch_fnf"><a class="viewcode-back" href="../../d3m_outputs.html#d3m_outputs.cli.catch_fnf">[docs]</a><span class="k">def</span> <span class="nf">catch_fnf</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">wrapped_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span> <span class="k">as</span> <span class="n">fnf</span><span class="p">:</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;ERROR: &quot;</span>
+            <span class="k">if</span> <span class="n">fnf</span><span class="o">.</span><span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">message</span> <span class="o">+=</span> <span class="n">fnf</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">message</span> <span class="o">+=</span> <span class="n">f</span><span class="s2">&quot;Could not find file </span><span class="si">{fnf.filename}</span><span class="s2">&quot;</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">wrapped_func</span></div>
+
+
+<div class="viewcode-block" id="cmd_valid_predictions"><a class="viewcode-back" href="../../d3m_outputs.html#d3m_outputs.cli.cmd_valid_predictions">[docs]</a><span class="nd">@catch_fnf</span>
+<span class="k">def</span> <span class="nf">cmd_valid_predictions</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="nd">@catch_fnf</span>
+    <span class="k">def</span> <span class="nf">single_valid_predictions</span><span class="p">(</span><span class="n">predictions_file</span><span class="p">,</span> <span class="n">score_dir</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">is_predictions_file_valid</span><span class="p">(</span><span class="n">predictions_file</span><span class="p">,</span> <span class="n">score_dir</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="n">valid</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">for</span> <span class="n">predictions_file</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">predictions_file</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">single_valid_predictions</span><span class="p">(</span><span class="n">predictions_file</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">score_dir</span><span class="p">)</span>
+        <span class="n">valid</span> <span class="o">&amp;=</span> <span class="n">s</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0: &lt;50}</span><span class="s2"> valid=</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">predictions_file</span><span class="p">,</span> <span class="n">s</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">valid</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;ERROR: At least one predictions file is invalid. &quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">valid</span></div>
+
+
+<div class="viewcode-block" id="cmd_valid_pipeline"><a class="viewcode-back" href="../../d3m_outputs.html#d3m_outputs.cli.cmd_valid_pipeline">[docs]</a><span class="nd">@catch_fnf</span>
+<span class="k">def</span> <span class="nf">cmd_valid_pipeline</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="nd">@catch_fnf</span>
+    <span class="k">def</span> <span class="nf">single_valid_pipeline</span><span class="p">(</span><span class="n">pipeline_file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">is_pipeline_valid</span><span class="p">(</span><span class="n">pipeline_file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="s2">&quot;allow_2017_format&quot;</span> <span class="ow">in</span> <span class="n">args</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">allow_2017_format</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;allow_2017_format&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">allow_2017_format</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="s2">&quot;no_check_bare_2018_format&quot;</span> <span class="ow">in</span> <span class="n">args</span>
+        <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">no_check_bare_2018_format</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="p">):</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;check_bare_2018_format&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">no_check_bare_2018_format</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="s2">&quot;no_enforce_full_2018_format&quot;</span> <span class="ow">in</span> <span class="n">args</span>
+        <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">no_enforce_full_2018_format</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="p">):</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;enforce_2018_format&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">no_enforce_full_2018_format</span>
+
+    <span class="n">valid</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">for</span> <span class="n">pipeline_f</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">pipeline_log_file</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">single_valid_pipeline</span><span class="p">(</span><span class="n">pipeline_f</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">valid</span> <span class="o">&amp;=</span> <span class="n">s</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0: &lt;50}</span><span class="s2"> valid=</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pipeline_f</span><span class="p">,</span> <span class="n">s</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">valid</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;ERROR: At least one pipeline log is invalid. &quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="cmd_valid_gen_problems"><a class="viewcode-back" href="../../d3m_outputs.html#d3m_outputs.cli.cmd_valid_gen_problems">[docs]</a><span class="nd">@catch_fnf</span>
+<span class="k">def</span> <span class="nf">cmd_valid_gen_problems</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">is_valid</span> <span class="o">=</span> <span class="n">generated_problems</span><span class="o">.</span><span class="n">check_generated_problems_directory</span><span class="p">(</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">problems_directory</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">output_file</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">is_valid</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Directory </span><span class="si">{}</span><span class="s2"> is valid&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">problems_directory</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;ERROR: Directory </span><span class="si">{}</span><span class="s2"> is not valid&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">problems_directory</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">is_valid</span></div>
+
+
+<div class="viewcode-block" id="cmd_score"><a class="viewcode-back" href="../../d3m_outputs.html#d3m_outputs.cli.cmd_score">[docs]</a><span class="nd">@catch_fnf</span>
+<span class="k">def</span> <span class="nf">cmd_score</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">outfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">predictions_file</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span>
+            <span class="s2">&quot;Writing JSON scores only supported for one predictions file at the time&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="s2">&quot;ground_truth_file&quot;</span> <span class="ow">in</span> <span class="n">args</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">ground_truth_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># if ground truth is not set, will default to the `targets.csv` present in the SCORE directory</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">ground_truth_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">score_dir</span><span class="p">,</span> <span class="s2">&quot;targets.csv&quot;</span><span class="p">)</span>
+
+    <span class="nd">@catch_fnf</span>
+    <span class="k">def</span> <span class="nf">single_score_predictions</span><span class="p">(</span><span class="n">predictions_file</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">scores</span> <span class="o">=</span> <span class="n">score_predictions_file</span><span class="p">(</span>
+                <span class="n">predictions_file</span><span class="p">,</span>
+                <span class="n">args</span><span class="o">.</span><span class="n">score_dir</span><span class="p">,</span>
+                <span class="n">args</span><span class="o">.</span><span class="n">ground_truth_file</span><span class="p">,</span>
+                <span class="n">check_valid</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">validation</span><span class="p">,</span>
+                <span class="n">score_mxe</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">mxe</span><span class="p">,</span>
+                <span class="n">indices_file</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">subset_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">subset_indices</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">scores</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
+                <span class="n">f</span><span class="s2">&quot;Predictions file </span><span class="si">{predictions_file}</span><span class="s2"> could not be scored. try validating your file first&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">predictions_file</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">predictions_file</span><span class="p">:</span>
+        <span class="n">scores</span> <span class="o">=</span> <span class="n">single_score_predictions</span><span class="p">(</span><span class="n">predictions_file</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">scores</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">outfile</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0: &lt;50}</span><span class="s2"> scores=</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">predictions_file</span><span class="p">,</span> <span class="n">scores</span><span class="o">.</span><span class="n">to_json</span><span class="p">()))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">scores</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">outfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">to_dump</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="vm">__dict__</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">scores</span><span class="p">]</span>
+                <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">to_dump</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">outfile</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Scores written to </span><span class="si">{args.outfile.name}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="print_package_version"><a class="viewcode-back" href="../../d3m_outputs.html#d3m_outputs.cli.print_package_version">[docs]</a><span class="k">def</span> <span class="nf">print_package_version</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="nb">__import__</span><span class="p">(</span><span class="n">__package__</span><span class="p">)</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="add_yn_flag"><a class="viewcode-back" href="../../d3m_outputs.html#d3m_outputs.cli.add_yn_flag">[docs]</a><span class="k">def</span> <span class="nf">add_yn_flag</span><span class="p">(</span><span class="n">subparser</span><span class="p">,</span> <span class="n">flag_name</span><span class="p">):</span>
+    <span class="n">group</span> <span class="o">=</span> <span class="n">subparser</span><span class="o">.</span><span class="n">add_mutually_exclusive_group</span><span class="p">()</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;--</span><span class="si">{flag_name}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">)</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;--no-</span><span class="si">{flag_name}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_false&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="cli_parser"><a class="viewcode-back" href="../../d3m_outputs.html#d3m_outputs.cli.cli_parser">[docs]</a><span class="k">def</span> <span class="nf">cli_parser</span><span class="p">():</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+    <span class="n">subs</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;subcommands&quot;</span><span class="p">)</span>
+
+    <span class="n">subparsers</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">subs</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">subparsers_l</span><span class="p">}</span>
+
+    <span class="c1"># Add version subcommand</span>
+    <span class="n">version_parser</span> <span class="o">=</span> <span class="n">subs</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;version&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Print package version&quot;</span><span class="p">)</span>
+    <span class="n">version_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">print_package_version</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">subparser</span> <span class="ow">in</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="n">subparser</span><span class="o">.</span><span class="n">add_mutually_exclusive_group</span><span class="p">()</span>
+        <span class="n">group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;verbose&quot;</span><span class="p">)</span>
+        <span class="n">group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-q&quot;</span><span class="p">,</span> <span class="s2">&quot;--no-verbose&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_false&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;verbose&quot;</span><span class="p">)</span>
+        <span class="n">group</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># valid_predictions -d score_dir predictions_file</span>
+    <span class="n">subparsers</span><span class="p">[</span>
+        <span class="s2">&quot;valid_predictions&quot;</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;Validate a predictions file against the d3m data directory.&quot;</span>
+    <span class="n">subparsers</span><span class="p">[</span><span class="s2">&quot;valid_predictions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-d&quot;</span><span class="p">,</span> <span class="s2">&quot;--score-dir&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;d3m data structure (use SCORE)&quot;</span>
+    <span class="p">)</span>
+    <span class="n">subparsers</span><span class="p">[</span><span class="s2">&quot;valid_predictions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;predictions_file&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to predictions file to validate.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">subparsers</span><span class="p">[</span><span class="s2">&quot;valid_predictions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">cmd_valid_predictions</span><span class="p">)</span>
+
+    <span class="c1"># valid_pipelines   pipeline_log_file</span>
+    <span class="n">subparsers</span><span class="p">[</span><span class="s2">&quot;valid_pipelines&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;Validate a pipeline log file.&quot;</span>
+    <span class="n">subparsers</span><span class="p">[</span><span class="s2">&quot;valid_pipelines&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;pipeline_log_file&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to predictions file to validate.&quot;</span>
+    <span class="p">)</span>
+    <span class="c1"># flag_allow_2017 = subparsers[&#39;valid_pipelines&#39;].add_mutually_exclusive_group()</span>
+    <span class="c1"># flag_allow_2017.add_argument(f&#39;--allow-2017-format&#39;, action=&#39;store_true&#39;, dest=&#39;verbose&#39;)</span>
+    <span class="c1"># flag_allow_2017.add_argument(f&#39;--no-allow-2017-format&#39;, action=&#39;store_false&#39;, dest=&#39;verbose&#39;)</span>
+    <span class="c1"># flag_allow_2017.set_defaults(verbose=True)</span>
+
+    <span class="n">subparsers</span><span class="p">[</span><span class="s2">&quot;valid_pipelines&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="n">f</span><span class="s2">&quot;--allow-2017-format&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span>
+    <span class="p">)</span>
+    <span class="n">subparsers</span><span class="p">[</span><span class="s2">&quot;valid_pipelines&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="n">f</span><span class="s2">&quot;--no-enforce-full-2018-format&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span>
+    <span class="p">)</span>
+    <span class="n">subparsers</span><span class="p">[</span><span class="s2">&quot;valid_pipelines&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="n">f</span><span class="s2">&quot;--no-check-bare-2018-format&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">subparsers</span><span class="p">[</span><span class="s2">&quot;valid_pipelines&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">cmd_valid_pipeline</span><span class="p">)</span>
+
+    <span class="n">subparsers</span><span class="p">[</span>
+        <span class="s2">&quot;valid_generated_problems&quot;</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;Validate a generated problems directory.&quot;</span>
+    <span class="n">subparsers</span><span class="p">[</span><span class="s2">&quot;valid_generated_problems&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;problems_directory&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to directory containing the generated problems.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">subparsers</span><span class="p">[</span><span class="s2">&quot;valid_generated_problems&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="s2">&quot;--output_file&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to csv file containing valid problem ids&quot;</span>
+    <span class="p">)</span>
+    <span class="n">subparsers</span><span class="p">[</span><span class="s2">&quot;valid_generated_problems&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">cmd_valid_gen_problems</span><span class="p">)</span>
+
+    <span class="c1"># score -d score_dir [-g ground_truth_file] [--validation | --no-validation] predictions_file</span>
+    <span class="n">subparsers</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;Score a predictions file.&quot;</span>
+    <span class="n">subparsers</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-d&quot;</span><span class="p">,</span> <span class="s2">&quot;--score-dir&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;d3m data structure (use SCORE)&quot;</span>
+    <span class="p">)</span>
+    <span class="n">subparsers</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-g&quot;</span><span class="p">,</span> <span class="s2">&quot;--ground-truth-file&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to ground truth file&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span>
+    <span class="p">)</span>
+    <span class="n">subparsers</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;predictions_file&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to predictions file to score.&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span>
+    <span class="p">)</span>
+    <span class="n">subparsers</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--validation&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;validation&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span>
+    <span class="p">)</span>
+    <span class="n">subparsers</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--no-validation&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;validation&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_false&quot;</span>
+    <span class="p">)</span>
+    <span class="n">subparsers</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--outfile&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">FileType</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Write scores in JSON to file&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">subparsers</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--mxe&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Include the multi-cross-entropy score in the output.&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">subparsers</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--subset-indices&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Subset the predictions using a list of indices in a csv file&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">subparsers</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">validation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">cmd_score</span><span class="p">)</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;func&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">func</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../d3m_outputs.html#d3m_outputs.cli.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">cli_parser</span><span class="p">()</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, NIST MIG
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

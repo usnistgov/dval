@@ -1,0 +1,463 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>d3m_outputs.predictions &mdash; dval 2019.3-dev documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> dval
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2019.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">dval</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>d3m_outputs.predictions</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for d3m_outputs.predictions</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Validate and score prediction files.</span>
+<span class="sd">Requires a prediction file and the file organization in the each problem&#39;s SCORE directory.</span>
+<span class="sd">Available as a subdirectory for all seed datasets at `https://datadrivendiscovery.org/data/seed_datasets_current`</span>
+
+<span class="sd">USAGE:</span>
+<span class="sd">&gt;&gt;&gt; result_file_path = &#39;test/data/185_baseball_SCORE/mitll_predictions.csv&#39;</span>
+<span class="sd">&gt;&gt;&gt; path_to_score_root = &#39;test/data/185_baseball_SCORE&#39;</span>
+<span class="sd">&gt;&gt;&gt; groundtruth_path = &#39;test/data/185_baseball_SCORE/targets.csv&#39;</span>
+
+<span class="sd">Option 1: Using the Predictions class</span>
+<span class="sd">&gt;&gt;&gt; from d3m_outputs import Predictions</span>
+<span class="sd">&gt;&gt;&gt; p = Predictions(result_file_path, path_to_score_root)</span>
+<span class="sd">&gt;&gt;&gt; p.is_valid()</span>
+<span class="sd">True</span>
+<span class="sd">&gt;&gt;&gt; p.score(groundtruth_path)</span>
+<span class="sd">[Score(target=&#39;Hall_Of_Fame&#39;, metric=&#39;f1&#39;, scorevalue=0.691369766848)]</span>
+
+<span class="sd">Option 2: Using the wrapper functions</span>
+<span class="sd">&gt;&gt;&gt; from d3m_outputs import is_predictions_file_valid, score_predictions_file</span>
+<span class="sd">&gt;&gt;&gt; is_predictions_file_valid(result_file_path, path_to_score_root)</span>
+<span class="sd">True</span>
+<span class="sd">&gt;&gt;&gt; score_predictions_file(result_file_path, path_to_score_root, groundtruth_path)</span>
+<span class="sd">[Score(target=&#39;Hall_Of_Fame&#39;, metric=&#39;f1&#39;, scorevalue=0.691369766848)]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="k">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">schemas</span>
+<span class="kn">from</span> <span class="nn">.file_checker</span> <span class="k">import</span> <span class="n">FileChecker</span>
+<span class="kn">from</span> <span class="nn">.metrics</span> <span class="k">import</span> <span class="n">METRICS_DICT</span><span class="p">,</span> <span class="n">valid_metric</span><span class="p">,</span> <span class="n">apply_metric</span>
+<span class="kn">from</span> <span class="nn">.score</span> <span class="k">import</span> <span class="n">Score</span><span class="p">,</span> <span class="n">Scores</span><span class="p">,</span> <span class="n">MxeScore</span>
+<span class="kn">from</span> <span class="nn">.validation_type_checks</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">valid_d3mindex</span><span class="p">,</span>
+    <span class="n">valid_boolean</span><span class="p">,</span>
+    <span class="n">valid_real</span><span class="p">,</span>
+    <span class="n">valid_integer</span><span class="p">,</span>
+    <span class="n">valid_string</span><span class="p">,</span>
+    <span class="n">valid_categorical</span><span class="p">,</span>
+    <span class="n">valid_datetime</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="Predictions"><a class="viewcode-back" href="../../d3m_outputs.html#d3m_outputs.predictions.Predictions">[docs]</a><span class="k">class</span> <span class="nc">Predictions</span><span class="p">:</span>
+    <span class="n">SEPARATOR</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">result_file_path</span><span class="p">,</span>
+        <span class="n">path_to_score_root</span><span class="p">,</span>
+        <span class="n">separator</span><span class="o">=</span><span class="n">SEPARATOR</span><span class="p">,</span>
+        <span class="n">indices_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result_file_path</span> <span class="o">=</span> <span class="n">result_file_path</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">score_root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path_to_score_root</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="n">schemas</span><span class="o">.</span><span class="n">D3MDataStructure</span><span class="p">(</span>
+            <span class="n">root</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">score_root</span><span class="p">,</span> <span class="n">indices_file</span><span class="o">=</span><span class="n">indices_file</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset_schema_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">dataschema</span><span class="o">.</span><span class="n">filepath</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">problem_schema_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">problemschema</span><span class="o">.</span><span class="n">filepath</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">indices_path</span> <span class="o">=</span> <span class="n">indices_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">separator</span> <span class="o">=</span> <span class="n">separator</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load_data</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">load_targets</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Predictions.is_valid"><a class="viewcode-back" href="../../d3m_outputs.html#d3m_outputs.predictions.Predictions.is_valid">[docs]</a>    <span class="k">def</span> <span class="nf">is_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Check the shape of the predictions first</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_file_readable</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_header_valid</span><span class="p">()</span>
+
+        <span class="c1"># Then compute the other checks</span>
+        <span class="k">return</span> <span class="n">valid</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_index_valid</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_are_targets_valid</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Predictions.score"><a class="viewcode-back" href="../../d3m_outputs.html#d3m_outputs.predictions.Predictions.score">[docs]</a>    <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">targets_filepath</span><span class="p">,</span> <span class="n">score_mxe</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">scores</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="c1"># Score = namedtuple(&#39;Score&#39;, [&#39;target&#39;, &#39;metric&#39;, &#39;scorevalue&#39;])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">load_targets</span><span class="p">(</span><span class="n">targets_filepath</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">baseline_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">get_baseline_score</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+            <span class="n">baseline_score</span> <span class="o">=</span> <span class="s2">&quot;None&quot;</span>
+
+        <span class="c1"># scoring_metrics = self.ds.metrics</span>
+        <span class="n">scoring_metrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">problemschema</span><span class="o">.</span><span class="n">metrics_wparams</span>
+
+        <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">scoring_metrics</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">valid_metric</span><span class="p">(</span><span class="n">metric</span><span class="p">[</span><span class="s2">&quot;metric&quot;</span><span class="p">]):</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="n">f</span><span class="s2">&quot;Invalid metric </span><span class="si">{metric}</span><span class="s2">.</span><span class="se">\n</span><span class="s2">Available metrics: {METRICS_DICT.keys()}&quot;</span>
+                <span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="s2">&quot;pos_label&quot;</span> <span class="ow">in</span> <span class="n">metric</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">]:</span>
+                <span class="c1"># no pos_label specified for metric f1, setting to &#39;1&#39;</span>
+                <span class="n">metric</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">][</span><span class="s2">&quot;pos_label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">metric</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">][</span><span class="s2">&quot;pos_label&quot;</span><span class="p">])</span>
+
+            <span class="c1"># In the metric is applicable to all, need to</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="s2">&quot;applicabilityToTarget&quot;</span> <span class="ow">in</span> <span class="n">metric</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">]</span>
+                <span class="ow">and</span> <span class="n">metric</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">][</span><span class="s2">&quot;applicabilityToTarget&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;allTargets&quot;</span>
+            <span class="p">):</span>
+
+                <span class="c1"># Reorder and align the targets and the predictions columns</span>
+                <span class="n">gt_l</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">targets_df</span><span class="p">[</span><span class="n">target</span><span class="p">]</span> <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">target_names</span><span class="p">]</span>
+                <span class="n">pred_l</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="n">target</span><span class="p">]</span> <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">target_names</span><span class="p">]</span>
+
+                <span class="c1"># Transpose them into a list of rows</span>
+                <span class="n">gt_l</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">gt_l</span><span class="p">)</span>
+                <span class="n">pred_l</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">pred_l</span><span class="p">)</span>
+
+                <span class="c1"># Apply the metric on the array</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">apply_metric</span><span class="p">(</span><span class="n">metric</span><span class="p">[</span><span class="s2">&quot;metric&quot;</span><span class="p">],</span> <span class="n">gt_l</span><span class="p">,</span> <span class="n">pred_l</span><span class="p">,</span> <span class="o">**</span><span class="n">metric</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">])</span>
+                <span class="n">score</span> <span class="o">=</span> <span class="n">Score</span><span class="p">(</span><span class="s2">&quot;allTargets&quot;</span><span class="p">,</span> <span class="n">metric</span><span class="p">[</span><span class="s2">&quot;metric&quot;</span><span class="p">],</span> <span class="n">value</span><span class="p">,</span> <span class="n">baseline_score</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">target_names</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">apply_metric</span><span class="p">(</span>
+                        <span class="n">metric</span><span class="p">[</span><span class="s2">&quot;metric&quot;</span><span class="p">],</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">targets_df</span><span class="p">[</span><span class="n">target</span><span class="p">],</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="n">target</span><span class="p">],</span>
+                        <span class="o">**</span><span class="n">metric</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">],</span>
+                    <span class="p">)</span>
+                    <span class="n">score</span> <span class="o">=</span> <span class="n">Score</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">metric</span><span class="p">[</span><span class="s2">&quot;metric&quot;</span><span class="p">],</span> <span class="n">value</span><span class="p">,</span> <span class="n">baseline_score</span><span class="p">)</span>
+            <span class="n">score</span><span class="o">.</span><span class="n">transform_normalize</span><span class="p">()</span>
+            <span class="n">scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+
+        <span class="c1"># Add the multi cross entropy if desired, and if the problem is a classification problem</span>
+        <span class="k">if</span> <span class="n">score_mxe</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">problemschema</span><span class="o">.</span><span class="n">task_type</span> <span class="o">==</span> <span class="s2">&quot;classification&quot;</span><span class="p">:</span>
+                <span class="c1"># MXE handles only one target currently</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">apply_metric</span><span class="p">(</span>
+                    <span class="s2">&quot;crossEntropyNonBinarized&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">targets_df</span><span class="p">[</span><span class="n">target</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="n">target</span><span class="p">],</span>
+                <span class="p">)</span>
+                <span class="n">score</span> <span class="o">=</span> <span class="n">MxeScore</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="n">scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Ignoring MXE. Task is not a classification task&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Scores</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_load_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Load the predicted targets, sort them by d3mindex if any</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">frame</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">result_file_path</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">separator</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">&quot;d3mIndex&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;d3mIndex&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">indices_path</span><span class="p">:</span>
+                <span class="n">indices</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indices_path</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">d3mIndex</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">)</span>
+                <span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_is_header_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">headers</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">expected_header</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">headers</span> <span class="o">!=</span> <span class="n">expected</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Invalid header. Found </span><span class="si">{headers}</span><span class="s2">, expected </span><span class="si">{expected}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Header is valid.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">_is_index_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="n">valid_d3mindex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">expected_index</span><span class="p">)</span>
+        <span class="n">is_nan</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">isnull</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="n">targets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">targets_df</span>
+        <span class="k">if</span> <span class="n">is_nan</span><span class="p">:</span>
+            <span class="n">valid</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Certain entries are invalid or empty&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">valid</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">targets</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;d3mIndex&quot;</span><span class="p">])</span> <span class="o">!=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;d3mIndex&quot;</span><span class="p">]):</span>
+                <span class="n">valid</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Missing indexes in predictions file&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">valid</span>
+
+    <span class="k">def</span> <span class="nf">_are_targets_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">valid_types</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;integer&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;real&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;categorical&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;dateTime&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;realVector&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;json&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;geojson&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+        <span class="n">target_types</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">target_types</span>
+
+        <span class="k">for</span> <span class="n">target</span><span class="p">,</span> <span class="n">ttype</span> <span class="ow">in</span> <span class="n">target_types</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">column</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="n">target</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">target</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">index_name</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">valid_d3mindex</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">ttype</span> <span class="o">==</span> <span class="s2">&quot;boolean&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">valid_boolean</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">ttype</span> <span class="o">==</span> <span class="s2">&quot;real&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">valid_real</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">ttype</span> <span class="o">==</span> <span class="s2">&quot;integer&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">valid_integer</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">ttype</span> <span class="o">==</span> <span class="s2">&quot;string&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">valid_string</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">ttype</span> <span class="o">==</span> <span class="s2">&quot;categorical&quot;</span><span class="p">:</span>
+                <span class="n">authorized_labels</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">authorized_labels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">targets_df</span><span class="p">[</span><span class="n">target</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+                <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
+                        <span class="n">f</span><span class="s2">&quot;Wrong categorical values, actual: </span><span class="si">{self.ds.targets_df[target]}</span><span class="s2"> expected: &quot;</span><span class="p">,</span>
+                        <span class="n">exc_info</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">return</span> <span class="n">valid_categorical</span><span class="p">(</span>
+                    <span class="n">column</span><span class="p">,</span> <span class="n">authorized_labels</span><span class="o">=</span><span class="n">authorized_labels</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">ttype</span> <span class="o">==</span> <span class="s2">&quot;dateTime&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">valid_datetime</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">ttype</span> <span class="ow">in</span> <span class="n">valid_types</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;type: </span><span class="si">{ttype}</span><span class="s2"> is not supported.&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_is_file_readable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">FileChecker</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">result_file_path</span><span class="p">)</span><span class="o">.</span><span class="n">check_exists_read</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">result_file_path</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Predictions file exists and is readable.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="is_predictions_file_valid"><a class="viewcode-back" href="../../d3m_outputs.html#d3m_outputs.predictions.is_predictions_file_valid">[docs]</a><span class="k">def</span> <span class="nf">is_predictions_file_valid</span><span class="p">(</span><span class="n">result_file</span><span class="p">,</span> <span class="n">score_dir_path</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">Predictions</span><span class="p">(</span><span class="n">result_file</span><span class="p">,</span> <span class="n">score_dir_path</span><span class="p">)</span><span class="o">.</span><span class="n">is_valid</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="score_predictions_file"><a class="viewcode-back" href="../../d3m_outputs.html#d3m_outputs.predictions.score_predictions_file">[docs]</a><span class="k">def</span> <span class="nf">score_predictions_file</span><span class="p">(</span>
+    <span class="n">result_file</span><span class="p">,</span>
+    <span class="n">score_dir_path</span><span class="p">,</span>
+    <span class="n">groundtruth_path</span><span class="p">,</span>
+    <span class="n">check_valid</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">score_mxe</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">indices_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">predictions</span> <span class="o">=</span> <span class="n">Predictions</span><span class="p">(</span><span class="n">result_file</span><span class="p">,</span> <span class="n">score_dir_path</span><span class="p">,</span> <span class="n">indices_file</span><span class="o">=</span><span class="n">indices_file</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">check_valid</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">predictions</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Invalid predictions file&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">InvalidPredictionsError</span><span class="p">(</span><span class="s2">&quot;Invalid predictions file&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">predictions</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">groundtruth_path</span><span class="p">,</span> <span class="n">score_mxe</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="InvalidPredictionsError"><a class="viewcode-back" href="../../d3m_outputs.html#d3m_outputs.predictions.InvalidPredictionsError">[docs]</a><span class="k">class</span> <span class="nc">InvalidPredictionsError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, NIST MIG
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

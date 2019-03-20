@@ -1,0 +1,377 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>d3m_outputs.pipeline_logs_validator &mdash; dval 2019.3-dev documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> dval
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2019.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">dval</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>d3m_outputs.pipeline_logs_validator</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for d3m_outputs.pipeline_logs_validator</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Validate a pipeline log file (TA2 search output).</span>
+
+<span class="sd">Usage:</span>
+
+<span class="sd">&gt;&gt;&gt; from d3m_outputs import is_pipeline_valid</span>
+<span class="sd">&gt;&gt;&gt; is_pipeline_valid(&#39;path/to/my.json&#39;)</span>
+<span class="sd">True</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">typing</span>
+
+<span class="kn">from</span> <span class="nn">d3m.metadata.pipeline</span> <span class="k">import</span> <span class="n">Pipeline</span><span class="p">,</span> <span class="n">Resolver</span>
+<span class="kn">from</span> <span class="nn">d3m.primitive_interfaces</span> <span class="k">import</span> <span class="n">base</span>
+
+<span class="kn">from</span> <span class="nn">.validation_type_checks</span> <span class="k">import</span> <span class="n">is_castable_to_type</span>
+
+<span class="n">ALLOW_2017_FORMAT</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">CHECK_BARE_2018_FORMAT</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">ENFORCE_2018_FORMAT</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="NoPrimitiveCheckResolver"><a class="viewcode-back" href="../../d3m_outputs.html#d3m_outputs.pipeline_logs_validator.NoPrimitiveCheckResolver">[docs]</a><span class="k">class</span> <span class="nc">NoPrimitiveCheckResolver</span><span class="p">(</span><span class="n">Resolver</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A resolver which never looks for primitives</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">strict_resolving</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_primitive</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">primitive_description</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Dict</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Type</span><span class="p">[</span><span class="n">base</span><span class="o">.</span><span class="n">PrimitiveBase</span><span class="p">]]:</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="is_pipeline_valid"><a class="viewcode-back" href="../../d3m_outputs.html#d3m_outputs.pipeline_logs_validator.is_pipeline_valid">[docs]</a><span class="k">def</span> <span class="nf">is_pipeline_valid</span><span class="p">(</span>
+    <span class="n">pipeline_uri</span><span class="p">,</span>
+    <span class="n">allow_2017_format</span><span class="o">=</span><span class="n">ALLOW_2017_FORMAT</span><span class="p">,</span>
+    <span class="n">check_bare_2018_format</span><span class="o">=</span><span class="n">CHECK_BARE_2018_FORMAT</span><span class="p">,</span>
+    <span class="n">enforce_2018_format</span><span class="o">=</span><span class="n">ENFORCE_2018_FORMAT</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">pipeline</span> <span class="o">=</span> <span class="n">load_json</span><span class="p">(</span><span class="n">pipeline_uri</span><span class="p">)</span>
+
+    <span class="c1"># If we allow 2017 format, return True if the pipeline is valid</span>
+    <span class="n">format_2017_valid</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">allow_2017_format</span><span class="p">:</span>
+        <span class="n">format_2017_valid</span> <span class="o">=</span> <span class="n">is_pipeline_valid_old_schema</span><span class="p">(</span><span class="n">pipeline</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;2017 pipeline format, valid=</span><span class="si">{format_2017_valid}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">format_2017_valid</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="c1"># If we check any of the 2018 conditions, &amp;= them</span>
+    <span class="k">if</span> <span class="n">check_bare_2018_format</span> <span class="ow">or</span> <span class="n">enforce_2018_format</span><span class="p">:</span>
+        <span class="n">valid_2018</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">check_bare_2018_format</span><span class="p">:</span>
+            <span class="n">bare_2018_valid</span> <span class="o">=</span> <span class="n">is_pipeline_valid_bare</span><span class="p">(</span><span class="n">pipeline</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;2018 &#39;bare&#39; format, valid=</span><span class="si">{bare_2018_valid}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">valid_2018</span> <span class="o">&amp;=</span> <span class="n">bare_2018_valid</span>
+
+        <span class="k">if</span> <span class="n">enforce_2018_format</span><span class="p">:</span>
+            <span class="n">full_2018_valid</span> <span class="o">=</span> <span class="n">is_pipeline_valid_full_validation</span><span class="p">(</span><span class="n">pipeline_uri</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;2018 full format, valid=</span><span class="si">{full_2018_valid}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">valid_2018</span> <span class="o">&amp;=</span> <span class="n">full_2018_valid</span>
+
+        <span class="k">return</span> <span class="n">valid_2018</span>
+
+    <span class="c1"># If we come here, either the 2017 test didn&#39;t pass, or no check was performed</span>
+    <span class="c1"># If the 2017 test didn&#39;t happen, no test was performed so it&#39;s invalid by default</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_2017_format</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No check performed&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="is_pipeline_valid_full_validation"><a class="viewcode-back" href="../../d3m_outputs.html#d3m_outputs.pipeline_logs_validator.is_pipeline_valid_full_validation">[docs]</a><span class="k">def</span> <span class="nf">is_pipeline_valid_full_validation</span><span class="p">(</span><span class="n">pipeline_path</span><span class="p">):</span>
+    <span class="n">resolver</span> <span class="o">=</span> <span class="n">NoPrimitiveCheckResolver</span><span class="p">()</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pipeline_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pipeline_file</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">pipeline_path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.yml&quot;</span><span class="p">):</span>
+                <span class="n">pipeline</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">pipeline_file</span><span class="p">,</span> <span class="n">resolver</span><span class="o">=</span><span class="n">resolver</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">pipeline_path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.json&quot;</span><span class="p">):</span>
+                <span class="n">pipeline</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="n">pipeline_file</span><span class="p">,</span> <span class="n">resolver</span><span class="o">=</span><span class="n">resolver</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Unknown file extension.&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
+            <span class="s2">&quot;Unable to parse pipeline: </span><span class="si">{pipeline_path}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">pipeline_path</span><span class="o">=</span><span class="n">pipeline_path</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">pipeline</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">allow_placeholders</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
+            <span class="s2">&quot;Unable to validate pipeline: </span><span class="si">{pipeline_path}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">pipeline_path</span><span class="o">=</span><span class="n">pipeline_path</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="load_json"><a class="viewcode-back" href="../../d3m_outputs.html#d3m_outputs.pipeline_logs_validator.load_json">[docs]</a><span class="k">def</span> <span class="nf">load_json</span><span class="p">(</span><span class="n">pipeline_uri</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pipeline_uri</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="is_pipeline_valid_old_schema"><a class="viewcode-back" href="../../d3m_outputs.html#d3m_outputs.pipeline_logs_validator.is_pipeline_valid_old_schema">[docs]</a><span class="k">def</span> <span class="nf">is_pipeline_valid_old_schema</span><span class="p">(</span><span class="n">pipeline</span><span class="p">):</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="n">required_fields</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>
+        <span class="s2">&quot;pipeline_rank&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">is_castable_to_type</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>  <span class="c1"># previously int</span>
+        <span class="s2">&quot;primitives&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">constraint</span> <span class="ow">in</span> <span class="n">required_fields</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">field</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pipeline</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Missing field </span><span class="si">{field}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">valid</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">constraint</span><span class="p">(</span><span class="n">pipeline</span><span class="p">[</span><span class="n">field</span><span class="p">]):</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Field </span><span class="si">{field}</span><span class="s2"> has an incorrect value.&quot;</span><span class="p">)</span>
+            <span class="n">valid</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">valid</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">valid</span>
+
+    <span class="n">duplicate_primitives</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">pipeline</span><span class="p">[</span><span class="s2">&quot;primitives&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">pipeline</span><span class="p">[</span><span class="s2">&quot;primitives&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">duplicate_primitives</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="n">f</span><span class="s2">&quot;Found duplicate primitives in the primitive set: </span><span class="si">{duplicate_primitives}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="n">f</span><span class="s1">&#39;Log file for pipeline of rank </span><span class="si">{pipeline[&quot;pipeline_rank&quot;]}</span><span class="s1"> was valid.&#39;</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">valid</span></div>
+
+
+<div class="viewcode-block" id="is_pipeline_valid_bare"><a class="viewcode-back" href="../../d3m_outputs.html#d3m_outputs.pipeline_logs_validator.is_pipeline_valid_bare">[docs]</a><span class="k">def</span> <span class="nf">is_pipeline_valid_bare</span><span class="p">(</span><span class="n">pipeline</span><span class="p">):</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">primitives_check</span><span class="p">(</span><span class="n">steps</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">steps</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">steps</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="n">required_fields</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;pipeline_rank&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">is_castable_to_type</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+        <span class="s2">&quot;steps&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">primitives_check</span><span class="p">(</span><span class="n">x</span><span class="p">),</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">cond</span> <span class="ow">in</span> <span class="n">required_fields</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">field</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pipeline</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Missing field </span><span class="si">{field}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">valid</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">cond</span><span class="p">(</span><span class="n">pipeline</span><span class="p">[</span><span class="n">field</span><span class="p">]):</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Field </span><span class="si">{field}</span><span class="s2"> has an incorrect value.&quot;</span><span class="p">)</span>
+            <span class="n">valid</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">return</span> <span class="n">valid</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, NIST MIG
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
