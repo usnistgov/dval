@@ -1,6 +1,7 @@
-# NIST Validation and Scoring code
+# NIST Data Science Validation and Scoring code
 
-This repository contains the NIST validation and scoring code components for the D3M evaluation.
+This repository contains the NIST validation and scoring code components for the DSE and D3M evaluations.
+The DSE evaluation can be found at [dse.nist.gov](https://dse.nist.gov).
 
 In order to run the tests, it is required to use **python version >3.6**.
 
@@ -200,3 +201,20 @@ sphinx-build -b html source build
 ```
 
 And the web docs can be loaded in `docs/build/index.html`
+
+# About
+
+**License**
+
+The license is documented in the [LICENSE file](LICENSE.txt) and on the [NIST website](https://www.nist.gov/director/copyright-fair-use-and-licensing-statements-srd-data-and-software).
+
+**Versions and releases**:
+
+See
+* the repository tags for all releases. [link for Gitlab host](/../tags) [link for Github host](../../tags)
+* the [CHANGELOG file](CHANGELOG.md) for a history of the releases.
+* [the `version` field in `setup.cfg`](setup.cfg).
+
+**Contact**:
+
+Please send any issues, questions, or comments to datascience@nist.gov
