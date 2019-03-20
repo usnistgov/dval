@@ -1,3 +1,4 @@
+git+https://gitlab.com/datadrivendiscovery/d3m.git@v2018.6.5#egg=d3m
 ./valid8
 pandas
 scikit-learn
@@ -5,4 +6,3 @@ scipy
 testfixtures
 numpy
 pytest
---process-dependency-links git+https://gitlab.com/datadrivendiscovery/d3m.git@v2018.6.5#egg=d3m

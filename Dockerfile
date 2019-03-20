@@ -1,5 +1,5 @@
 FROM python:3.6.5
-RUN pip install pip==9.0.3
+RUN pip install pip==18.1
 
 WORKDIR /src
 COPY requirements.txt /src/requirements.txt
