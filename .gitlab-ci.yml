@@ -14,8 +14,8 @@ build:
 
   before_script:
     - pip install pip==9.0.3
-    - pip install -r requirements.txt
     - pip install --process-dependency-links git+https://gitlab.com/datadrivendiscovery/d3m.git@v2018.6.5#egg=d3m
+    - pip install -r requirements.txt
     - python setup.py install
     - dval -h
     - pip install pytest coverage
