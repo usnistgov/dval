@@ -52,8 +52,8 @@ docs:
   script:
     - mkdir -p docs/_static/coverage
     - cp -r htmlcov/* docs/_static/coverage/
-    - sphinx-apidoc -o docs/source/ dval
-    - sphinx-build -b html docs/source/ html_docs
+    - sphinx-apidoc -o docs/api dval
+    - sphinx-build -b html docs/ html_docs
   artifacts:
     paths:
     - html_docs
