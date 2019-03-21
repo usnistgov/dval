@@ -1,3 +1,5 @@
+# Contents subject to LICENSE.txt at project root
+
 import logging
 
 from dateutil.parser import parse as dt_parse

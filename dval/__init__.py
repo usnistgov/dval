@@ -1,3 +1,5 @@
+# Contents subject to LICENSE.txt at project root
+
 __all__ = [
     "predictions",
     "file_checker",

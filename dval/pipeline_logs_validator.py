@@ -1,3 +1,5 @@
+# Contents subject to LICENSE.txt at project root
+
 """
 Validate a pipeline log file (TA2 search output).
 

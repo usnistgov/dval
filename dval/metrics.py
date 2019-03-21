@@ -1,3 +1,5 @@
+# Contents subject to LICENSE.txt at project root
+
 """
 All metrics used in the D3M Program, mapped to their function.
 >>> from dval.metrics import apply_metric

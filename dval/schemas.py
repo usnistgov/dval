@@ -1,3 +1,5 @@
+# Contents subject to LICENSE.txt at project root
+
 """
 Representations of v3 D3M schemas and data structures.
 """

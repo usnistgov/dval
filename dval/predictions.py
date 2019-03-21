@@ -1,3 +1,5 @@
+# Contents subject to LICENSE.txt at project root
+
 """
 Validate and score prediction files.
 Requires a prediction file and the file organization in the each problem's SCORE directory.
