@@ -113,7 +113,7 @@ def cli_parser():
         ],
     ]
 
-    # valid_pipelines [--allow-2017-format] [--no-enforce-full-2018-format] [--no-check-bare-2018-format] pipeline_log_file
+    # valid_pipelines [--allow-2017-format|--no-enforce-full-2018-format|--no-check-bare-2018-format] pipeline_log_file
     add_protocol_subparser(
         "valid_pipelines",
         dict(help="Validate a pipeline log file."),
