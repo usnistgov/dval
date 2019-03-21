@@ -1,6 +1,6 @@
 """
 All metrics used in the D3M Program, mapped to their function.
->>> from d3m_outputs.metrics import apply_metric
+>>> from dval.metrics import apply_metric
 >>> groundtruth_file = 'test/data/185_baseball_SCORE/targets.csv'
 >>> predictions_file = 'test/data/185_baseball_SCORE/mitll_predictions.csv'
 
@@ -15,7 +15,7 @@ import numpy as np
 import sklearn.metrics as skm
 from sklearn.preprocessing import LabelBinarizer
 
-from d3m_outputs.object_detection_ap import objectDetectionAP
+from dval.object_detection_ap import objectDetectionAP
 
 
 def accuracy(ground_truth, predicted):

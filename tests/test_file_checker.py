@@ -3,7 +3,7 @@ import logging
 import os
 import unittest
 
-from d3m_outputs.file_checker import FileChecker
+from dval.file_checker import FileChecker
 
 logging.disable(logging.CRITICAL)
 

@@ -2,7 +2,7 @@ import os
 import sys
 import unittest
 
-from d3m_outputs.cli import cli_parser
+from dval.cli import cli_parser
 
 CURRENT_PATH = os.path.abspath(__file__)
 TEST_DIR_PATH = os.path.dirname(CURRENT_PATH)

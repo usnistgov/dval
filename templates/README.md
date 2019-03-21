@@ -21,7 +21,7 @@ so the {TA2} and {TA3} file checks are incomplete and could pass validation if t
 
 ## Requirements
 
-This requires both this package (`d3m_outputs`) and the human-readable validation package.
+This requires both this package (`dval`) and the human-readable validation package.
 For convenience, a `Pipfile` is provided in this folder.
 
 The following lines will create a virtual environement with the right dependencies.

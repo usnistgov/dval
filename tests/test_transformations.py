@@ -1,6 +1,6 @@
 import unittest
 
-from d3m_outputs.transformations import (
+from dval.transformations import (
     CenterizedNormalizedScoreTransformation,
     InfInfScoreTransformation,
     ZeroInfScoreTransformation,
