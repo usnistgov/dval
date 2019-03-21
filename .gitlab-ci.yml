@@ -73,3 +73,16 @@ pages:
     - tags
     - master
     - web
+
+
+push_to_github:
+  before_script: []
+  variables:
+    GITHUB_MIRROR:  https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/usnistgov/dval.git
+  stage: deploy
+  dependencies:
+    - docs
+  script: make publish_to_gitlab
+  when: manual
+  only:
+    - web
