@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
 
-from d3m_outputs import schemas
+from dval import schemas
 
 F1MACRO = "F1_MACRO"
 

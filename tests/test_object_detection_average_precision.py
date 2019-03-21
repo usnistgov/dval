@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from d3m_outputs.metrics import apply_metric
+from dval.metrics import apply_metric
 
 GROUND_TRUTH = [
     ["img_00285.png", 500, 450, 550, 500],  # square, len 50

@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
 
-from d3m_outputs.predictions import Predictions
+from dval.predictions import Predictions
 
 
 class TestPredictions(unittest.TestCase):

@@ -1,7 +1,7 @@
 import unittest
 
-from d3m_outputs.score import Score
-from d3m_outputs.transformations import METRIC_RANGES_DICT
+from dval.score import Score
+from dval.transformations import METRIC_RANGES_DICT
 
 
 class TestScore(unittest.TestCase):

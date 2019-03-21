@@ -2,9 +2,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
-import d3m_outputs.score
-from d3m_outputs.metrics import *
-from d3m_outputs.transformations import *
+import dval.score
+from dval.metrics import *
+from dval.transformations import *
 
 GROUND_TRUTH_MC = ["a", "b", "a", "b", "c", "a", "a", "b", "a", "c", "c", "b"]
 PREDICTED_BEST_MC = ["a", "b", "a", "b", "c", "a", "a", "b", "a", "c", "c", "b"]
@@ -206,7 +206,7 @@ class TestTransformations(object):
     def testTransformedScore0_1Range(self):
         for i in np.arange(0, 1, 0.01):
             # put in a dummy target, metric, and baseline score to do testing
-            score = d3m_outputs.score.Score("Hall_of_Fame", "f1Macro", i, 0.5)
+            score = dval.score.Score("Hall_of_Fame", "f1Macro", i, 0.5)
             transformation_true = CenterizedNormalizedScoreTransformation(0, 1, True)
             transformation_false = CenterizedNormalizedScoreTransformation(0, 1, False)
             assert score._transform(i, transformation_false) == pytest.approx(i, 1e-8)
@@ -221,7 +221,7 @@ class TestTransformations(object):
             for b in b_vec:
                 for i in np.arange(a, b, 4):
                     # put in a dummy target, metric, and baseline score to do testing
-                    score = d3m_outputs.score.Score("Hall_of_Fame", "f1Macro", i, 0.5)
+                    score = dval.score.Score("Hall_of_Fame", "f1Macro", i, 0.5)
                     transformation_true = CenterizedNormalizedScoreTransformation(
                         a, b, True
                     )
@@ -237,20 +237,20 @@ class TestTransformations(object):
 
     def testTransformedScoreAEqualsB(self):
         # put in a dummy target, metric, and baseline score to do testing
-        score = d3m_outputs.score.Score("Hall_of_Fame", "f1Macro", 0.5, 1)
+        score = dval.score.Score("Hall_of_Fame", "f1Macro", 0.5, 1)
         transformation_false = CenterizedNormalizedScoreTransformation(1, 1, False)
         assert score._transform(0.5, transformation_false) == None
 
     def testTransformedScoreAExceedsB(self):
         # put in a dummy target, metric, and baseline score to do testing
-        score = d3m_outputs.score.Score("Hall_of_Fame", "f1Macro", 0.5, 1)
+        score = dval.score.Score("Hall_of_Fame", "f1Macro", 0.5, 1)
         transformation_false = CenterizedNormalizedScoreTransformation(2, 1, False)
         assert pd.isnull(score._transform(0.5, transformation_false))
 
     def testTransformedScoreInfInf(self):
         for i in np.arange(-50, 50, 0.5):
             # put in a dummy target, metric, and baseline score to do testing
-            score = d3m_outputs.score.Score("class", "meanSquaredError", i, 0.5)
+            score = dval.score.Score("class", "meanSquaredError", i, 0.5)
             transformation_true = InfInfScoreTransformation(True)
             transformation_false = InfInfScoreTransformation(False)
             assert score._transform(i, transformation_false) == pytest.approx(
@@ -262,13 +262,13 @@ class TestTransformations(object):
 
     def testTransformedScore0Inf(self):
         for i in np.arange(-50, 0, 0.5):
-            score = d3m_outputs.score.Score("class", "meanSquaredError", i, 0.5)
+            score = dval.score.Score("class", "meanSquaredError", i, 0.5)
             transformation_true = ZeroInfScoreTransformation(True)
             transformation_false = ZeroInfScoreTransformation(False)
             assert score._transform(i, transformation_false) is None
             assert score._transform(i, transformation_true) is None
         for i in np.arange(0, 50, 0.5):
-            score = d3m_outputs.score.Score("class", "meanSquaredError", i, 0.5)
+            score = dval.score.Score("class", "meanSquaredError", i, 0.5)
             transformation_true = ZeroInfScoreTransformation(True)
             transformation_false = ZeroInfScoreTransformation(False)
             assert score._transform(i, transformation_false) == pytest.approx(

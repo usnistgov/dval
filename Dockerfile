@@ -9,5 +9,5 @@ RUN pip install -r requirements.txt && \
 COPY . /src/
 RUN python setup.py install
 
-ENTRYPOINT ["python", "-m", "d3m_outputs.cli"]
+ENTRYPOINT ["python", "-m", "dval.cli"]
 
