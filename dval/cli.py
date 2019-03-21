@@ -141,7 +141,10 @@ def cli_parser():
             ["-d", "--score-dir"],
             dict(help="Path to data ground truth (use SCORE/ directory)"),
         ],
-        [["-g"], dict(help="path to ground truth file", nargs="?")],
+        [
+            ["-g", "--ground_truth_file"],
+            dict(help="path to ground truth file", nargs="?"),
+        ],
         [
             ["--validation"],
             dict(
@@ -288,7 +291,7 @@ def cmd_valid_gen_problems(args):
 
 @catch_fnf
 def cmd_score(args):
-    from predictions import score_predictions_file
+    from .predictions import score_predictions_file
 
     if args.outfile is not None and len(args.predictions_file) > 1:
         sys.exit(
