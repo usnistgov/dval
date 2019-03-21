@@ -15,13 +15,6 @@ import logging
 import os
 import sys
 
-from . import (
-    score_predictions_file,
-    is_predictions_file_valid,
-    is_pipeline_valid,
-    generated_problems,
-)
-
 
 def main():
     """"
@@ -218,6 +211,8 @@ def catch_fnf(func):
 
 @catch_fnf
 def cmd_valid_predictions(args):
+    from .predictions import is_predictions_file_valid
+
     @catch_fnf
     def single_valid_predictions(predictions_file, score_dir):
         try:
@@ -240,6 +235,8 @@ def cmd_valid_predictions(args):
 
 @catch_fnf
 def cmd_valid_pipeline(args):
+    from .pipeline_logs_validator import is_pipeline_valid
+
     @catch_fnf
     def single_valid_pipeline(pipeline_file, **kwargs):
         try:
@@ -275,7 +272,9 @@ def cmd_valid_pipeline(args):
 
 @catch_fnf
 def cmd_valid_gen_problems(args):
-    is_valid = generated_problems.check_generated_problems_directory(
+    from .generated_problems import check_generated_problems_directory
+
+    is_valid = check_generated_problems_directory(
         args.problems_directory, args.output_file
     )
 
@@ -289,6 +288,8 @@ def cmd_valid_gen_problems(args):
 
 @catch_fnf
 def cmd_score(args):
+    from predictions import score_predictions_file
+
     if args.outfile is not None and len(args.predictions_file) > 1:
         sys.exit(
             "Writing JSON scores only supported for one predictions file at the time"
