@@ -3,7 +3,7 @@ import sys
 import unittest
 from glob import glob
 
-from dval.cli import cli_parser, main
+from dval.cli import main
 
 CURRENT_PATH = os.path.abspath(__file__)
 TEST_DIR_PATH = os.path.dirname(CURRENT_PATH)

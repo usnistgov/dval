@@ -86,22 +86,23 @@ Parameters:
 
 ### Docker usage
 
-Same usage as the CLI.
+#### Building the docker image
 
-:warning: Remember to mount as volumes the data that you want to validate or score.
+Build the Docker image from the Dockerfile: 
+
+```bash
+git checkout v2018.4.20  # getting a specific version of the code
+docker build -t dval .
+```
+
+#### Running the docker image
+
+The usage is the same as the CLI using a docker container but :warning: remember to mount the data that you want to validate or score to the container.
 
 For example, to validate a `predictions.csv` file:
 ```bash
-image=dval
-docker run -v /hostpath/to/data:/tmp/data $image valid_predictions -d /tmp/data/SCORE /tmp/data/predictions.csv
+docker run -v /hostpath/to/data:/tmp/data dval valid_predictions -d /tmp/data/SCORE /tmp/data/predictions.csv
 ```
-
-Images are in the project registry under `registry.datadrivendiscovery.org/nist/nist_eval_output_validation_scoring/IMAGE_NAME`
-Example images:  
-* `dval:latest`, which points to the latest release - e.g. `dval:v2018.4.28`
-* `dval:v2018.4.20` for a specific release. The commit is the one tagged with `v2018.4.20`.
-* `branches/develop`: the latest commit on the `develop` branch (unreleased)
-
 
 ### Code Usage
 
@@ -197,8 +198,13 @@ Docs of the latest version of the master branch are available here: https://nist
 Docs were built using sphinx and autodoc with the following commands at the root directory:
 
 ```
+<<<<<<< HEAD
 sphinx-apidoc -o docs/api dval
 sphinx-build -b html docs/ html_docs
+=======
+sphinx-apidoc -f -o source/ ../dval
+sphinx-build -b html source build
+>>>>>>> develop
 ```
 
 And the web docs can be loaded in `docs/html_docs/index.html`
