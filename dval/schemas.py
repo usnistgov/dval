@@ -180,8 +180,8 @@ class D3MDataStructure:
 
         self.targets_df = pandas.read_csv(self.targets_path)
 
-        if "d3mIndex" in self.targets_df.columns:
-            self.targets_df.sort_values(by="d3mIndex", inplace=True)
+        if self.dataschema.index_name in self.targets_df.columns:
+            self.targets_df.sort_values(by=self.dataschema.index_name, inplace=True)
 
             if self.indices_path:
                 indices = pandas.read_csv(self.indices_path, header=None)[0].values

@@ -5,15 +5,15 @@ import logging
 from dateutil.parser import parse as dt_parse
 
 
-def valid_d3mindex(d3m_column):
+def valid_index(d3m_column):
     for entry in d3m_column:
         try:
             val = int(entry)
             if val < 0:
-                logging.error(f"{val} is not a valid d3mindex value.")
+                logging.error(f"{val} is not a valid index value.")
                 return False
         except ValueError:
-            logging.error(f"{entry} is not a valid d3mindex value.")
+            logging.error(f"{entry} is not a valid index value.")
             return False
 
     return True
