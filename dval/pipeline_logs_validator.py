@@ -5,7 +5,7 @@ Validate a pipeline log file (TA2 search output).
 
 Usage:
 
->>> from dval import is_pipeline_valid
+>>> from dval import pipeline_logs_validator.is_pipeline_valid
 >>> is_pipeline_valid('path/to/my.json')
 True
 """
