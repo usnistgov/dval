@@ -2,7 +2,3 @@
 	path = valid8
 	url = ../valid8.git
 	branch = master
-[submodule "dse_data"]
-	path = tests/dse_data
-	url = https://gitlab.nist.gov/gitlab/dse-nist/datasets.git
-	branch = master
