@@ -1,3 +1,16 @@
+"""
+These tests require an environment variable: SEED_DATA_DIR
+
+This can point to any location that holds datasets. For example:
+
+    $SEED_DATA_DIR/
+    ├── 185_baseball/
+    │   ├── datasetTEST/
+    │   ├── problemTEST/
+    │   ├── mitll_predictions.csv
+    │   └── SCORE/
+    ...
+"""
 from os import environ
 import sys
 from pathlib import Path
