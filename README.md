@@ -23,19 +23,19 @@ This package works with Python 3.6+ and **requires** the [d3m core package](http
 To install latest released version:
 
 ```
-$ pip install githttps://github.com/usnistgov/dval.git@master
+$ pip install git+https://github.com/usnistgov/dval.git@master
 ```
 
 To install a particular release of the package, e.g., `v2018.4.28`:
 
 ```
-$ pip install githttps://github.com/usnistgov/dval.git@v2018.4.28
+$ pip install git+https://github.com/usnistgov/dval.git@v2018.4.28
 ```
 
 To install latest development (unreleased) version:
 
 ```
-$ pip install githttps://github.com/usnistgov/dval.git@develop
+$ pip install git+https://github.com/usnistgov/dval.git@develop
 ```
 
 ### CLI Usage
@@ -193,21 +193,17 @@ coverage html
 
 ## Documentation
 
-Docs of the latest version of the master branch are available here: https://nist.datadrivendiscovery.org/nist_eval_output_validation_scoring/
+Docs of the latest version of the master branch are available here (inside NIST only): https://d3m_g.ipages.nist.gov/dval
+
 
 Docs were built using sphinx and autodoc with the following commands at the root directory:
 
 ```
-<<<<<<< HEAD
 sphinx-apidoc -o docs/api dval
 sphinx-build -b html docs/ html_docs
-=======
-sphinx-apidoc -f -o source/ ../dval
-sphinx-build -b html source build
->>>>>>> develop
 ```
 
-And the web docs can be loaded in `docs/html_docs/index.html`
+And the web docs can be loaded in `html_docs/index.html`
 
 ## About
 
