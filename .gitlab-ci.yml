@@ -6,10 +6,10 @@ stages:
   - documentation
   - deploy
 
-variables:
-  GIT_SUBMODULE_STRATEGY: recursive
   
 build:
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
   stage: test
 
   before_script:
@@ -41,6 +41,8 @@ formatting:
   script: tox -e formatting
 
 docs:
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
   stage: documentation
   dependencies:
     - build
