@@ -33,7 +33,7 @@ class TestDatasetSchema(unittest.TestCase):
     def testIndex(self):
         path = Path(__file__).parent / "data/185_baseball/dataset_TEST/datasetDoc.json"
         baseball_dataset_schema = schemas.DatasetSchema(path)
-        self.assertEqual(baseball_dataset_schema.index_name, "d3mIndex")
+        self.assertEqual(baseball_dataset_schema.index_name, "dse_index")
 
 
 class TestD3MDataStructure(unittest.TestCase):
@@ -50,11 +50,11 @@ class TestD3MDataStructure(unittest.TestCase):
         self.assertEqual(self.metrics_wp[0]["params"], dict())
         self.assertEqual(len(self.metrics), 1)
         self.assertEqual(len(self.metrics_wp), 1)
-        self.assertEqual(self.obj.dataschema.index_name, "d3mIndex")
+        self.assertEqual(self.obj.dataschema.index_name, "dse_index")
 
     def testGetAttr(self):
         self.assertEqual(self.obj.metrics, [F1MACRO])
-        self.assertEqual(self.obj.index_name, "d3mIndex")
+        self.assertEqual(self.obj.index_name, "dse_index")
         self.assertEqual(self.obj.target_names, ["Hall_of_Fame"])
 
     def testTargetTypes(self):

@@ -183,12 +183,6 @@ class D3MDataStructure:
         if self.dataschema.index_name in self.targets_df.columns:
             self.targets_df.sort_values(by=self.dataschema.index_name, inplace=True)
 
-            if self.indices_path:
-                indices = pandas.read_csv(self.indices_path, header=None)[0].values
-                self.targets_df = self.targets_df.loc[
-                    self.targets_df.d3mIndex.apply(lambda x: x in indices)
-                ]
-
         self.targets_index = self.targets_df.index
         self.number_targets = len(self.targets_index)
 

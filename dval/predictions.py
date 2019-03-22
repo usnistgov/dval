@@ -149,19 +149,14 @@ class Predictions:
 
     def _load_data(self):
         """
-            Load the predicted targets, sort them by d3mindex if any
+            Load the predicted targets, sort them by index if any
         """
 
         self.frame = pandas.read_csv(self.result_file_path, delimiter=self.separator)
 
-        if "d3mIndex" in self.frame.columns:
-            self.frame.sort_values(by="d3mIndex", inplace=True)
-
-            if self.indices_path:
-                indices = pandas.read_csv(self.indices_path, header=None)[0].values
-                self.frame = self.frame.loc[
-                    self.frame.d3mIndex.apply(lambda x: x in indices)
-                ]
+        index_name = self.ds.dataschema.index_name
+        if index_name in self.frame.columns:
+            self.frame.sort_values(by=index_name, inplace=True)
 
     def _is_header_valid(self):
         """
