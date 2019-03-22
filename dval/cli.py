@@ -38,7 +38,9 @@ def cli_parser():
     """
     logging.getLogger().setLevel(logging.INFO)
 
-    parser = argparse.ArgumentParser("Validate and score a DSE or D3M submission.")
+    parser = argparse.ArgumentParser(
+        description="Validate and score a DSE or D3M submission.", prog="dval"
+    )
     subs = parser.add_subparsers(
         title="subcommands", help="Available subcommands, call -h to see usage"
     )
@@ -65,15 +67,13 @@ def cli_parser():
         arguments=[],
     )
 
-    vpredictions_args = [
-        [
-            ["predictions_file"],
-            dict(help="path to predictions file to validate.", nargs="+"),
-        ],
-        [
-            ["-d", "--score-dir"],
-            dict(help="Path to data ground truth (use SCORE/ directory)"),
-        ],
+    opt_score_dir = [
+        ["-d", "--score-dir"],
+        dict(help="Path to data ground truth (use SCORE/ directory)"),
+    ]
+    opt_pred_file = [
+        ["predictions_file"],
+        dict(help="path to predictions file to validate or score", nargs="+"),
     ]
 
     # valid_predictions -d score_dir predictions_file
@@ -81,7 +81,7 @@ def cli_parser():
         "valid_predictions",
         dict(help="Validate a predictions file against the d3m data directory."),
         func=cmd_valid_predictions,
-        arguments=vpredictions_args,
+        arguments=[opt_pred_file, opt_score_dir],
     )
 
     vpipeline_args = [
@@ -132,15 +132,7 @@ def cli_parser():
         arguments=vgenproblems_args,
     )
 
-    score_args = [
-        [
-            ["predictions_file"],
-            dict(help="path to predictions file to score.", nargs="+"),
-        ],
-        [
-            ["-d", "--score-dir"],
-            dict(help="Path to data ground truth (use SCORE/ directory)"),
-        ],
+    args_score = [
         [
             ["-g", "--ground_truth_file"],
             dict(help="path to ground truth file", nargs="?"),
@@ -190,7 +182,7 @@ def cli_parser():
         "score",
         dict(help="Score a predictions file."),
         func=cmd_score,
-        arguments=score_args,
+        arguments=[opt_pred_file, opt_score_dir] + args_score,
     )
     score_parser.set_defaults(validation=True)
 
@@ -333,6 +325,14 @@ def cmd_score(args):
 
 def print_package_version(_):
     print(__import__(__package__).__version__)
+
+
+def cmd_valid_subm(args):
+    pass
+
+
+def cmd_score_subm(args):
+    pass
 
 
 if __name__ == "__main__":
