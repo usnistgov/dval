@@ -20,7 +20,7 @@
       "columns": [
         {
           "colIndex": 0,
-          "colName": "d3mIndex",
+          "colName": "dse_index",
           "colType": "integer",
           "role": [
             "index"

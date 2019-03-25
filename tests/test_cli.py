@@ -3,7 +3,7 @@ import sys
 import unittest
 from glob import glob
 
-from dval.cli import cli_parser
+from dval.cli import main
 
 CURRENT_PATH = os.path.abspath(__file__)
 TEST_DIR_PATH = os.path.dirname(CURRENT_PATH)
@@ -13,7 +13,7 @@ class TestCmdValidPipelines(unittest.TestCase):
     def testFileNotFound(self):
         sys.argv[1:] = ["valid_pipelines", ""]
         with self.assertRaises(SystemExit):
-            cli_parser()
+            main()
 
     def testNotValidate(self):
         sys.argv[1:] = [
@@ -22,7 +22,7 @@ class TestCmdValidPipelines(unittest.TestCase):
             "--allow-2017-format",
         ]
         with self.assertRaises(SystemExit):
-            cli_parser()
+            main()
 
     def testOk(self):
         sys.argv[1:] = [
@@ -31,7 +31,7 @@ class TestCmdValidPipelines(unittest.TestCase):
             "--allow-2017-format",
         ]
         try:
-            cli_parser()
+            main()
         except Exception:
             self.fail("valid_pipelines raised an exception")
 
@@ -45,7 +45,7 @@ class TestCmdValidPredictions(unittest.TestCase):
             "",
         ]
         with self.assertRaises(SystemExit):
-            cli_parser()
+            main()
 
     def testDirectoryNotFound(self):
         sys.argv[1:] = [
@@ -55,7 +55,7 @@ class TestCmdValidPredictions(unittest.TestCase):
             os.path.join(TEST_DIR_PATH, "data/185_baseball/mitll_predictions.csv"),
         ]
         with self.assertRaises(SystemExit):
-            cli_parser()
+            main()
 
     def testOk(self):
         sys.argv[1:] = [
@@ -65,7 +65,7 @@ class TestCmdValidPredictions(unittest.TestCase):
             os.path.join(TEST_DIR_PATH, "data/185_baseball/mitll_predictions.csv"),
         ]
         try:
-            cli_parser()
+            main()
         except Exception:
             self.fail("valid_predictions raised an exception")
 
@@ -81,7 +81,7 @@ class TestCmdValidGeneratedProblem(unittest.TestCase):
             ),
         ]
         with self.assertRaises(SystemExit):
-            cli_parser()
+            main()
 
     def testOk(self):
         sys.argv[1:] = [
@@ -93,7 +93,7 @@ class TestCmdValidGeneratedProblem(unittest.TestCase):
             ),
         ]
         try:
-            cli_parser()
+            main()
         except Exception:
             self.fail("valid_generated_problems raised an exception")
 
@@ -119,7 +119,7 @@ class TestCmdScore(unittest.TestCase):
             os.path.join(TEST_DIR_PATH, "data/185_baseball/mitll_predictions.csv"),
         ]
         try:
-            cli_parser()
+            main()
         except SystemExit:
             self.fail("score raised an exception")
 
@@ -135,7 +135,7 @@ class TestCmdScore(unittest.TestCase):
         ]
 
         # with self.assertRaises(Exception):
-        #    cli_parser()
+        #    main()
 
     def testTargetNotFound(self):
         sys.argv[1:] = [
@@ -149,7 +149,7 @@ class TestCmdScore(unittest.TestCase):
         ]
 
         try:
-            cli_parser()
+            main()
         except SystemExit:
             self.fail("score raised an exception")
 
@@ -165,7 +165,7 @@ class TestCmdScore(unittest.TestCase):
         ]
 
         # with self.assertRaises(Exception):
-        #    cli_parser()
+        #    main()
 
     def testMultiplePredictionFiles(self):
         sys.argv[1:] = [
@@ -180,7 +180,7 @@ class TestCmdScore(unittest.TestCase):
         ]
 
         try:
-            cli_parser()
+            main()
         except SystemExit:
             self.fail("score raised an exception")
 

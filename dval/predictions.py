@@ -1,3 +1,5 @@
+# Contents subject to LICENSE.txt at project root
+
 """
 Validate and score prediction files.
 Requires a prediction file and the file organization in the each problem's SCORE directory.
@@ -9,7 +11,7 @@ USAGE:
 >>> groundtruth_path = 'test/data/185_baseball_SCORE/targets.csv'
 
 Option 1: Using the Predictions class
->>> from dval import Predictions
+>>> from dval import predictions.Predictions
 >>> p = Predictions(result_file_path, path_to_score_root)
 >>> p.is_valid()
 True
@@ -17,7 +19,7 @@ True
 [Score(target='Hall_Of_Fame', metric='f1', scorevalue=0.691369766848)]
 
 Option 2: Using the wrapper functions
->>> from dval import is_predictions_file_valid, score_predictions_file
+>>> from dval import predictions.is_predictions_file_valid, score_predictions_file
 >>> is_predictions_file_valid(result_file_path, path_to_score_root)
 True
 >>> score_predictions_file(result_file_path, path_to_score_root, groundtruth_path)
@@ -35,7 +37,7 @@ from .file_checker import FileChecker
 from .metrics import METRICS_DICT, valid_metric, apply_metric
 from .score import Score, Scores, MxeScore
 from .validation_type_checks import (
-    valid_d3mindex,
+    valid_index,
     valid_boolean,
     valid_real,
     valid_integer,
@@ -147,19 +149,14 @@ class Predictions:
 
     def _load_data(self):
         """
-            Load the predicted targets, sort them by d3mindex if any
+            Load the predicted targets, sort them by index if any
         """
 
         self.frame = pandas.read_csv(self.result_file_path, delimiter=self.separator)
 
-        if "d3mIndex" in self.frame.columns:
-            self.frame.sort_values(by="d3mIndex", inplace=True)
-
-            if self.indices_path:
-                indices = pandas.read_csv(self.indices_path, header=None)[0].values
-                self.frame = self.frame.loc[
-                    self.frame.d3mIndex.apply(lambda x: x in indices)
-                ]
+        index_name = self.ds.dataschema.index_name
+        if index_name in self.frame.columns:
+            self.frame.sort_values(by=index_name, inplace=True)
 
     def _is_header_valid(self):
         """
@@ -175,14 +172,15 @@ class Predictions:
         return True
 
     def _is_index_valid(self):
-        valid = valid_d3mindex(self.ds.expected_index)
+        valid = valid_index(self.ds.expected_index)
         is_nan = pandas.isnull(self.frame).any().all().all()
         targets = self.ds.targets_df
         if is_nan:
             valid = False
             logging.error(f"Certain entries are invalid or empty")
         if valid:
-            if set(targets.loc[:, "d3mIndex"]) != set(self.frame.loc[:, "d3mIndex"]):
+            index_name = self.ds.dataschema.index_name
+            if set(targets.loc[:, index_name]) != set(self.frame.loc[:, index_name]):
                 valid = False
                 logging.error("Missing indexes in predictions file")
 
@@ -206,7 +204,7 @@ class Predictions:
         for target, ttype in target_types.items():
             column = self.frame[target]
             if target == self.ds.index_name:
-                return valid_d3mindex(column)
+                return valid_index(column)
             elif ttype == "boolean":
                 return valid_boolean(column)
             elif ttype == "real":

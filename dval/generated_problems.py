@@ -1,3 +1,5 @@
+# Contents subject to LICENSE.txt at project root
+
 """
 Validate a generated problem directory (TA3 problem generation).
 

@@ -2,7 +2,7 @@ import os
 import sys
 import unittest
 
-from dval.cli import cli_parser
+from dval.cli import main
 
 CURRENT_PATH = os.path.abspath(__file__)
 TEST_DIR_PATH = os.path.dirname(CURRENT_PATH)
@@ -20,7 +20,7 @@ class TestValidateScores(unittest.TestCase):
             ),
         ]
         with self.assertRaises(SystemExit):
-            cli_parser()
+            main()
 
     def test_class_col_misnamed(self):
         sys.argv[1:] = [
@@ -33,7 +33,7 @@ class TestValidateScores(unittest.TestCase):
             ),
         ]
         with self.assertRaises(SystemExit):
-            cli_parser()
+            main()
 
     def test_index_col_misnamed(self):
         sys.argv[1:] = [
@@ -46,7 +46,7 @@ class TestValidateScores(unittest.TestCase):
             ),
         ]
         with self.assertRaises(SystemExit):
-            cli_parser()
+            main()
 
     def test_missing_class_col(self):
         sys.argv[1:] = [
@@ -59,7 +59,7 @@ class TestValidateScores(unittest.TestCase):
             ),
         ]
         with self.assertRaises(SystemExit):
-            cli_parser()
+            main()
 
     def test_missing_class_data(self):
         sys.argv[1:] = [
@@ -72,7 +72,7 @@ class TestValidateScores(unittest.TestCase):
             ),
         ]
         with self.assertRaises(SystemExit):
-            cli_parser()
+            main()
 
     def test_missing_index_col(self):
         sys.argv[1:] = [
@@ -85,7 +85,7 @@ class TestValidateScores(unittest.TestCase):
             ),
         ]
         with self.assertRaises(SystemExit):
-            cli_parser()
+            main()
 
     def test_missing_index_data(self):
         sys.argv[1:] = [
@@ -98,7 +98,7 @@ class TestValidateScores(unittest.TestCase):
             ),
         ]
         with self.assertRaises(SystemExit):
-            cli_parser()
+            main()
 
     def test_swapped_columns(self):
         sys.argv[1:] = [
@@ -119,7 +119,7 @@ class TestValidateScores(unittest.TestCase):
             "bad_data_input/mitll_predictions_error.csv",
         ]
         with self.assertRaises(SystemExit):
-            cli_parser()
+            main()
 
 
 if __name__ == "__main__":

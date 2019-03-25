@@ -1,3 +1,5 @@
+# Contents subject to LICENSE.txt at project root
+
 import abc
 import logging
 import math

@@ -1,12 +1,12 @@
+# Contents subject to LICENSE.txt at project root
+
 """
 USAGE
 
+version
 valid_predictions     -d score_dir predictions_file
 valid_pipelines        pipeline_log_file
-valid_pipeline_dir     pipeline_log_dir
-valid_executables_dir -p pipeline_log_dir [--validation | --no-validation] executables_dir
 score                 -d score_dir [-g ground_truth_file] [--validation | --no-validation] predictions_file
-score_seed_baselines  [--validation | --no-validation] seed_root_dir
 """
 
 import argparse
@@ -15,24 +15,178 @@ import logging
 import os
 import sys
 
-from . import (
-    score_predictions_file,
-    is_predictions_file_valid,
-    is_pipeline_valid,
-    generated_problems,
-)
 
-subparsers_l = [
-    "valid_predictions",
-    "valid_pipelines",
-    "valid_pipeline_dir",
-    "valid_executables_dir",
-    "validate_post_search",
-    "test_script",
-    "valid_generated_problems",
-    "score",
-    "score_seed_baselines",
-]
+def main():
+    """"
+    Main package function, reads CLI args and launches program.
+    """
+    parser = cli_parser()
+    args = parser.parse_args()
+
+    if hasattr(args, "func") and args.func:
+        args.func(args)
+    else:
+        parser.print_help()
+
+
+def cli_parser():
+    """
+    Defines accepted CLI syntax and the actions to take for command and args.
+
+    Returns:
+        argparse parser
+    """
+    logging.getLogger().setLevel(logging.INFO)
+
+    parser = argparse.ArgumentParser(
+        description="Validate and score a DSE or D3M submission.", prog="dval"
+    )
+    subs = parser.add_subparsers(
+        title="subcommands", help="Available subcommands, call -h to see usage"
+    )
+
+    def add_protocol_subparser(name, kwargs, func, arguments):
+        subp = subs.add_parser(name, **kwargs)
+        for a, b in arguments:
+            subp.add_argument(*a, **b)
+
+        subp.set_defaults(func=func)
+
+        group = subp.add_mutually_exclusive_group()
+        group.add_argument("-v", "--verbose", action="store_true", dest="verbose")
+        group.add_argument("-q", "--no-verbose", action="store_false", dest="verbose")
+        group.set_defaults(verbose=True)
+
+        return subp
+
+    # version
+    add_protocol_subparser(
+        "version",
+        dict(help="Print dval version"),
+        func=print_package_version,
+        arguments=[],
+    )
+
+    opt_score_dir = [
+        ["-d", "--score-dir"],
+        dict(help="Path to data ground truth (use SCORE/ directory)"),
+    ]
+    opt_pred_file = [
+        ["predictions_file"],
+        dict(help="path to predictions file to validate or score", nargs="+"),
+    ]
+
+    # valid_predictions -d score_dir predictions_file
+    add_protocol_subparser(
+        "valid_predictions",
+        dict(help="Validate a predictions file against the d3m data directory."),
+        func=cmd_valid_predictions,
+        arguments=[opt_pred_file, opt_score_dir],
+    )
+
+    vpipeline_args = [
+        # Main positional argument
+        [
+            ["pipeline_log_file"],
+            dict(help="path to predictions file to validate.", nargs="+"),
+        ],
+        [
+            ["--allow-2017-format"],
+            dict(
+                help="Allow current and 2017 D3M pipeline format", action="store_true"
+            ),
+        ],
+        [
+            ["--no-enforce-full-2018-format"],
+            dict(help="Lax 2018 D3M format enforcement", action="store_true"),
+        ],
+        [
+            ["--no-check-bare-2018-format"],
+            dict(help="Toggles primitive registration checks off", action="store_true"),
+        ],
+    ]
+
+    # valid_pipelines [--allow-2017-format|--no-enforce-full-2018-format|--no-check-bare-2018-format] pipeline_log_file
+    add_protocol_subparser(
+        "valid_pipelines",
+        dict(help="Validate a pipeline log file."),
+        func=cmd_valid_pipeline,
+        arguments=vpipeline_args,
+    )
+
+    vgenproblems_args = [
+        [
+            ["problems_directory"],
+            dict(help="path to directory containing the generated problems."),
+        ],
+        [
+            ["-o", "--output_file"],
+            dict(help="path to csv file containing valid problem ids"),
+        ],
+    ]
+
+    add_protocol_subparser(
+        "valid_generated_problems",
+        dict(help="Validate a generated problems directory."),
+        func=cmd_valid_gen_problems,
+        arguments=vgenproblems_args,
+    )
+
+    args_score = [
+        [
+            ["-g", "--ground_truth_file"],
+            dict(help="path to ground truth file", nargs="?"),
+        ],
+        [
+            ["--validation"],
+            dict(
+                help="Toggle validation ahead of the scoring",
+                dest="validation",
+                action="store_true",
+            ),
+        ],
+        [
+            ["--no-validation"],
+            dict(
+                help="Toggle off validation ahead of the scoring.",
+                dest="validation",
+                action="store_false",
+            ),
+        ],
+        [
+            ["-o", "--outfile"],
+            dict(
+                help="Write scores in JSON to file",
+                nargs="?",
+                type=argparse.FileType("w"),
+            ),
+        ],
+        [
+            ["--mxe"],
+            dict(
+                help="Include the multi-cross-entropy score in the output.",
+                action="store_true",
+            ),
+        ],
+        [
+            ["--subset-indices"],
+            dict(
+                help="Subset the predictions using a list of indices in a csv file",
+                nargs=1,
+            ),
+        ],
+    ]
+
+    # score -d score_dir [-g ground_truth_file] [--validation | --no-validation] predictions_file
+    score_parser = add_protocol_subparser(
+        "score",
+        dict(help="Score a predictions file."),
+        func=cmd_score,
+        arguments=[opt_pred_file, opt_score_dir] + args_score,
+    )
+    score_parser.set_defaults(validation=True)
+
+    return parser
 
 
 def catch_fnf(func):
@@ -52,6 +206,8 @@ def catch_fnf(func):
 
 @catch_fnf
 def cmd_valid_predictions(args):
+    from .predictions import is_predictions_file_valid
+
     @catch_fnf
     def single_valid_predictions(predictions_file, score_dir):
         try:
@@ -74,6 +230,8 @@ def cmd_valid_predictions(args):
 
 @catch_fnf
 def cmd_valid_pipeline(args):
+    from .pipeline_logs_validator import is_pipeline_valid
+
     @catch_fnf
     def single_valid_pipeline(pipeline_file, **kwargs):
         try:
@@ -109,7 +267,9 @@ def cmd_valid_pipeline(args):
 
 @catch_fnf
 def cmd_valid_gen_problems(args):
-    is_valid = generated_problems.check_generated_problems_directory(
+    from .generated_problems import check_generated_problems_directory
+
+    is_valid = check_generated_problems_directory(
         args.problems_directory, args.output_file
     )
 
@@ -123,6 +283,8 @@ def cmd_valid_gen_problems(args):
 
 @catch_fnf
 def cmd_score(args):
+    from .predictions import score_predictions_file
+
     if args.outfile is not None and len(args.predictions_file) > 1:
         sys.exit(
             "Writing JSON scores only supported for one predictions file at the time"
@@ -161,127 +323,16 @@ def cmd_score(args):
                 print(f"Scores written to {args.outfile.name}")
 
 
-def print_package_version(args):
+def print_package_version(_):
     print(__import__(__package__).__version__)
 
 
-def add_yn_flag(subparser, flag_name):
-    group = subparser.add_mutually_exclusive_group()
-    group.add_argument(f"--{flag_name}", action="store_true")
-    group.add_argument(f"--no-{flag_name}", action="store_false")
+def cmd_valid_subm(args):
+    pass
 
 
-def cli_parser():
-    logging.getLogger().setLevel(logging.INFO)
-
-    parser = argparse.ArgumentParser()
-    subs = parser.add_subparsers(title="subcommands")
-
-    subparsers = {name: subs.add_parser(name) for name in subparsers_l}
-
-    # Add version subcommand
-    version_parser = subs.add_parser("version", description="Print package version")
-    version_parser.set_defaults(func=print_package_version)
-
-    for subparser in subparsers.values():
-        group = subparser.add_mutually_exclusive_group()
-        group.add_argument("-v", "--verbose", action="store_true", dest="verbose")
-        group.add_argument("-q", "--no-verbose", action="store_false", dest="verbose")
-        group.set_defaults(verbose=True)
-
-    # valid_predictions -d score_dir predictions_file
-    subparsers[
-        "valid_predictions"
-    ].description = "Validate a predictions file against the d3m data directory."
-    subparsers["valid_predictions"].add_argument(
-        "-d", "--score-dir", help="d3m data structure (use SCORE)"
-    )
-    subparsers["valid_predictions"].add_argument(
-        "predictions_file", nargs="+", help="path to predictions file to validate."
-    )
-    subparsers["valid_predictions"].set_defaults(func=cmd_valid_predictions)
-
-    # valid_pipelines   pipeline_log_file
-    subparsers["valid_pipelines"].description = "Validate a pipeline log file."
-    subparsers["valid_pipelines"].add_argument(
-        "pipeline_log_file", nargs="+", help="path to predictions file to validate."
-    )
-    # flag_allow_2017 = subparsers['valid_pipelines'].add_mutually_exclusive_group()
-    # flag_allow_2017.add_argument(f'--allow-2017-format', action='store_true', dest='verbose')
-    # flag_allow_2017.add_argument(f'--no-allow-2017-format', action='store_false', dest='verbose')
-    # flag_allow_2017.set_defaults(verbose=True)
-
-    subparsers["valid_pipelines"].add_argument(
-        f"--allow-2017-format", action="store_true"
-    )
-    subparsers["valid_pipelines"].add_argument(
-        f"--no-enforce-full-2018-format", action="store_true"
-    )
-    subparsers["valid_pipelines"].add_argument(
-        f"--no-check-bare-2018-format", action="store_true"
-    )
-
-    subparsers["valid_pipelines"].set_defaults(func=cmd_valid_pipeline)
-
-    subparsers[
-        "valid_generated_problems"
-    ].description = "Validate a generated problems directory."
-    subparsers["valid_generated_problems"].add_argument(
-        "problems_directory",
-        help="path to directory containing the generated problems.",
-    )
-    subparsers["valid_generated_problems"].add_argument(
-        "-o", "--output_file", help="path to csv file containing valid problem ids"
-    )
-    subparsers["valid_generated_problems"].set_defaults(func=cmd_valid_gen_problems)
-
-    # score -d score_dir [-g ground_truth_file] [--validation | --no-validation] predictions_file
-    subparsers["score"].description = "Score a predictions file."
-    subparsers["score"].add_argument(
-        "-d", "--score-dir", help="d3m data structure (use SCORE)"
-    )
-    subparsers["score"].add_argument(
-        "-g", "--ground-truth-file", help="path to ground truth file", nargs="?"
-    )
-    subparsers["score"].add_argument(
-        "predictions_file", help="path to predictions file to score.", nargs="+"
-    )
-    subparsers["score"].add_argument(
-        "--validation", dest="validation", action="store_true"
-    )
-    subparsers["score"].add_argument(
-        "--no-validation", dest="validation", action="store_false"
-    )
-    subparsers["score"].add_argument(
-        "-o",
-        "--outfile",
-        nargs="?",
-        type=argparse.FileType("w"),
-        help="Write scores in JSON to file",
-    )
-    subparsers["score"].add_argument(
-        "--mxe",
-        help="Include the multi-cross-entropy score in the output.",
-        action="store_true",
-    )
-    subparsers["score"].add_argument(
-        "--subset-indices",
-        help="Subset the predictions using a list of indices in a csv file",
-        nargs=1,
-    )
-
-    subparsers["score"].set_defaults(validation=True, func=cmd_score)
-
-    args = parser.parse_args()
-
-    if hasattr(args, "func") and args.func:
-        args.func(args)
-    else:
-        parser.print_help()
-
-
-def main():
-    cli_parser()
+def cmd_score_subm(args):
+    pass
 
 
 if __name__ == "__main__":

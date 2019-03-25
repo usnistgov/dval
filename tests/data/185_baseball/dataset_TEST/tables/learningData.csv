@@ -1,4 +1,4 @@
-d3mIndex,Player,Number_seasons,Games_played,At_bats,Runs,Hits,Doubles,Triples,Home_runs,RBIs,Walks,Strikeouts,Batting_average,On_base_pct,Slugging_pct,Fielding_ave,Position,Hall_of_Fame
+dse_index,Player,Number_seasons,Games_played,At_bats,Runs,Hits,Doubles,Triples,Home_runs,RBIs,Walks,Strikeouts,Batting_average,On_base_pct,Slugging_pct,Fielding_ave,Position,Hall_of_Fame
 2,SPARKY_ADAMS,13,1424,5557,844,1588,249,48,9,394,453,223.0,0.28600000000000003,0.343,0.353,0.974,Second_base,
 9,ETHAN_ALLEN,13,1281,4418,623,1325,255,45,47,501,223,310.0,0.3,0.336,0.41,0.981,Outfield,
 14,SANDY_ALOMAR,15,1481,4760,558,1168,126,19,13,282,302,482.0,0.245,0.29100000000000004,0.28800000000000003,0.977,Second_base,

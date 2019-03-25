@@ -13,9 +13,8 @@ build:
   stage: test
 
   before_script:
-    - pip install pip==9.0.3
+    - pip install git+https://gitlab.com/datadrivendiscovery/d3m.git@v2018.6.5#egg=d3m
     - pip install -r requirements.txt
-    - pip install --process-dependency-links git+https://gitlab.com/datadrivendiscovery/d3m.git@v2018.6.5#egg=d3m
     - python setup.py install
     - dval -h
     - pip install pytest coverage
@@ -46,16 +45,16 @@ docs:
   dependencies:
     - build
   before_script:
-    - pip install pip==9.0.3 sphinx sphinx-rtd-theme
+    - pip install git+https://gitlab.com/datadrivendiscovery/d3m.git@v2018.6.5#egg=d3m
+    - pip install sphinx sphinx-rtd-theme  m2r sphinxcontrib-autoprogram
     - pip install -r requirements.txt
-    - pip install --process-dependency-links git+https://gitlab.com/datadrivendiscovery/d3m.git@v2018.6.5#egg=d3m
     - python setup.py install
     - dval -h
   script:
     - mkdir -p docs/_static/coverage
     - cp -r htmlcov/* docs/_static/coverage/
-    - sphinx-apidoc -o docs/source/ dval
-    - sphinx-build -b html docs/source/ html_docs
+    - sphinx-apidoc -o docs/api dval
+    - sphinx-build -b html docs/ html_docs
   artifacts:
     paths:
     - html_docs
@@ -72,3 +71,18 @@ pages:
       - public
   only:
     - tags
+    - master
+    - web
+
+
+push_to_github:
+  before_script: []
+  variables:
+    GITHUB_MIRROR:  https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/usnistgov/dval.git
+  stage: deploy
+  dependencies:
+    - docs
+  script: make publish_to_gitlab
+  when: manual
+  only:
+    - web
