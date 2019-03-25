@@ -1,3 +1,13 @@
+## v2019.3.25
+
+* `d3m_outputs` CLI renamed to `dval`. Still compatible with `d3m_outputs`
+* valid8 package added as submodule
+* Added DSE and D3M templates for template-based validation with valid8
+* Support for MXE metric added
+* CLI-only times improved x30
+* Predictions file index now reads from problem schema
+* General reformatting & code quality changes
+
 ## 18summer-1.5-alpha  (v2018.7.16)
 
 * Validation of categorical data no longer fails with unknown values

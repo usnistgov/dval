@@ -1,0 +1,3 @@
+the /media folder can be found at https://datadrivendiscovery.org/data/seed_datasets_current/22_handgeometry/22_handgeometry_dataset/media/
+
+Due to the size of the /media folder, the folder is not copied into this repository.
