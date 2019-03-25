@@ -5,8 +5,8 @@ import logging
 from dateutil.parser import parse as dt_parse
 
 
-def valid_index(d3m_column):
-    for entry in d3m_column:
+def valid_index(index_column):
+    for entry in index_column:
         try:
             val = int(entry)
             if val < 0:
