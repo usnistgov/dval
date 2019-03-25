@@ -11,7 +11,6 @@ This can point to any location that holds datasets. For example:
     │   └── SCORE/
     ...
 """
-from os import environ
 import sys
 from pathlib import Path
 from unittest.mock import patch
@@ -20,27 +19,22 @@ import pytest
 
 from dval import cli
 
-
-ROOT_DIR = Path(__file__).parent.parent
-SEED_DATA_DIR = Path(environ.get("SEED_DATA_DIR", "./data"))
-
-
-def env_check(var):
-    """Minimal checks to point out if the variable is not set correctly"""
-    if not var.exists() or not var.is_dir() or len([x for x in var.iterdir()]) == 0:
-        return False
-    return True
-
-
-skip_if_no_data = pytest.mark.skipif(
-    not env_check(SEED_DATA_DIR),
-    reason="SEED_DATA_DIR does not appear to be set correctly.",
+from . import (
+    compare_main_with_expected_output,
+    LOCAL_DATA_DIR,
+    SEED_DATA_DIR,
+    skip_if_no_data,
 )
 
 
-def tuple_for(root, dataset, expected):
+def tuple_for(root, dataset, expected, score_d_at_root=None):
     direc = Path(root) / dataset
-    return (direc / "mitll_predictions.csv", direc / "SCORE", expected)
+    score_d = Path(direc) if score_d_at_root else direc / "SCORE"
+    return direc / "mitll_predictions.csv", score_d, expected
+
+
+def score_argv(path_to_predictions, path_to_score_dir):
+    return ["test", f"score", "-d", f"{path_to_score_dir}", f"{path_to_predictions}"]
 
 
 @pytest.mark.smoke
@@ -54,21 +48,26 @@ def tuple_for(root, dataset, expected):
     ],
 )
 def test_seed_score(path_to_predictions, path_to_score_dir, expected, capsys):
-    test_args = [
-        "test",
-        f"score",
-        "-d",
-        f"{path_to_score_dir}",
-        f"{path_to_predictions}",
-    ]
+    test_args = score_argv(path_to_predictions, path_to_score_dir)
     compare_main_with_expected_output(test_args, expected, capsys)
 
 
-def compare_main_with_expected_output(test_args, expected, capsys):
-    with patch.object(sys, "argv", test_args):
-        cli.main()
-        out, err = capsys.readouterr()
-        assert f'"scorevalue": {expected}' in out.strip()
+@pytest.mark.smoke
+@pytest.mark.parametrize(
+    "path_to_predictions, path_to_score_dir, expected",
+    [
+        tuple_for(LOCAL_DATA_DIR, "185_baseball", "0.691", score_d_at_root=True),
+        tuple_for(
+            LOCAL_DATA_DIR,
+            "1491_one_hundred_plants_margin",
+            "0.693",
+            score_d_at_root=True,
+        ),
+    ],
+)
+def test_core_data_score(path_to_predictions, path_to_score_dir, expected, capsys):
+    test_args = score_argv(path_to_predictions, path_to_score_dir)
+    compare_main_with_expected_output(test_args, expected, capsys)
 
 
 @pytest.mark.smoke

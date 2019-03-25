@@ -1,0 +1,7 @@
+- rulename: predictions_file
+  filters:
+    path: predictions.csv
+  actions:
+    exists: true
+    scripts:
+      - dval score -d $SCORE_DIR {FILEPATH}
