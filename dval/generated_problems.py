@@ -171,14 +171,4 @@ def check_generated_problems_subdirectory(directory_path):
         logger.error("Cannot find any ssapi file at {}".format(directory_path))
         return False
 
-    # if not gen_problem_schema_file._exists():
-    #     logger.error('Cannot find {}'.format(gen_pipeline_schema_file_path))
-    #     return False
-
-    # Check schema structure
-    # Right now the only check will be that the ssapi file exists
-    # if not is_pipeline_valid_full_validation(gen_pipeline_schema_file_path):
-    #     logger.error('Invalid pipeline schema at {}.'.format(gen_pipeline_schema_file_path))
-    #     return False
-
     return True

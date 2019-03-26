@@ -80,7 +80,6 @@ class Predictions:
 
     def score(self, targets_filepath, score_mxe=False):
         scores = list()
-        # Score = namedtuple('Score', ['target', 'metric', 'scorevalue'])
 
         self.ds.load_targets(targets_filepath)
 
@@ -89,7 +88,6 @@ class Predictions:
         except FileNotFoundError:
             baseline_score = "None"
 
-        # scoring_metrics = self.ds.metrics
         scoring_metrics = self.ds.problemschema.metrics_wparams
 
         for metric in scoring_metrics:

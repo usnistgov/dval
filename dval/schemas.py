@@ -17,8 +17,6 @@ class DatasetSchema:
     """
 
     def __init__(self, filepath):
-        # fullpath = 'file://{dataset_doc_path}'.format(dataset_doc_path=os.path.abspath(uri))
-        # self.dataset = Dataset.load(fullpath)
         self.filepath = filepath
         with open(filepath) as schema:
             self.jdata = json.load(schema)
@@ -118,13 +116,10 @@ class ProblemSchema:
         """
         data = self.problem["problem"]["performance_metrics"]
         for metric_d in data:
-            # try:
             try:
                 metric_d["metric"] = metric_d["metric"].name
             except AttributeError:
                 pass
-            # except AttributeError:
-            #     pass   # weird d3m core behavior when params exist
         return data
 
 
