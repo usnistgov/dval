@@ -40,17 +40,6 @@ $ pip install git+https://github.com/usnistgov/dval.git@develop
 
 ### CLI Usage
 
-#### Validate a pipeline log
-```
-dval valid_pipelines pipeline_log_file [pipeline_log_file ...]
-```
-Parameters:
-* `pipeline_log_file`: path to the predictions file to validate
-
-For example
-`dval valid_pipelines mylog1.json mylog2.json`
-
-In shells like bash, you can also do : `dval valid_pipelines *.json`
 
 #### Validate a predictions file
 
@@ -72,6 +61,47 @@ Parameters:
 * `ground_truth_file`: path to the ground truth file. If absent, will default to `score_dir/targets.csv`
 * `predictions_file`: path to the predictions file to score
 * `--validation | --no-validation`: validation is on by default. turn in off with `--no-validation`
+
+#### Validate or score a submission
+
+A submission can be one or many files. To validate an entire submission (rather than file-per-file), use:
+```bash
+dval valid_submission [-t type] -d score_dir submission_dir
+```
+
+```bash
+dval score_submission [-t type] -d score_dir submission_dir
+```
+
+There are multiple submission types, which can be specified using `-t submission_type`.
+
+|Submission type   | Description |
+|---|---|
+| `dse`  | *(default)*, the dse submission type (i.e. 1 `predictions.csv` file)|
+| `d3m_ta1`  | The 2018 D3M TA1 submission type |
+| `d3m_ta2`  | The 2018 D3M TA2 submission type |
+
+Additional submission types (for validation only):
+|Validation submission type   | Description |
+|---|---|
+| `d3m_ta1_basic`  | A file-only TA1 validation|
+| `d3m_ta1_pipeline_check`  | `d3m_ta1_basic` and pipeline validation |
+| `d3m_ta2_basic`  | A file-only TA2 validation |
+| `d3m_ta2_with_checks`  | A file-only and pipeline validation  |
+
+The `score_dir` is the same as described in the section above. 
+
+#### Validate a pipeline log
+```
+dval valid_pipelines pipeline_log_file [pipeline_log_file ...]
+```
+Parameters:
+* `pipeline_log_file`: path to the predictions file to validate
+
+For example
+`dval valid_pipelines mylog1.json mylog2.json`
+
+In shells like bash, you can also do : `dval valid_pipelines *.json`
 
 
 #### Validate a generated problems directory

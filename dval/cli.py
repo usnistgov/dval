@@ -67,11 +67,11 @@ def cli_parser():
         arguments=[],
     )
 
-    opt_score_dir = [
+    arg_score_dir = [
         ["-d", "--score-dir"],
         dict(help="Path to data ground truth (use SCORE/ directory)"),
     ]
-    opt_pred_file = [
+    arg_pred_file = [
         ["predictions_file"],
         dict(help="path to predictions file to validate or score", nargs="+"),
     ]
@@ -81,10 +81,10 @@ def cli_parser():
         "valid_predictions",
         dict(help="Validate a predictions file against the d3m data directory."),
         func=cmd_valid_predictions,
-        arguments=[opt_pred_file, opt_score_dir],
+        arguments=[arg_pred_file, arg_score_dir],
     )
 
-    vpipeline_args = [
+    args_vpipeline = [
         # Main positional argument
         [
             ["pipeline_log_file"],
@@ -111,10 +111,10 @@ def cli_parser():
         "valid_pipelines",
         dict(help="Validate a pipeline log file."),
         func=cmd_valid_pipeline,
-        arguments=vpipeline_args,
+        arguments=args_vpipeline,
     )
 
-    vgenproblems_args = [
+    args_vgenproblems = [
         [
             ["problems_directory"],
             dict(help="path to directory containing the generated problems."),
@@ -129,7 +129,7 @@ def cli_parser():
         "valid_generated_problems",
         dict(help="Validate a generated problems directory."),
         func=cmd_valid_gen_problems,
-        arguments=vgenproblems_args,
+        arguments=args_vgenproblems,
     )
 
     args_score = [
@@ -182,9 +182,28 @@ def cli_parser():
         "score",
         dict(help="Score a predictions file."),
         func=cmd_score,
-        arguments=[opt_pred_file, opt_score_dir] + args_score,
+        arguments=[arg_pred_file, arg_score_dir] + args_score,
     )
     score_parser.set_defaults(validation=True)
+
+    args_whole_subm = [
+        [["submission"], dict(help="path to submission directory")],
+        [["-t", "--type"], dict(help="Submission type", default="dse")],
+    ]
+    add_protocol_subparser(
+        "valid_submission",
+        dict(help="Validate an entire submission.", aliases=["vs"]),
+        func=cmd_valid_subm,
+        arguments=args_whole_subm + [arg_score_dir],
+    )
+
+    scoresubm_parser = add_protocol_subparser(
+        "score_submission",
+        dict(help="Score an entire submission.", aliases=["ss"]),
+        func=cmd_score_subm,
+        arguments=args_whole_subm + [arg_score_dir],  # + args_score,
+    )
+    scoresubm_parser.set_defaults(validation=True)
 
     return parser
 
@@ -327,12 +346,48 @@ def print_package_version(_):
     print(__import__(__package__).__version__)
 
 
+templates_validation = {
+    "dse": "dse_validation.yml",
+    "d3m_ta1_basic": "d3m_ta1_basic.yml",
+    "d3m_ta1": "d3m_ta1_full.yml",
+    "d3m_ta1_pipeline_check": "d3m_ta1_pipeline_check.yml",
+    "d3m_ta2_basic": "d3m_ta2_basic.yml",
+    "d3m_ta2": "d3m_ta2_full.yml",
+    "d3m_ta2_with_checks": "d3m_ta2_with_checks.yml",
+}
+templates_scoring = {
+    "dse": "dse.yml",
+    "d3m_ta1": "d3m_ta1_scoring.yml",
+    "d3m_ta2": "d3m_ta2_scoring.yml",
+}
+
+
+def call_valid8_template(template, directory):
+    from valid8.engine import process_configured_rules, print_summary, rules_output
+    from pathlib import Path
+
+    template = Path(__file__).parent.parent / "templates" / template
+
+    rs = process_configured_rules(template.as_posix(), directory)
+    output = rules_output(rs)
+    if not output:
+        print_summary(rs)
+
+
 def cmd_valid_subm(args):
-    pass
+    try:
+        os.environ["SCORE_DIR"] = args.score_dir
+        call_valid8_template(templates_validation[args.type], args.submission)
+    except (FileNotFoundError, KeyError):
+        sys.exit(f"ERROR: unknown type {args.type}")
 
 
 def cmd_score_subm(args):
-    pass
+    try:
+        os.environ["SCORE_DIR"] = args.score_dir
+        call_valid8_template(templates_scoring[args.type], args.submission)
+    except (FileNotFoundError, KeyError):
+        sys.exit(f"ERROR: unknown type {args.type}")
 
 
 if __name__ == "__main__":

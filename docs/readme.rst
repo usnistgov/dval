@@ -2,4 +2,4 @@
 
 .. mdinclude:: ../README.md
     :start-line: 2
-    :end-line: 207
+    :end-line: 237
